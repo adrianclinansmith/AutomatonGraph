@@ -1,0 +1,54 @@
+body {
+    background: #333;
+    color: #fff;
+    position: relative;
+}
+
+#DynamicCanvas {
+    z-index: 3;
+}
+
+#CanvasDiv {
+    background-color: transparent;
+    width: 1000px;
+    height: 700px; 
+    position: relative;
+    margin: 0 auto;
+    z-index: 1;
+    user-select: none;
+    -webkit-user-select: none; /* doesn't turn blue in Safari */
+}
+
+.state {
+    fill: white;
+    stroke: black;
+    stroke-width: 2px;
+}
+
+#DynamicCanvas {
+    background-color: transparent;
+}
+
+#StaticCanvas {
+    background-color: #ebe9e9;
+}
+
+/* 
+disable pointer-events: https://stackoverflow.com/questions/7700051 
+adjust text input width: https://stackoverflow.com/questions/3392493
+*/
+
+.DynamicLabel {
+    background-color: transparent;
+    /* background-color: rgb(235, 220, 220);  */
+    border: none;
+    font-size: 15px;
+    text-align: center;
+    z-index: 4; 
+    position: absolute;  
+    left: 0px; 
+    top: 0px;
+    font-family: Monaco, monospace;
+    width: 1ch;
+    pointer-events: none;
+}
