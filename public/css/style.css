@@ -2,21 +2,9 @@ body {
     background: #333;
     color: #fff;
     position: relative;
-}
-
-#DynamicCanvas {
-    z-index: 3;
-}
-
-#CanvasDiv {
-    background-color: transparent;
-    width: 1000px;
-    height: 700px; 
-    position: relative;
-    margin: 0 auto;
-    z-index: 1;
+    text-align: center;
+    -webkit-user-select: none;
     user-select: none;
-    -webkit-user-select: none; /* doesn't turn blue in Safari */
 }
 
 .state {
@@ -25,13 +13,27 @@ body {
     stroke-width: 2px;
 }
 
-#DynamicCanvas {
+.state-fo {
+    text-align: left;
     background-color: transparent;
+    pointer-events: none;
 }
 
-#StaticCanvas {
-    background-color: #ebe9e9;
+.state-label {
+    line-height: 40px; /* √(2) x (radius=30) = 42.43 */
+    width: 40px;
+    text-align: center;
+    pointer-events: none;
+    font-size: 25px;
+    font-family: Monaco, monospace;
+    background-color: transparent;
+    border: none;
 }
+
+input:focus, select:focus {
+    outline: none;
+}
+
 
 /* 
 disable pointer-events: https://stackoverflow.com/questions/7700051 

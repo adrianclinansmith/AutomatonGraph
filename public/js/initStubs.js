@@ -10,13 +10,11 @@ const newEdgeButton = document.getElementById('newEdgeButton');
 // global variables
 
 let mouseIsDown = false;
-let newEdge = null;
 
 // helper functions
 
 function getMousePosition(event) {
-    const svg = document.getElementById('svg');
-    const CTM = svg.getScreenCTM();
+    const CTM = graph.svg.getScreenCTM();
     return {
         x: (event.clientX - CTM.e) / CTM.a,
         y: (event.clientY - CTM.f) / CTM.d
@@ -30,7 +28,7 @@ graph.svg.addEventListener('mousedown', (event) => {
     const mousePosition = getMousePosition(event);
     graph.select(event.target, mousePosition);
     if (newEdgeButton.isPressed) {
-        newEdge = new Edge(selectedGraphObject);
+        graph.startTemporaryEdge(event.target, mousePosition);
     }
 });
 
@@ -40,7 +38,7 @@ graph.svg.addEventListener('mousemove', (event) => {
     }
     const mousePosition = getMousePosition(event);
     if (newEdgeButton.isPressed) {
-        newEdge.setHead(event.target, mousePosition);
+        graph.temporaryEdgeTailTo(event.target, mousePosition);
     } else {
         graph.moveSelected(mousePosition);
     }
@@ -48,15 +46,15 @@ graph.svg.addEventListener('mousemove', (event) => {
 
 graph.svg.addEventListener('mouseup', (event) => {
     mouseIsDown = false;
-    if (newEdge?.pointsToState()) {
-        graph.addEdge(newEdge);
-        graph.select(newEdge);
+    if (newEdgeButton.isPressed) {
+        graph.setOrDeleteTemporaryEdge();
     }
-    newEdge = null;
 });
 
 graph.svg.addEventListener('mouseleave', (event) => {
-    newEdge = null;
+    if (newEdgeButton.isPressed && mouseIsDown) {
+        graph.deleteTemporaryEdge();
+    }
 });
 
 // button event handlers
