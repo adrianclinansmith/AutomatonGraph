@@ -1,0 +1,7 @@
+
+Download SVG file:
+https://stackoverflow.com/questions/23218174/how-do-i-save-export-an-svg-file-after-creating-an-svg-with-d3-js-ie-safari-an
+
+
+SVG to png:
+https://stackoverflow.com/questions/3975499/convert-svg-to-image-jpeg-png-etc-in-the-browser/64800570#64800570

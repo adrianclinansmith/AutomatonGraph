@@ -3,43 +3,59 @@
     Setup the canvas for drawing digraphs.
 */
 
-const svg = document.getElementById('svg');
+// buttons and inputs
+
+const newStateButton = document.getElementById('newStateButton');
+const downloadButton = document.getElementById('downloadButton');
+const uploadInput = document.getElementById('uploadInput');
+
+// globals
+
+let svg = document.getElementById('svg');
 let selected = false;
 
-// mouse events
+// setup
 
-svg.addEventListener('mousedown', (event) => {
-    const element = event.target;
+function initSvg() {
+    console.log('init new svg');
+    svg.addEventListener('mousedown', mousedown);
+    svg.addEventListener('mousemove', mousemove);
+    svg.addEventListener('mouseup', mouseup);
+    svg.addEventListener('dblclick', dblclick);
+}
+
+// *************************************************
+// mouse events
+// *************************************************
+
+function mousedown(evt) {
+    console.log('mouse down');
+    const element = evt.target;
     if (element.nodeName !== 'svg') {
         selected = element;
     }
-});
+}
 
-svg.addEventListener('mousemove', (event) => {
-    // console.log(event.target);
-    // console.log(event.target.parentNode);
+function mousemove(evt) {
     if (!selected) {
         return;
     }
-    event.preventDefault();
-    const coord = getMousePosition(event);
+    evt.preventDefault();
+    const coord = getMousePosition(evt);
     if (selected.getAttributeNS(null, 'class').startsWith('state')) {
         selected.parentNode.setAttributeNS(null, 'transform', `translate(${coord.x}, ${coord.y})`);
     }
-});
+}
 
-svg.addEventListener('mouseup', (event) => {
+function mouseup(evt) {
     selected = false;
-});
+}
 
-svg.addEventListener('dblclick', (event) => {
-    console.log(event.target);
-    // event.preventDefault();
-    // event.stopPropagation();
-    if (event.target.getAttributeNS(null, 'class') === 'state') {
-        event.target.parentNode.children[1].children[0].focus();
+function dblclick(evt) {
+    if (evt.target.getAttributeNS(null, 'class') === 'state') {
+        evt.target.parentNode.children[1].children[0].focus();
     }
-});
+}
 
 function getMousePosition(event) {
     const CTM = svg.getScreenCTM();
@@ -49,9 +65,11 @@ function getMousePosition(event) {
     };
 }
 
+// *************************************************
 // button events
+// *************************************************
 
-document.getElementById('newStateButton').addEventListener('click', () => {
+newStateButton.addEventListener('click', () => {
     const xmlns = 'http://www.w3.org/2000/svg';
     const xhtml = 'http://www.w3.org/1999/xhtml';
 
@@ -78,9 +96,28 @@ document.getElementById('newStateButton').addEventListener('click', () => {
     g.setAttributeNS(null, 'transform', `translate(${100}, ${100})`);
 });
 
-//  <g class="state-g" transform="translate(50 50)">
-//     <circle r="30px" class="state"></circle>
-//     <foreignObject width="100%" height="100%" x="-21" y="-23" class="state-fo">
-//         <input xmlns="http://www.w3.org/1999/xhtml" value="s0" class="state-label"></input>
-//     </foreignObject>
-// </g>
+downloadButton.addEventListener('click', () => {
+    const serializer = new XMLSerializer();
+    const svgData = serializer.serializeToString(svg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = svgUrl;
+    downloadLink.download = 'mygraph.svg';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+});
+
+uploadInput.addEventListener('change', (event) => {
+    const svgBlob = uploadInput.files[0];
+    svgBlob.text().then(
+        (svgText) => {
+            document.getElementById('svgDiv').innerHTML = svgText;
+            svg = document.getElementById('svg');
+            initSvg();
+        },
+        (error) => {
+            console.log(error);
+        });
+});

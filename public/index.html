@@ -8,22 +8,49 @@
 </head>
 <body>
 	<h1>DFA</h1>
-	<svg xmlns="http://www.w3.org/2000/svg" height="500" width="1000" style="background-color:white" id="svg">
+	<div id="svgDiv">
+		<svg xmlns="http://www.w3.org/2000/svg" height="500" width="1000" 
+			 style="background-color:white" id="svg" onload="initSvg()">
 
 
-		<!-- <path d="M100,250 Q250,100 400,250" fill="none" stroke="black" stroke-width="2" class="edge" />  -->
-
-		<g class="state-g" transform="translate(50, 50)">
-			<circle class="state" r="30px"></circle>
-			<foreignObject class="state-fo" height="100%" width="100%" x="-21" y="-23">
-				<input class="state-label" type="text" value="s0"></input>
-			</foreignObject>
-		</g>
-	</svg>
-	<br>
+			<style>
+				.state {
+					fill: white;
+					stroke: black;
+					stroke-width: 2px;
+				}
+				
+				.state-fo {
+					text-align: left;
+					background-color: transparent;
+					pointer-events: none;
+				}
+				
+				.state-label {
+					line-height: 40px; /* √(2) x (radius=30) = 42.43 */
+					width: 40px;
+					text-align: center;
+					pointer-events: none;
+					font-size: 25px;
+					font-family: Monaco, monospace;
+					background-color: transparent;
+					border: none;
+				}
+			</style>
+			<!-- <path d="M100,250 Q250,100 400,250" fill="none" stroke="black" stroke-width="2" class="edge" />  -->
+	
+			<g class="state-g" transform="translate(50, 50)">
+				<circle class="state" r="30px"></circle>
+				<foreignObject class="state-fo" height="100%" width="100%" x="-21" y="-23">
+					<input class="state-label" type="text" value="s0"></input>
+				</foreignObject>
+			</g>
+		</svg>
+	</div>
 	<button id="newStateButton">new state</button>
 	<button id="newEdgeButton">new edge</button>
-	<button id="asPngButton">as png</button>
+	<button id="downloadButton">download</button>
+	<input type="file" name="upload" id="uploadInput">
 	
 	<!-- <script src="./js/6_GraphStubs.js"></script> 
 	<script src="./js/initStubs.js"></script>  -->
