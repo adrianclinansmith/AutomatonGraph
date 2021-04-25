@@ -11,17 +11,28 @@ const uploadInput = document.getElementById('uploadInput');
 
 // globals
 
-let svg = document.getElementById('svg');
+let svg = initSvg();
 let selected = false;
 
 // setup
 
 function initSvg() {
     console.log('init new svg');
-    svg.addEventListener('mousedown', mousedown);
-    svg.addEventListener('mousemove', mousemove);
-    svg.addEventListener('mouseup', mouseup);
-    svg.addEventListener('dblclick', dblclick);
+    const svgElem = document.getElementById('svg');
+    svgElem.addEventListener('mousedown', mousedown);
+    svgElem.addEventListener('mousemove', mousemove);
+    svgElem.addEventListener('mouseup', mouseup);
+    svgElem.addEventListener('dblclick', dblclick);
+
+    return svgElem;
+}
+
+function func(event) {
+    console.log(event);
+    console.log(event.target);
+    console.log(event.target.value);
+    console.log(event.target.getAttributeNS(null, 'value'));
+    event.target.setAttributeNS(null, 'value', event.target.value);
 }
 
 // *************************************************
@@ -43,7 +54,8 @@ function mousemove(evt) {
     evt.preventDefault();
     const coord = getMousePosition(evt);
     if (selected.getAttributeNS(null, 'class').startsWith('state')) {
-        selected.parentNode.setAttributeNS(null, 'transform', `translate(${coord.x}, ${coord.y})`);
+        const translate = `translate(${coord.x}, ${coord.y})`;
+        selected.parentNode.setAttributeNS(null, 'transform', translate);
     }
 }
 
@@ -54,6 +66,9 @@ function mouseup(evt) {
 function dblclick(evt) {
     if (evt.target.getAttributeNS(null, 'class') === 'state') {
         evt.target.parentNode.children[1].children[0].focus();
+        // evt.target.parentNode.children[1].focus();
+    } else {
+        console.log(svg.innerHTML);
     }
 }
 
@@ -87,11 +102,41 @@ newStateButton.addEventListener('click', () => {
     fo.setAttributeNS(null, 'width', '100%');
     fo.setAttributeNS(null, 'x', '-21');
     fo.setAttributeNS(null, 'y', '-23');
-    fo.innerHTML = `<input xmlns="${xhtml}" class="state-label" type="text" value="s0"></input>`;
+    fo.innerHTML = `<input xmlns="${xhtml}" class="state-label" type="text" value="s1" oninput="func(event)"></input>`;
+    //
+    // const input = document.createElement('input');
+    // input.setAttribute('xmlns', xhtml);
+    // input.setAttribute('class', 'state-label');
+    // input.setAttribute('type', 'text');
+    // input.setAttribute('value', 's0');
+    // input.addEventListener('input', (evt) => {
+    //     console.log(evt.target);
+    //     console.log(evt);
+    //     const value = evt.target.getAttribute('value');
+    //     if (evt.data !== null) {
+    //         evt.target.setAttribute('value', value + evt.data);
+    //     } else {
+    //         console.log('null');
+    //         const len = Math.max(0, value.length - 1);
+    //         evt.target.setAttribute('value', value.substring(0, len));
+    //     }
+    //     console.log(evt.target.getAttribute('value'));
+    //     console.log(evt.target.innerHTML);
+    //     console.log('\n');
+    // });
+    // fo.appendChild(input);
+    //
 
     g.appendChild(circle);
     g.appendChild(fo);
     svg.appendChild(g);
+
+    // for (const label of document.getElementsByClassName('state-label')) {
+    //     console.log(label);
+    //     label.addEventListener('input', (evt) => {
+    //         console.log(evt.target);
+    //     });
+    // }
 
     g.setAttributeNS(null, 'transform', `translate(${100}, ${100})`);
 });
@@ -109,13 +154,13 @@ downloadButton.addEventListener('click', () => {
     document.body.removeChild(downloadLink);
 });
 
-uploadInput.addEventListener('change', (event) => {
+uploadInput.addEventListener('change', () => {
+    console.log('changed upload input');
     const svgBlob = uploadInput.files[0];
     svgBlob.text().then(
         (svgText) => {
             document.getElementById('svgDiv').innerHTML = svgText;
-            svg = document.getElementById('svg');
-            initSvg();
+            svg = initSvg();
         },
         (error) => {
             console.log(error);

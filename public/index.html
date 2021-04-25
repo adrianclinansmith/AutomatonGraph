@@ -10,9 +10,7 @@
 	<h1>DFA</h1>
 	<div id="svgDiv">
 		<svg xmlns="http://www.w3.org/2000/svg" height="500" width="1000" 
-			 style="background-color:white" id="svg" onload="initSvg()">
-
-
+			 style="background-color:white" id="svg">
 			<style>
 				.state {
 					fill: white;
@@ -37,23 +35,16 @@
 					border: none;
 				}
 			</style>
-			<!-- <path d="M100,250 Q250,100 400,250" fill="none" stroke="black" stroke-width="2" class="edge" />  -->
-	
-			<g class="state-g" transform="translate(50, 50)">
-				<circle class="state" r="30px"></circle>
-				<foreignObject class="state-fo" height="100%" width="100%" x="-21" y="-23">
-					<input class="state-label" type="text" value="s0"></input>
-				</foreignObject>
-			</g>
 		</svg>
 	</div>
 	<button id="newStateButton">new state</button>
 	<button id="newEdgeButton">new edge</button>
 	<button id="downloadButton">download</button>
-	<input type="file" name="upload" id="uploadInput">
+	<input type="file" name="upload" id="uploadButton">
 	
-	<!-- <script src="./js/6_GraphStubs.js"></script> 
-	<script src="./js/initStubs.js"></script>  -->
-	<script src="./js/initExample.js"></script> 
+	<script src="./js/State.js"></script>
+	<script src="./js/Graph.js"></script> 
+	<script src="./js/init.js"></script> 
+	<!-- <script src="./js/initExample.js"></script>  -->
 </body>
 </html>
