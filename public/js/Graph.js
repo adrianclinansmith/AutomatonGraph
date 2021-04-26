@@ -50,10 +50,12 @@ class Graph {
     }
 
     startTemporaryEdge(element, position) {
+        let edgeElement;
         if (this.selectedObject instanceof State) {
-            position = this.selectedObject.centerPosition();
+            edgeElement = Edge.createElementAt(this.selectedObject);
+        } else {
+            edgeElement = Edge.createElementAt(position);
         }
-        const edgeElement = Edge.createElementAt(position);
         this.svg.appendChild(edgeElement);
         this.temporaryEdge = new Edge(edgeElement);
     }

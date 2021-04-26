@@ -69,6 +69,10 @@ class State {
         return { x: parseFloat(x), y: parseFloat(y) };
     }
 
+    id() {
+        return this.element.getAttributeNS(null, 'id');
+    }
+
     moveTo(position) {
         const x = position.x + this.positionOffset.x;
         const y = position.y + this.positionOffset.y;
