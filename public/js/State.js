@@ -10,6 +10,7 @@ class State {
         const circle = document.createElementNS(xmlns, 'circle');
         circle.setAttributeNS(null, 'class', 'state');
         circle.setAttributeNS(null, 'r', '30px');
+        circle.setAttributeNS(null, 'id', this.nextAvailableId());
         const fo = document.createElementNS(xmlns, 'foreignObject');
         fo.setAttributeNS(null, 'class', 'state-fo');
         fo.setAttributeNS(null, 'height', '100%');
@@ -26,6 +27,14 @@ class State {
         const translate = `translate(${atPosition.x}, ${atPosition.y})`;
         g.setAttributeNS(null, 'transform', translate);
         this.setLabelCallback(circle);
+    }
+
+    static nextAvailableId() {
+        let i = 0;
+        while (document.getElementById(`s${i}`)) {
+            i += 1;
+        }
+        return `s${i}`;
     }
 
     static setLabelCallback(stateElement) {

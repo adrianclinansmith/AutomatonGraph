@@ -1,4 +1,4 @@
-/* global State */
+/* global State Edge */
 
 // eslint-disable-next-line no-unused-vars
 class Graph {
@@ -47,9 +47,20 @@ class Graph {
             const positionOffset = {};
             positionOffset.x = x - atPosition.x;
             positionOffset.y = y - atPosition.y;
+            console.log(`offset: (${positionOffset.x}, ${positionOffset.y})`);
             this.selectedObject = new State(element, positionOffset);
             this.selectedObject.setStrokeColor('red');
         }
+    }
+
+    startTemporaryEdge(element, position) {
+        const edgeElement = Edge.createElementAt(position);
+        this.svg.appendChild(edgeElement);
+        this.temporaryEdge = new Edge(edgeElement);
+    }
+
+    temporaryEdgeHeadTo(element, position) {
+        this.temporaryEdge.setHead(position);
     }
 
     width() {

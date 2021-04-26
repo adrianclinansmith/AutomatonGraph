@@ -52,7 +52,7 @@ function mousemove(event) {
     }
     const mousePosition = getMousePosition(event);
     if (newEdgeButton.isPressed) {
-        graph.temporaryEdgeTailTo(event.target, mousePosition);
+        graph.temporaryEdgeHeadTo(event.target, mousePosition);
     } else {
         graph.moveSelectedTo(mousePosition);
     }
@@ -86,6 +86,15 @@ downloadButton.addEventListener('click', () => {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
+});
+
+newEdgeButton.addEventListener('click', () => {
+    newEdgeButton.isPressed = !newEdgeButton.isPressed;
+    if (newEdgeButton.isPressed) {
+        newEdgeButton.style.borderStyle = 'inset';
+    } else {
+        newEdgeButton.style.borderStyle = '';
+    }
 });
 
 newStateButton.addEventListener('click', () => {
