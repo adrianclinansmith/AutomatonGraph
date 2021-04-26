@@ -102,7 +102,6 @@ newStateButton.addEventListener('click', () => {
 });
 
 uploadButton.addEventListener('change', () => {
-    console.log('changed upload input');
     const newSvgBlob = uploadButton.files[0];
     newSvgBlob.text().then(
         (newSvgText) => {

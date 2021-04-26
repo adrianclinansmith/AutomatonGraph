@@ -23,7 +23,8 @@ class Graph {
         } else if (Math.abs(this.angle - 7 * Math.PI / 4) < 0.01) {
             this.angle = Math.PI / -2;
         }
-        State.newElementIn(this.svg, { x, y });
+        const stategElement = State.createElementAt({ x, y });
+        this.svg.appendChild(stategElement);
     }
 
     height() {
@@ -40,20 +41,18 @@ class Graph {
         if (this.selectedObject instanceof State) {
             this.selectedObject.setStrokeColor('black');
         }
+        this.selectedObject = null;
         if (element.getAttribute('class') === 'state') {
-            const trans = element.parentNode.getAttributeNS(null, 'transform');
-            const x = trans.substring(trans.indexOf('(') + 1, trans.indexOf(','));
-            const y = trans.substring(trans.indexOf(',') + 1, trans.indexOf(')'));
-            const positionOffset = {};
-            positionOffset.x = x - atPosition.x;
-            positionOffset.y = y - atPosition.y;
-            console.log(`offset: (${positionOffset.x}, ${positionOffset.y})`);
-            this.selectedObject = new State(element, positionOffset);
+            this.selectedObject = new State(element);
+            this.selectedObject.setPositionOffset(atPosition);
             this.selectedObject.setStrokeColor('red');
         }
     }
 
     startTemporaryEdge(element, position) {
+        if (this.selectedObject instanceof State) {
+            position = this.selectedObject.centerPosition();
+        }
         const edgeElement = Edge.createElementAt(position);
         this.svg.appendChild(edgeElement);
         this.temporaryEdge = new Edge(edgeElement);

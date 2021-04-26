@@ -2,7 +2,7 @@
 class State {
     /* Static */
 
-    static newElementIn(svgElement, atPosition) {
+    static createElementAt(position) {
         const xmlns = 'http://www.w3.org/2000/svg';
         const xhtml = 'http://www.w3.org/1999/xhtml';
         const g = document.createElementNS(xmlns, 'g');
@@ -10,7 +10,11 @@ class State {
         const circle = document.createElementNS(xmlns, 'circle');
         circle.setAttributeNS(null, 'class', 'state');
         circle.setAttributeNS(null, 'r', '30px');
-        circle.setAttributeNS(null, 'id', this.nextAvailableId());
+        let i = 0;
+        while (document.getElementById(`s${i}`)) {
+            i += 1;
+        }
+        circle.setAttributeNS(null, 'id', `s${i}`);
         const fo = document.createElementNS(xmlns, 'foreignObject');
         fo.setAttributeNS(null, 'class', 'state-fo');
         fo.setAttributeNS(null, 'height', '100%');
@@ -23,18 +27,10 @@ class State {
         fo.innerHTML = textInput;
         g.appendChild(circle);
         g.appendChild(fo);
-        svgElement.appendChild(g);
-        const translate = `translate(${atPosition.x}, ${atPosition.y})`;
+        const translate = `translate(${position.x}, ${position.y})`;
         g.setAttributeNS(null, 'transform', translate);
         this.setLabelCallback(circle);
-    }
-
-    static nextAvailableId() {
-        let i = 0;
-        while (document.getElementById(`s${i}`)) {
-            i += 1;
-        }
-        return `s${i}`;
+        return g;
     }
 
     static setLabelCallback(stateElement) {
@@ -54,9 +50,9 @@ class State {
 
     /* Constructor */
 
-    constructor(element, positionOffset) {
+    constructor(element) {
         this.element = element;
-        this.positionOffset = positionOffset;
+        this.positionOffset = { x: 0, y: 0 };
     }
 
     /* Instance */
@@ -65,11 +61,27 @@ class State {
         this.element.parentNode.children[1].children[0].focus();
     }
 
+    centerPosition() {
+        const g = this.element.parentNode;
+        const trans = g.getAttributeNS(null, 'transform');
+        const x = trans.substring(trans.indexOf('(') + 1, trans.indexOf(','));
+        const y = trans.substring(trans.indexOf(',') + 1, trans.indexOf(')'));
+        return { x: parseFloat(x), y: parseFloat(y) };
+    }
+
     moveTo(position) {
         const x = position.x + this.positionOffset.x;
         const y = position.y + this.positionOffset.y;
         const translate = `translate(${x}, ${y})`;
         this.element.parentNode.setAttributeNS(null, 'transform', translate);
+    }
+
+    setPositionOffset(fromPoint) {
+        const centerPosition = this.centerPosition();
+        const positionOffset = {};
+        positionOffset.x = centerPosition.x - fromPoint.x;
+        positionOffset.y = centerPosition.y - fromPoint.y;
+        this.positionOffset = positionOffset;
     }
 
     setStrokeColor(color) {
