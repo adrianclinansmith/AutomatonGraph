@@ -49,10 +49,20 @@ class Graph {
         }
     }
 
+    setOrDeleteTemporaryEdge() {
+        if (this.temporaryEdge?.tailId() && this.temporaryEdge?.headId()) {
+            this.selectedObject?.setStrokeColor('black');
+            this.selectedObject = this.temporaryEdge;
+        } else {
+            this.temporaryEdge?.remove();
+        }
+        this.temporaryEdge = null;
+    }
+
     startTemporaryEdge(element, position) {
         let edgeElement;
-        if (this.selectedObject instanceof State) {
-            edgeElement = Edge.createElementAt(this.selectedObject);
+        if (element.getAttribute('class') === 'state') {
+            edgeElement = Edge.createElementAt(new State(element));
         } else {
             edgeElement = Edge.createElementAt(position);
         }
@@ -61,7 +71,11 @@ class Graph {
     }
 
     temporaryEdgeHeadTo(element, position) {
-        this.temporaryEdge.setHead(position);
+        if (element.getAttribute('class') === 'state') {
+            this.temporaryEdge.setHead(new State(element));
+        } else {
+            this.temporaryEdge.setHead(position);
+        }
     }
 
     width() {
