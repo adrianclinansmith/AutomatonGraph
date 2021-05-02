@@ -53,6 +53,8 @@ class Graph {
         if (this.temporaryEdge?.tailId() && this.temporaryEdge?.headId()) {
             this.selectedObject?.setStrokeColor('black');
             this.selectedObject = this.temporaryEdge;
+            this.selectedObject.tail.addOutEdge(this.selectedObject);
+            this.selectedObject.head.addInEdge(this.selectedObject);
         } else {
             this.temporaryEdge?.remove();
         }

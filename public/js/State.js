@@ -15,6 +15,8 @@ class State {
             i += 1;
         }
         circle.setAttributeNS(null, 'id', `s${i}`);
+        circle.setAttributeNS(null, 'data-outedges', '');
+        circle.setAttributeNS(null, 'data-inedges', '');
         const fo = document.createElementNS(xmlns, 'foreignObject');
         fo.setAttributeNS(null, 'class', 'state-fo');
         fo.setAttributeNS(null, 'height', '100%');
@@ -56,6 +58,26 @@ class State {
     }
 
     /* Instance */
+
+    addInEdge(edge) {
+        let inEdges = this.element.getAttributeNS(null, 'data-inedges');
+        if (inEdges === '') {
+            this.element.setAttributeNS(null, 'data-inedges', edge.id());
+        } else {
+            inEdges += ` ${edge.id()}`;
+            this.element.setAttributeNS(null, 'data-inedges', inEdges);
+        }
+    }
+
+    addOutEdge(edge) {
+        let outEdges = this.element.getAttributeNS(null, 'data-outedges');
+        if (outEdges === '') {
+            this.element.setAttributeNS(null, 'data-outedges', edge.id());
+        } else {
+            outEdges += ` ${edge.id()}`;
+            this.element.setAttributeNS(null, 'data-outedges', outEdges);
+        }
+    }
 
     focusLabel() {
         this.element.parentNode.children[1].children[0].focus();

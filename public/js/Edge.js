@@ -7,10 +7,16 @@ class Edge {
         const xmlns = 'http://www.w3.org/2000/svg';
         const element = document.createElementNS(xmlns, 'path');
         element.setAttributeNS(null, 'stroke', 'red');
+        let i = 0;
+        while (document.getElementById(`e${i}`)) {
+            i += 1;
+        }
+        element.setAttributeNS(null, 'id', `e${i}`);
         let startPosition;
         if (place instanceof State) {
             startPosition = place.centerPosition();
             element.setAttributeNS(null, 'data-tail', place.id());
+            element.setAttributeNS(null, 'data-head', place.id());
         } else {
             startPosition = place;
         }
@@ -24,12 +30,12 @@ class Edge {
 
     constructor(edgeElement) {
         this.element = edgeElement;
-        const tailId = edgeElement.getAttributeNS(null, 'data-tail');
-        const headId = edgeElement.getAttributeNS(null, 'data-head');
+        const tailId = this.tailId();
+        const headId = this.headId();
         if (tailId) {
             this.tail = new State(document.getElementById(tailId));
         }
-        if (tailId) {
+        if (headId) {
             this.head = new State(document.getElementById(headId));
         }
     }
@@ -38,6 +44,10 @@ class Edge {
 
     headId() {
         return this.element.getAttributeNS(null, 'data-head');
+    }
+
+    id() {
+        return this.element.getAttributeNS(null, 'id');
     }
 
     positions() {
@@ -59,9 +69,11 @@ class Edge {
     setHead(place) {
         let newHeadPosition;
         if (place instanceof State) {
+            this.head = place;
             this.element.setAttributeNS(null, 'data-head', place.id());
             newHeadPosition = place.centerPosition();
         } else {
+            this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
             newHeadPosition = { x: place.x, y: place.y };
         }
