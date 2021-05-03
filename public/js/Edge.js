@@ -7,6 +7,7 @@ class Edge {
         const xmlns = 'http://www.w3.org/2000/svg';
         const element = document.createElementNS(xmlns, 'path');
         element.setAttributeNS(null, 'stroke', 'red');
+        element.setAttributeNS(null, 'marker-end', 'url(#arrowhead)');
         let i = 0;
         while (document.getElementById(`e${i}`)) {
             i += 1;
@@ -46,10 +47,6 @@ class Edge {
 
     /* Instance */
 
-    // headId() {
-    //     return this.element.getAttributeNS(null, 'data-head');
-    // }
-
     id() {
         return this.element.getAttributeNS(null, 'id');
     }
@@ -78,10 +75,6 @@ class Edge {
             this._setLine(tailPosition, place);
         }
     }
-
-    // tailId() {
-    //     return this.element.getAttributeNS(null, 'data-tail');
-    // }
 
     /* Private Instance */
 

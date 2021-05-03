@@ -53,11 +53,11 @@ class State {
 
     /* Constructor */
 
-    constructor(element) {
-        if (typeof element === 'string' || element instanceof String) {
-            this.element = document.getElementById(element);
+    constructor(elementOrId) {
+        if (typeof elementOrId === 'string' || elementOrId instanceof String) {
+            this.element = document.getElementById(elementOrId);
         } else {
-            this.element = element;
+            this.element = elementOrId;
         }
         this.positionOffset = { x: 0, y: 0 };
     }
@@ -85,8 +85,7 @@ class State {
     }
 
     centerPosition() {
-        const g = this.element.parentNode;
-        const trans = g.getAttributeNS(null, 'transform');
+        const trans = this._g().getAttributeNS(null, 'transform');
         const x = trans.substring(trans.indexOf('(') + 1, trans.indexOf(','));
         const y = trans.substring(trans.indexOf(',') + 1, trans.indexOf(')'));
         return { x: parseFloat(x), y: parseFloat(y) };
