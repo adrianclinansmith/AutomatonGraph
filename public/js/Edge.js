@@ -28,10 +28,14 @@ class Edge {
 
     /* Constructor */
 
-    constructor(edgeElement) {
-        this.element = edgeElement;
-        const tailId = this.tailId();
-        const headId = this.headId();
+    constructor(elementOrId) {
+        if (typeof elementOrId === 'string' || elementOrId instanceof String) {
+            this.element = document.getElementById(elementOrId);
+        } else {
+            this.element = elementOrId;
+        }
+        const tailId = this.element.getAttributeNS(null, 'data-tail');
+        const headId = this.element.getAttributeNS(null, 'data-head');
         if (tailId) {
             this.tail = new State(document.getElementById(tailId));
         }
@@ -42,53 +46,74 @@ class Edge {
 
     /* Instance */
 
-    headId() {
-        return this.element.getAttributeNS(null, 'data-head');
-    }
+    // headId() {
+    //     return this.element.getAttributeNS(null, 'data-head');
+    // }
 
     id() {
         return this.element.getAttributeNS(null, 'id');
     }
 
-    positions() {
-        // <path d="M 100,250 Q 250,100 400,250" />
-        const dParts = this.element.getAttributeNS(null, 'd').split(' ');
-        const tail = dParts[1].split(',');
-        const crtl = dParts[3].split(',');
-        const head = dParts[4].split(',');
-        const tailPos = { x: parseFloat(tail[0]), y: parseFloat(tail[1]) };
-        const crtlPos = { x: parseFloat(crtl[0]), y: parseFloat(crtl[1]) };
-        const headPos = { x: parseFloat(head[0]), y: parseFloat(head[1]) };
-        return { tail: tailPos, control: crtlPos, head: headPos };
+    isValidEdge() {
+        return this.tail && this.head;
     }
 
     remove() {
         this.element.remove();
     }
 
+    reset() {
+        this._setLine(this.tail.centerPosition(), this.head.centerPosition());
+    }
+
     setHead(place) {
-        let newHeadPosition;
+        const tailPosition = this._positions().tailPosition;
         if (place instanceof State) {
             this.head = place;
             this.element.setAttributeNS(null, 'data-head', place.id());
-            newHeadPosition = place.centerPosition();
+            this._setLine(tailPosition, place.centerPosition());
         } else {
             this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
-            newHeadPosition = { x: place.x, y: place.y };
+            this._setLine(tailPosition, place);
         }
-        const tailPosition = this.positions().tail;
-        const newControlX = (tailPosition.x + newHeadPosition.x) / 2;
-        const newControlY = (tailPosition.y + newHeadPosition.y) / 2;
-        const controlString = `Q ${newControlX},${newControlY}`;
-        const headString = ` ${newHeadPosition.x},${newHeadPosition.y}`;
-        const d = this.element.getAttributeNS(null, 'd');
-        const qIndex = d.indexOf('Q');
-        const dString = d.substring(0, qIndex) + controlString + headString;
-        this.element.setAttributeNS(null, 'd', dString);
     }
 
-    tailId() {
-        return this.element.getAttributeNS(null, 'data-tail');
+    // tailId() {
+    //     return this.element.getAttributeNS(null, 'data-tail');
+    // }
+
+    /* Private Instance */
+
+    _positions() {
+        // <path d="M 100,250 Q 250,100 400,250" />
+        const dParts = this.element.getAttributeNS(null, 'd').split(' ');
+        const tailString = dParts[1].split(',');
+        const controlString = dParts[3].split(',');
+        const headString = dParts[4].split(',');
+        const tailPosition = {
+            x: parseFloat(tailString[0]),
+            y: parseFloat(tailString[1])
+        };
+        const controlPosition = {
+            x: parseFloat(controlString[0]),
+            y: parseFloat(controlString[1])
+        };
+        const headPosition = {
+            x: parseFloat(headString[0]),
+            y: parseFloat(headString[1])
+        };
+        return { tailPosition, controlPosition, headPosition };
+    }
+
+    _setLine(tailPosition, headPosition) {
+        const control = {};
+        control.x = (tailPosition.x + headPosition.x) / 2;
+        control.y = (tailPosition.y + headPosition.y) / 2;
+        const tailString = `M ${tailPosition.x},${tailPosition.y}`;
+        const controlString = ` Q ${control.x},${control.y}`;
+        const headString = ` ${headPosition.x},${headPosition.y}`;
+        const dString = tailString + controlString + headString;
+        this.element.setAttributeNS(null, 'd', dString);
     }
 }

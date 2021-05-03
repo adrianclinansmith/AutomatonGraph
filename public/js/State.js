@@ -1,3 +1,4 @@
+/* global Edge */
 // eslint-disable-next-line no-unused-vars
 class State {
     /* Static */
@@ -53,7 +54,11 @@ class State {
     /* Constructor */
 
     constructor(element) {
-        this.element = element;
+        if (typeof element === 'string' || element instanceof String) {
+            this.element = document.getElementById(element);
+        } else {
+            this.element = element;
+        }
         this.positionOffset = { x: 0, y: 0 };
     }
 
@@ -79,16 +84,16 @@ class State {
         }
     }
 
-    focusLabel() {
-        this.element.parentNode.children[1].children[0].focus();
-    }
-
     centerPosition() {
         const g = this.element.parentNode;
         const trans = g.getAttributeNS(null, 'transform');
         const x = trans.substring(trans.indexOf('(') + 1, trans.indexOf(','));
         const y = trans.substring(trans.indexOf(',') + 1, trans.indexOf(')'));
         return { x: parseFloat(x), y: parseFloat(y) };
+    }
+
+    focusLabel() {
+        this._g().children[1].children[0].focus();
     }
 
     id() {
@@ -99,7 +104,8 @@ class State {
         const x = position.x + this.positionOffset.x;
         const y = position.y + this.positionOffset.y;
         const translate = `translate(${x}, ${y})`;
-        this.element.parentNode.setAttributeNS(null, 'transform', translate);
+        this._g().setAttributeNS(null, 'transform', translate);
+        this._allEdges().forEach(edge => { edge.reset(); });
     }
 
     setPositionOffset(fromPoint) {
@@ -112,5 +118,28 @@ class State {
 
     setStrokeColor(color) {
         this.element.style.stroke = color;
+    }
+
+    /* Private Instance */
+
+    _allEdges() {
+        const edges = [];
+        const outIds = this.element.getAttributeNS(null, 'data-outedges');
+        const inIds = this.element.getAttributeNS(null, 'data-inedges');
+        for (const id of outIds.split(' ')) {
+            if (id) {
+                edges.push(new Edge(id));
+            }
+        }
+        for (const id of inIds.split(' ')) {
+            if (id) {
+                edges.push(new Edge(id));
+            }
+        }
+        return edges;
+    }
+
+    _g() {
+        return this.element.parentNode;
     }
 }

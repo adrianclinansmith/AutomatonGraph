@@ -50,7 +50,7 @@ class Graph {
     }
 
     setOrDeleteTemporaryEdge() {
-        if (this.temporaryEdge?.tailId() && this.temporaryEdge?.headId()) {
+        if (this.temporaryEdge?.isValidEdge()) {
             this.selectedObject?.setStrokeColor('black');
             this.selectedObject = this.temporaryEdge;
             this.selectedObject.tail.addOutEdge(this.selectedObject);
