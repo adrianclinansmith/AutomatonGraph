@@ -107,16 +107,16 @@ class State {
         this._allEdges().forEach(edge => { edge.reset(); });
     }
 
+    setColor(color) {
+        this.element.style.stroke = color;
+    }
+
     setPositionOffset(fromPoint) {
         const centerPosition = this.centerPosition();
         const positionOffset = {};
         positionOffset.x = centerPosition.x - fromPoint.x;
         positionOffset.y = centerPosition.y - fromPoint.y;
         this.positionOffset = positionOffset;
-    }
-
-    setStrokeColor(color) {
-        this.element.style.stroke = color;
     }
 
     /* Private Instance */

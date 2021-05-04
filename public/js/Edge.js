@@ -6,8 +6,9 @@ class Edge {
     static createElementAt(place) {
         const xmlns = 'http://www.w3.org/2000/svg';
         const element = document.createElementNS(xmlns, 'path');
-        element.setAttributeNS(null, 'stroke', 'red');
-        element.setAttributeNS(null, 'marker-end', 'url(#arrowhead)');
+        element.setAttributeNS(null, 'class', 'edge');
+        element.setAttributeNS(null, 'marker-end', 'url(#arrowhead-red)');
+        element.style.stroke = 'red';
         let i = 0;
         while (document.getElementById(`e${i}`)) {
             i += 1;
@@ -52,7 +53,7 @@ class Edge {
     }
 
     isValidEdge() {
-        return this.tail && this.head;
+        return this.tail && this.head && this.head.id() !== this.tail.id();
     }
 
     remove() {
@@ -61,6 +62,13 @@ class Edge {
 
     reset() {
         this._setLine(this.tail.centerPosition(), this.head.centerPosition());
+    }
+
+    setColor(color) {
+        this.element.style.stroke = color;
+        const arrowUrl = 'url(#arrowhead' + (color ? `-${color})` : ')');
+        console.log(arrowUrl);
+        this.element.setAttributeNS(null, 'marker-end', arrowUrl);
     }
 
     setHead(place) {

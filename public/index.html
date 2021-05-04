@@ -9,9 +9,16 @@
 <body>
 	<h1>DFA</h1>
 	<div id="svgDiv">
+		<!-- svg graph -->
 		<svg xmlns="http://www.w3.org/2000/svg" height="500" width="1000" 
 			 style="background-color:white" id="svg">
+			 <!-- graph style  -->
 			<style>
+				.edge {
+					stroke: black;
+					stroke-width: 2px;
+				}
+
 				.state {
 					fill: white;
 					stroke: black;
@@ -36,24 +43,28 @@
 				}
 			</style>
 			<!-- graph element definitions -->
-			<defs>
+			  <defs>
 				<marker id="arrowhead" markerWidth="10" markerHeight="10"
+					refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+				  <path d="M 0,0 L 0,6 L 9,3 z" fill="black" />
+				</marker>
+			  </defs>
+			  <defs>
+				<marker id="arrowhead-red" markerWidth="10" markerHeight="10"
 					refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
 				  <path d="M 0,0 L 0,6 L 9,3 z" fill="red" />
 				</marker>
-			  </defs>
-			<defs>
-				<path stroke="red" marker-end="url(#arrowhead)" class="edge"
-			  	data-tail data-head d>
-				</path>
-			</defs>	  
+			  </defs>   
+			  <!-- graph elements (to be populated) -->
 		</svg>
 	</div>
+	<!-- buttons  -->
 	<button id="newStateButton">new state</button>
 	<button id="newEdgeButton">new edge</button>
 	<button id="downloadButton">download</button>
 	<input type="file" name="upload" id="uploadButton">
 	
+	<!-- scripts  -->
 	<script src="./js/Edge.js"></script>
 	<script src="./js/State.js"></script>
 	<script src="./js/Graph.js"></script> 

@@ -38,20 +38,21 @@ class Graph {
     }
 
     select(element, atPosition) {
-        if (this.selectedObject instanceof State) {
-            this.selectedObject.setStrokeColor('black');
-        }
+        this.selectedObject?.setColor('');
         this.selectedObject = null;
         if (element.getAttribute('class') === 'state') {
             this.selectedObject = new State(element);
+            this.selectedObject.setColor('red');
             this.selectedObject.setPositionOffset(atPosition);
-            this.selectedObject.setStrokeColor('red');
+        } else if (element.getAttribute('class') === 'edge') {
+            this.selectedObject = new Edge(element);
+            this.selectedObject.setColor('red');
         }
     }
 
     setOrDeleteTemporaryEdge() {
         if (this.temporaryEdge?.isValidEdge()) {
-            this.selectedObject?.setStrokeColor('black');
+            this.selectedObject?.setColor('');
             this.selectedObject = this.temporaryEdge;
             this.selectedObject.tail.addOutEdge(this.selectedObject);
             this.selectedObject.head.addInEdge(this.selectedObject);
