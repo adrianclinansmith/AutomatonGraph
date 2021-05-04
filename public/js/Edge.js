@@ -4,28 +4,30 @@ class Edge {
     /* Static */
 
     static createElementAt(place) {
-        const xmlns = 'http://www.w3.org/2000/svg';
-        const element = document.createElementNS(xmlns, 'path');
-        element.setAttributeNS(null, 'class', 'edge');
-        element.setAttributeNS(null, 'marker-end', 'url(#arrowhead-red)');
-        element.style.stroke = 'red';
+        const template = document.getElementById('edge-g-template');
+        const gElement = template.cloneNode(true);
+        const edgeElement = gElement.children[0];
+        const foElement = gElement.children[1];
+        gElement.setAttributeNS(null, 'id', '');
         let i = 0;
         while (document.getElementById(`e${i}`)) {
             i += 1;
         }
-        element.setAttributeNS(null, 'id', `e${i}`);
+        edgeElement.setAttributeNS(null, 'id', `e${i}`);
         let startPosition;
         if (place instanceof State) {
             startPosition = place.centerPosition();
-            element.setAttributeNS(null, 'data-tail', place.id());
-            element.setAttributeNS(null, 'data-head', place.id());
+            edgeElement.setAttributeNS(null, 'data-tail', place.id());
+            edgeElement.setAttributeNS(null, 'data-head', place.id());
         } else {
             startPosition = place;
         }
         const { x, y } = startPosition;
         const dString = `M ${x},${y} Q ${x},${y} ${x},${y}`;
-        element.setAttributeNS(null, 'd', dString);
-        return element;
+        edgeElement.setAttributeNS(null, 'd', dString);
+        foElement.setAttributeNS(null, 'x', startPosition.x);
+        foElement.setAttributeNS(null, 'y', startPosition.y);
+        return gElement;
     }
 
     /* Constructor */
@@ -57,11 +59,12 @@ class Edge {
     }
 
     remove() {
-        this.element.remove();
+        this.element.parentNode.remove();
     }
 
     reset() {
         this._setLine(this.tail.centerPosition(), this.head.centerPosition());
+        this._setLabelAtControl();
     }
 
     setColor(color) {
@@ -82,6 +85,7 @@ class Edge {
             this.element.setAttributeNS(null, 'data-head', '');
             this._setLine(tailPosition, place);
         }
+        this._setLabelAtControl();
     }
 
     /* Private Instance */
@@ -105,6 +109,13 @@ class Edge {
             y: parseFloat(headString[1])
         };
         return { tailPosition, controlPosition, headPosition };
+    }
+
+    _setLabelAtControl() {
+        const fo = this.element.parentNode.children[1];
+        const controlPosition = this._positions().controlPosition;
+        fo.setAttributeNS(null, 'x', controlPosition.x);
+        fo.setAttributeNS(null, 'y', controlPosition.y);
     }
 
     _setLine(tailPosition, headPosition) {

@@ -8,15 +8,21 @@
 </head>
 <body>
 	<h1>DFA</h1>
+	<!-- graph container -->
 	<div id="svgDiv">
 		<!-- svg graph -->
 		<svg xmlns="http://www.w3.org/2000/svg" height="500" width="1000" 
-			 style="background-color:white" id="svg">
+			 style="background-color:white;" id="svg">
 			 <!-- graph style  -->
 			<style>
 				.edge {
 					stroke: black;
 					stroke-width: 2px;
+				}
+
+				.edge-fo {
+					text-align: left;
+					background-color: transparent;
 				}
 
 				.state {
@@ -42,6 +48,19 @@
 					border: none;
 				}
 			</style>
+			<!-- graph element templates -->
+			<svg id="template-container" pointer-events="none" visibility="hidden">
+				<!-- edge template  -->
+				<g class="edge-g" id="edge-g-template">
+					<path class="edge" d data-head data-tail id="edge-template"
+						marker-end="url(#arrowhead-red)" style="stroke: red;">
+					</path>
+					<foreignObject class="edge-fo" height="100%"
+						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%">
+						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" type="text"></input>
+					</foreignObject>
+				</g>
+			</svg>
 			<!-- graph element definitions -->
 			  <defs>
 				<marker id="arrowhead" markerWidth="10" markerHeight="10"

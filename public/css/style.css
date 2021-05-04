@@ -7,20 +7,20 @@ body {
     user-select: none;
 }
 
-.state {
+/* .state {
     fill: white;
     stroke: black;
     stroke-width: 2px;
 }
 
-.state-fo {
+foreignObject {
     text-align: left;
     background-color: transparent;
     pointer-events: none;
 }
 
 .state-label {
-    line-height: 40px; /* √(2) x (radius=30) = 42.43 */
+    line-height: 40px; /~* √(2) x (radius=30) = 42.43 *~/
     width: 40px;
     text-align: center;
     pointer-events: none;
@@ -28,7 +28,7 @@ body {
     font-family: Monaco, monospace;
     background-color: transparent;
     border: none;
-}
+} */
 
 input:focus, select:focus {
     outline: none;

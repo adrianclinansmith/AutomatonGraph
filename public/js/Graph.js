@@ -63,14 +63,14 @@ class Graph {
     }
 
     startTemporaryEdge(element, position) {
-        let edgeElement;
+        let edgegElement;
         if (element.getAttribute('class') === 'state') {
-            edgeElement = Edge.createElementAt(new State(element));
+            edgegElement = Edge.createElementAt(new State(element));
         } else {
-            edgeElement = Edge.createElementAt(position);
+            edgegElement = Edge.createElementAt(position);
         }
-        this.svg.appendChild(edgeElement);
-        this.temporaryEdge = new Edge(edgeElement);
+        this.svg.appendChild(edgegElement);
+        this.temporaryEdge = new Edge(edgegElement.children[0]);
     }
 
     temporaryEdgeHeadTo(element, position) {
