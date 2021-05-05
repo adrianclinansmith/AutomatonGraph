@@ -20,8 +20,7 @@ class State {
     }
 
     static setLabelCallback(stateElement) {
-        const label = stateElement.parentNode.children[1].children[0];
-        console.log(label);
+        const label = stateElement.parentNode.children[2].children[0];
         label.oninput = function(event) {
             const target = event.target;
             let textOverflow = true;
@@ -76,11 +75,17 @@ class State {
     }
 
     focusLabel() {
-        this._g().children[1].children[0].focus();
+        this._textInput().focus();
     }
 
     id() {
         return this.element.getAttributeNS(null, 'id');
+    }
+
+    // will use publicly
+    isGoal() {
+        console.log(this._innerCircle().style.visibility);
+        return this._innerCircle().style.visibility !== '';
     }
 
     moveTo(position) {
@@ -93,6 +98,7 @@ class State {
 
     setColor(color) {
         this.element.style.stroke = color;
+        this._innerCircle().style.stroke = color;
     }
 
     setPositionOffset(fromPoint) {
@@ -101,6 +107,14 @@ class State {
         positionOffset.x = centerPosition.x - fromPoint.x;
         positionOffset.y = centerPosition.y - fromPoint.y;
         this.positionOffset = positionOffset;
+    }
+
+    toggleGoal() {
+        if (this.isGoal()) {
+            this._innerCircle().style.visibility = '';
+        } else {
+            this._innerCircle().style.visibility = 'visible';
+        }
     }
 
     /* Private Instance */
@@ -124,5 +138,13 @@ class State {
 
     _g() {
         return this.element.parentNode;
+    }
+
+    _innerCircle() {
+        return this._g().children[1];
+    }
+
+    _textInput() {
+        return this._g().children[2].children[0];
     }
 }

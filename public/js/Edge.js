@@ -72,13 +72,12 @@ class Edge {
 
     reset() {
         this._setLine(this.tail.centerPosition(), this.head.centerPosition());
-        this._setLabelAtControl();
+        this._setLabelToControlPosition();
     }
 
     setColor(color) {
         this.element.style.stroke = color;
         const arrowUrl = 'url(#arrowhead' + (color ? `-${color})` : ')');
-        console.log(arrowUrl);
         this.element.setAttributeNS(null, 'marker-end', arrowUrl);
     }
 
@@ -93,7 +92,7 @@ class Edge {
             this.element.setAttributeNS(null, 'data-head', '');
             this._setLine(tailPosition, place);
         }
-        this._setLabelAtControl();
+        this._setLabelToControlPosition();
     }
 
     /* Private Instance */
@@ -119,7 +118,7 @@ class Edge {
         return { tailPosition, controlPosition, headPosition };
     }
 
-    _setLabelAtControl() {
+    _setLabelToControlPosition() {
         const fo = this.element.parentNode.children[1];
         const controlPosition = this._positions().controlPosition;
         fo.setAttributeNS(null, 'x', controlPosition.x);

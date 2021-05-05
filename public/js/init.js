@@ -31,11 +31,9 @@ function initGraph() {
     svg.addEventListener('mouseleave', mouseleave);
     svg.addEventListener('dblclick', dblclick);
     for (const element of stateElements) {
-        console.log(element);
         State.setLabelCallback(element);
     }
     for (const element of edgeElements) {
-        console.log(element);
         Edge.setLabelCallback(element);
     }
     return new Graph(svg);
@@ -68,6 +66,8 @@ function mouseup(event) {
     mouseIsDown = false;
     if (newEdgeButton.isPressed) {
         graph.setOrDeleteTemporaryEdge();
+    } else if (graph.selectedObject instanceof State) {
+        graph.selectedObject.focusLabel();
     }
 }
 
@@ -78,9 +78,12 @@ function mouseleave(event) {
 }
 
 function dblclick(event) {
-    if (event.target.getAttributeNS(null, 'class') === 'state') {
-        graph.selectedObject.focusLabel();
+    if (graph.selectedObject instanceof State) {
+        graph.selectedObject.toggleGoal();
     }
+    // if (event.target.getAttributeNS(null, 'class') === 'state') {
+    //     graph.selectedObject.focusLabel();
+    // }
 }
 
 // button event handlers

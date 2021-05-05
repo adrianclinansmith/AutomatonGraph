@@ -5,23 +5,21 @@ class Graph {
     /* Constructor */
     constructor(svg) {
         this.svg = svg;
-        this.xmlns = 'http://www.w3.org/2000/svg';
         this.selectedObject = null;
         this.temporaryEdge = null;
-        this.angle = Math.PI / -2;
-        this.selectedPositionOffset = { x: 0, y: 0 };
+        this.newStateAngle = Math.PI / -2;
     }
 
     /* Instance */
 
     addNewState() {
-        const x = this.width() / 2 + 30 * Math.cos(this.angle);
-        const y = this.height() - 5 - 30 * (2 + Math.sin(this.angle));
-        this.angle += Math.PI / 2;
-        if (Math.abs(this.angle - 3 * Math.PI / 2) < 0.01) {
-            this.angle = Math.PI / -4;
-        } else if (Math.abs(this.angle - 7 * Math.PI / 4) < 0.01) {
-            this.angle = Math.PI / -2;
+        const x = this.width() / 2 + 30 * Math.cos(this.newStateAngle);
+        const y = this.height() - 5 - 30 * (2 + Math.sin(this.newStateAngle));
+        this.newStateAngle += Math.PI / 2;
+        if (Math.abs(this.newStateAngle - 3 * Math.PI / 2) < 0.01) {
+            this.newStateAngle = Math.PI / -4;
+        } else if (Math.abs(this.newStateAngle - 7 * Math.PI / 4) < 0.01) {
+            this.newStateAngle = Math.PI / -2;
         }
         const stategElement = State.createElementAt({ x, y });
         this.svg.appendChild(stategElement);
