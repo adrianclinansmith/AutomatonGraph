@@ -1,4 +1,4 @@
-/* global Graph State */
+/* global Edge Graph State */
 /* eslint-disable no-unused-vars */
 
 // global data
@@ -23,14 +23,20 @@ function getMousePosition(event) {
 
 function initGraph() {
     const svg = document.getElementById('svg');
+    const stateElements = document.getElementsByClassName('state');
+    const edgeElements = document.getElementsByClassName('edge');
     svg.addEventListener('mousedown', mousedown);
     svg.addEventListener('mousemove', mousemove);
     svg.addEventListener('mouseup', mouseup);
     svg.addEventListener('mouseleave', mouseleave);
     svg.addEventListener('dblclick', dblclick);
-    const states = document.getElementsByClassName('state');
-    for (const state of states) {
-        State.setLabelCallback(state);
+    for (const element of stateElements) {
+        console.log(element);
+        State.setLabelCallback(element);
+    }
+    for (const element of edgeElements) {
+        console.log(element);
+        Edge.setLabelCallback(element);
     }
     return new Graph(svg);
 }

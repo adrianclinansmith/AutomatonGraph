@@ -20,7 +20,7 @@
 					stroke-width: 2px;
 				}
 
-				.edge-fo {
+				.edge-foreign-object {
 					text-align: left;
 					background-color: transparent;
 				}
@@ -31,7 +31,15 @@
 					stroke-width: 2px;
 				}
 				
-				.state-fo {
+				.state-goal-inner-circle {
+					fill: white;
+					pointer-events: none;
+					stroke: black;
+					stroke-width: 2px;
+					visibility: hidden;
+				}
+				
+				.state-foreign-object {
 					text-align: left;
 					background-color: transparent;
 					pointer-events: none;
@@ -55,7 +63,7 @@
 					<path class="edge" d data-head data-tail id="edge-template"
 						marker-end="url(#arrowhead-red)" style="stroke: red;">
 					</path>
-					<foreignObject class="edge-fo" height="100%"
+					<foreignObject class="edge-foreign-object" height="100%"
 						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%">
 						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" type="text"></input>
 					</foreignObject>
@@ -63,7 +71,7 @@
 				<!-- state template  -->
 				<g class="state-g" id="state-g-template" transform>
 					<circle class="state" r="30px" data-inedges data-outedges id style></circle>
-					<foreignObject class="state-fo" height="100%"
+					<foreignObject class="state-foreign-object" height="100%"
 						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%" x="-21" y="-23">
 						<input xmlns="http://www.w3.org/1999/xhtml" class="state-label"type="text" style value>
 					</foreignObject>

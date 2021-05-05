@@ -15,12 +15,13 @@ class State {
             i += 1;
         }
         circleElement.setAttributeNS(null, 'id', `s${i}`);
-        this.setLabelCallback(circleElement);
+        State.setLabelCallback(circleElement);
         return gElement;
     }
 
     static setLabelCallback(stateElement) {
         const label = stateElement.parentNode.children[1].children[0];
+        console.log(label);
         label.oninput = function(event) {
             const target = event.target;
             let textOverflow = true;
