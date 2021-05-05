@@ -4,36 +4,19 @@ class State {
     /* Static */
 
     static createElementAt(position) {
-        const xmlns = 'http://www.w3.org/2000/svg';
-        const xhtml = 'http://www.w3.org/1999/xhtml';
-        const g = document.createElementNS(xmlns, 'g');
-        g.setAttributeNS(null, 'class', 'state-g');
-        const circle = document.createElementNS(xmlns, 'circle');
-        circle.setAttributeNS(null, 'class', 'state');
-        circle.setAttributeNS(null, 'r', '30px');
+        const template = document.getElementById('state-g-template');
+        const gElement = template.cloneNode(true);
+        const circleElement = gElement.children[0];
+        gElement.setAttributeNS(null, 'id', '');
+        const translate = `translate(${position.x}, ${position.y})`;
+        gElement.setAttributeNS(null, 'transform', translate);
         let i = 0;
         while (document.getElementById(`s${i}`)) {
             i += 1;
         }
-        circle.setAttributeNS(null, 'id', `s${i}`);
-        circle.setAttributeNS(null, 'data-outedges', '');
-        circle.setAttributeNS(null, 'data-inedges', '');
-        const fo = document.createElementNS(xmlns, 'foreignObject');
-        fo.setAttributeNS(null, 'class', 'state-fo');
-        fo.setAttributeNS(null, 'height', '100%');
-        fo.setAttributeNS(null, 'requiredExtensions', xhtml);
-        fo.setAttributeNS(null, 'width', '100%');
-        fo.setAttributeNS(null, 'x', '-21');
-        fo.setAttributeNS(null, 'y', '-23');
-        let textInput = `<input xmlns="${xhtml}" `;
-        textInput += 'class="state-label" type="text"></input>';
-        fo.innerHTML = textInput;
-        g.appendChild(circle);
-        g.appendChild(fo);
-        const translate = `translate(${position.x}, ${position.y})`;
-        g.setAttributeNS(null, 'transform', translate);
-        this.setLabelCallback(circle);
-        return g;
+        circleElement.setAttributeNS(null, 'id', `s${i}`);
+        this.setLabelCallback(circleElement);
+        return gElement;
     }
 
     static setLabelCallback(stateElement) {

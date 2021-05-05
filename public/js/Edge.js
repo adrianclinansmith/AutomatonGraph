@@ -7,7 +7,7 @@ class Edge {
         const template = document.getElementById('edge-g-template');
         const gElement = template.cloneNode(true);
         const edgeElement = gElement.children[0];
-        const foElement = gElement.children[1];
+        const foreignObjectElement = gElement.children[1];
         gElement.setAttributeNS(null, 'id', '');
         let i = 0;
         while (document.getElementById(`e${i}`)) {
@@ -25,8 +25,8 @@ class Edge {
         const { x, y } = startPosition;
         const dString = `M ${x},${y} Q ${x},${y} ${x},${y}`;
         edgeElement.setAttributeNS(null, 'd', dString);
-        foElement.setAttributeNS(null, 'x', startPosition.x);
-        foElement.setAttributeNS(null, 'y', startPosition.y);
+        foreignObjectElement.setAttributeNS(null, 'x', startPosition.x);
+        foreignObjectElement.setAttributeNS(null, 'y', startPosition.y);
         Edge.setLabelCallback(edgeElement);
         return gElement;
     }
