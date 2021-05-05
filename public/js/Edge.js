@@ -27,7 +27,15 @@ class Edge {
         edgeElement.setAttributeNS(null, 'd', dString);
         foElement.setAttributeNS(null, 'x', startPosition.x);
         foElement.setAttributeNS(null, 'y', startPosition.y);
+        Edge.setLabelCallback(edgeElement);
         return gElement;
+    }
+
+    static setLabelCallback(edgeElement) {
+        const label = edgeElement.parentNode.children[1].children[0];
+        label.oninput = function(event) {
+            event.target.setAttributeNS(null, 'value', event.target.value);
+        };
     }
 
     /* Constructor */

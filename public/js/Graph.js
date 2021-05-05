@@ -27,6 +27,11 @@ class Graph {
         this.svg.appendChild(stategElement);
     }
 
+    deleteTemporaryEdge() {
+        this.temporaryEdge?.remove();
+        this.temporaryEdge = null;
+    }
+
     height() {
         return this.svg.height.baseVal.value;
     }
@@ -75,9 +80,9 @@ class Graph {
 
     temporaryEdgeHeadTo(element, position) {
         if (element.getAttribute('class') === 'state') {
-            this.temporaryEdge.setHead(new State(element));
+            this.temporaryEdge?.setHead(new State(element));
         } else {
-            this.temporaryEdge.setHead(position);
+            this.temporaryEdge?.setHead(position);
         }
     }
 
