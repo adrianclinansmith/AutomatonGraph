@@ -8,6 +8,7 @@ class Edge {
         const gElement = template.cloneNode(true);
         const edgeElement = gElement.children[0];
         const foreignObjectElement = gElement.children[1];
+        const animateMotionElement = gElement.children[2].children[0];
         gElement.setAttributeNS(null, 'id', '');
         let i = 0;
         while (document.getElementById(`e${i}`)) {
@@ -25,6 +26,7 @@ class Edge {
         const { x, y } = startPosition;
         const dString = `M ${x},${y} Q ${x},${y} ${x},${y}`;
         edgeElement.setAttributeNS(null, 'd', dString);
+        animateMotionElement.setAttributeNS(null, 'path', dString);
         foreignObjectElement.setAttributeNS(null, 'x', startPosition.x);
         foreignObjectElement.setAttributeNS(null, 'y', startPosition.y);
         Edge.setLabelCallback(edgeElement);
@@ -58,6 +60,11 @@ class Edge {
 
     /* Instance */
 
+    focusLabel() {
+        console.log(this._textInputElement());
+        this._textInputElement().focus();
+    }
+
     id() {
         return this.element.getAttributeNS(null, 'id');
     }
@@ -67,7 +74,7 @@ class Edge {
     }
 
     remove() {
-        this.element.parentNode.remove();
+        this._gElement().remove();
     }
 
     reset() {
@@ -82,7 +89,7 @@ class Edge {
     }
 
     setHead(place) {
-        const tailPosition = this._positions().tailPosition;
+        const tailPosition = this._dPoints().startPoint;
         if (place instanceof State) {
             this.head = place;
             this.element.setAttributeNS(null, 'data-head', place.id());
@@ -97,30 +104,42 @@ class Edge {
 
     /* Private Instance */
 
-    _positions() {
+    _animateMotionElement() {
+        return this._gElement().children[2].children[0];
+    }
+
+    _gElement() {
+        return this.element.parentNode;
+    }
+
+    _dPoints() {
         // <path d="M 100,250 Q 250,100 400,250" />
         const dParts = this.element.getAttributeNS(null, 'd').split(' ');
-        const tailString = dParts[1].split(',');
+        const startString = dParts[1].split(',');
         const controlString = dParts[3].split(',');
-        const headString = dParts[4].split(',');
-        const tailPosition = {
-            x: parseFloat(tailString[0]),
-            y: parseFloat(tailString[1])
+        const endString = dParts[4].split(',');
+        const startPoint = {
+            x: parseFloat(startString[0]),
+            y: parseFloat(startString[1])
         };
-        const controlPosition = {
+        const controlPoint = {
             x: parseFloat(controlString[0]),
             y: parseFloat(controlString[1])
         };
-        const headPosition = {
-            x: parseFloat(headString[0]),
-            y: parseFloat(headString[1])
+        const endPoint = {
+            x: parseFloat(endString[0]),
+            y: parseFloat(endString[1])
         };
-        return { tailPosition, controlPosition, headPosition };
+        return { startPoint, controlPoint, endPoint };
+    }
+
+    _foreignObjectElement() {
+        return this._gElement().children[1];
     }
 
     _setLabelToControlPosition() {
-        const fo = this.element.parentNode.children[1];
-        const controlPosition = this._positions().controlPosition;
+        const fo = this._foreignObjectElement();
+        const controlPosition = this._dPoints().controlPoint;
         fo.setAttributeNS(null, 'x', controlPosition.x);
         fo.setAttributeNS(null, 'y', controlPosition.y);
     }
@@ -134,5 +153,10 @@ class Edge {
         const headString = ` ${headPosition.x},${headPosition.y}`;
         const dString = tailString + controlString + headString;
         this.element.setAttributeNS(null, 'd', dString);
+        this._animateMotionElement().setAttributeNS(null, 'path', dString);
+    }
+
+    _textInputElement() {
+        return this._foreignObjectElement().children[0];
     }
 }

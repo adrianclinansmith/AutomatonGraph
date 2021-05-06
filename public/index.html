@@ -25,6 +25,12 @@
 					background-color: transparent;
 				}
 
+				.edge-label {
+					background-color: transparent;
+					border: none;
+					pointer-events: none;
+				}
+
 				.state {
 					fill: white;
 					stroke: black;
@@ -65,8 +71,11 @@
 					</path>
 					<foreignObject class="edge-foreign-object" height="100%"
 						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%">
-						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" type="text"></input>
+						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" type="text" />
 					</foreignObject>
+					<circle class="animation-circle" r="5">
+						<animateMotion begin="playButton.click" dur="3s" path />
+					</circle>
 				</g>
 				<!-- state template  -->
 				<g class="state-g" id="state-g-template" transform>
@@ -74,7 +83,7 @@
 					<circle class="state-goal-inner-circle" r="26px" style></circle>
 					<foreignObject class="state-foreign-object" height="100%"
 						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%" x="-21" y="-23">
-						<input xmlns="http://www.w3.org/1999/xhtml" class="state-label"type="text" style value>
+						<input xmlns="http://www.w3.org/1999/xhtml" class="state-label"type="text" style value />
 					</foreignObject>
 				</g>
 			</svg>
@@ -95,6 +104,7 @@
 		</svg>
 	</div>
 	<!-- buttons  -->
+	<button id="playButton">play</button>
 	<button id="newStateButton">new state</button>
 	<button id="newEdgeButton">new edge</button>
 	<button id="downloadButton">download</button>

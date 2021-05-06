@@ -66,7 +66,9 @@ function mouseup(event) {
     mouseIsDown = false;
     if (newEdgeButton.isPressed) {
         graph.setOrDeleteTemporaryEdge();
-    } else if (graph.selectedObject instanceof State) {
+    }
+    if (graph.selectedObject instanceof State ||
+        graph.selectedObject instanceof Edge) {
         graph.selectedObject.focusLabel();
     }
 }
