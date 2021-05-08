@@ -96,6 +96,12 @@ class State {
         this._allEdges().forEach(edge => { edge.reset(); });
     }
 
+    run() {
+        for (const outEdge of this._edges('data-outedges')) {
+            outEdge.animate();
+        }
+    }
+
     setColor(color) {
         this.element.style.stroke = color;
         this._innerCircle().style.stroke = color;
@@ -120,24 +126,23 @@ class State {
     /* Private Instance */
 
     _allEdges() {
+        const edges = this._edges('data-inedges');
+        return edges.concat(this._edges('data-outedges'));
+    }
+
+    _g() {
+        return this.element.parentNode;
+    }
+
+    _edges(edgeDataString) {
         const edges = [];
-        const outIds = this.element.getAttributeNS(null, 'data-outedges');
-        const inIds = this.element.getAttributeNS(null, 'data-inedges');
-        for (const id of outIds.split(' ')) {
-            if (id) {
-                edges.push(new Edge(id));
-            }
-        }
+        const inIds = this.element.getAttributeNS(null, edgeDataString);
         for (const id of inIds.split(' ')) {
             if (id) {
                 edges.push(new Edge(id));
             }
         }
         return edges;
-    }
-
-    _g() {
-        return this.element.parentNode;
     }
 
     _innerCircle() {

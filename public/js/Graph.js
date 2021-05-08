@@ -40,6 +40,14 @@ class Graph {
         }
     }
 
+    run() {
+        const startState = document.getElementById('s0');
+        if (!startState) {
+            return console.log('graph cannot run: no start state');
+        }
+        (new State(startState)).run();
+    }
+
     select(element, atPosition) {
         this.selectedObject?.setColor('');
         this.selectedObject = null;

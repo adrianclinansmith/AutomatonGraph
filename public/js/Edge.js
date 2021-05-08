@@ -60,6 +60,10 @@ class Edge {
 
     /* Instance */
 
+    animate() {
+        this._animateMotionElement().beginElement();
+    }
+
     focusLabel() {
         console.log(this._textInputElement());
         this._textInputElement().focus();

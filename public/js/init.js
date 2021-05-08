@@ -6,6 +6,7 @@
 const downloadButton = document.getElementById('downloadButton');
 const newStateButton = document.getElementById('newStateButton');
 const newEdgeButton = document.getElementById('newEdgeButton');
+const playButton = document.getElementById('playButton');
 const uploadButton = document.getElementById('uploadButton');
 
 let graph = initGraph();
@@ -110,6 +111,10 @@ newEdgeButton.addEventListener('click', () => {
 
 newStateButton.addEventListener('click', () => {
     graph.addNewState();
+});
+
+playButton.addEventListener('click', () => {
+    graph.run();
 });
 
 uploadButton.addEventListener('change', () => {
