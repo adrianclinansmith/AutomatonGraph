@@ -65,7 +65,7 @@ class Graph {
         if (this.temporaryEdge?.isValidEdge()) {
             this.selectedObject?.setColor('');
             this.selectedObject = this.temporaryEdge;
-            this.selectedObject.tail.addOutEdge(this.selectedObject);
+            this.selectedObject.tail?.addOutEdge(this.selectedObject);
             this.selectedObject.head.addInEdge(this.selectedObject);
         } else {
             this.temporaryEdge?.remove();

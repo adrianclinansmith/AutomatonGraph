@@ -84,7 +84,6 @@ class State {
 
     // will use publicly
     isGoal() {
-        console.log(this._innerCircle().style.visibility);
         return this._innerCircle().style.visibility !== '';
     }
 
@@ -93,7 +92,7 @@ class State {
         const y = position.y + this.positionOffset.y;
         const translate = `translate(${x}, ${y})`;
         this._g().setAttributeNS(null, 'transform', translate);
-        this._allEdges().forEach(edge => { edge.reset(); });
+        this._allEdges().forEach(edge => { edge.resetForMovedState(); });
     }
 
     run() {

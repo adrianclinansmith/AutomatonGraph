@@ -74,15 +74,24 @@ class Edge {
     }
 
     isValidEdge() {
-        return this.tail && this.head && this.head.id() !== this.tail.id();
+        return this.head && this.head.id() !== this.tail?.id();
     }
 
     remove() {
         this._gElement().remove();
     }
 
-    reset() {
-        this._setLine(this.tail.centerPosition(), this.head.centerPosition());
+    resetForMovedState() {
+        let startPoint = this.tail?.centerPosition();
+        const endPoint = this.head.centerPosition();
+        if (!startPoint) {
+            const previousStart = this._dPoints().startPoint;
+            const previousEnd = this._dPoints().endPoint;
+            startPoint = {};
+            startPoint.x = endPoint.x - previousEnd.x + previousStart.x;
+            startPoint.y = endPoint.y - previousEnd.y + previousStart.y;
+        }
+        this._setD(startPoint, endPoint);
         this._setLabelToControlPosition();
     }
 
@@ -97,11 +106,11 @@ class Edge {
         if (place instanceof State) {
             this.head = place;
             this.element.setAttributeNS(null, 'data-head', place.id());
-            this._setLine(tailPosition, place.centerPosition());
+            this._setD(tailPosition, place.centerPosition());
         } else {
             this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
-            this._setLine(tailPosition, place);
+            this._setD(tailPosition, place);
         }
         this._setLabelToControlPosition();
     }
@@ -117,7 +126,8 @@ class Edge {
     }
 
     _dPoints() {
-        // <path d="M 100,250 Q 250,100 400,250" />
+        // tail to head: <path d="M 100,250 Q 250,100 400,250" />
+        // start edge:  <path d="M 100,250 l 400,250" />
         const dParts = this.element.getAttributeNS(null, 'd').split(' ');
         const startString = dParts[1].split(',');
         const controlString = dParts[3].split(',');
@@ -148,7 +158,7 @@ class Edge {
         fo.setAttributeNS(null, 'y', controlPosition.y);
     }
 
-    _setLine(tailPosition, headPosition) {
+    _setD(tailPosition, headPosition) {
         const control = {};
         control.x = (tailPosition.x + headPosition.x) / 2;
         control.y = (tailPosition.y + headPosition.y) / 2;
