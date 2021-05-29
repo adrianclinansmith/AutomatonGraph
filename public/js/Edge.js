@@ -83,15 +83,18 @@ class Edge {
 
     resetForMovedState() {
         let startPoint;
-        const endPoint = this.head.centerPosition();
+        let endPoint = this.head.centerPosition();
         if (this._isStartState()) {
             const previousStart = this._dPoints().startPoint;
             const previousEnd = this._dPoints().endPoint;
             startPoint = {};
             startPoint.x = endPoint.x - previousEnd.x + previousStart.x;
             startPoint.y = endPoint.y - previousEnd.y + previousStart.y;
+            startPoint = this._pointAlongSlope(startPoint, endPoint, -37);
+            endPoint = this._pointAlongSlope(endPoint, startPoint, 37);
         } else {
             startPoint = this.tail.centerPosition();
+            endPoint = this._pointAlongSlope(endPoint, startPoint, 37);
         }
         this._setD(startPoint, endPoint);
         this._setLabelToControlPosition();
@@ -104,16 +107,18 @@ class Edge {
     }
 
     setHead(toPlace) {
-        const tailPosition = this._dPoints().startPoint;
+        const startPoint = this._dPoints().startPoint;
+        let endPoint = toPlace;
         if (toPlace instanceof State) {
             this.head = toPlace;
+            const headPosition = this.head.centerPosition();
+            endPoint = this._pointAlongSlope(headPosition, startPoint, 37);
             this.element.setAttributeNS(null, 'data-head', toPlace.id());
-            this._setD(tailPosition, toPlace.centerPosition());
         } else {
             this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
-            this._setD(tailPosition, toPlace);
         }
+        this._setD(startPoint, endPoint);
         this._setLabelToControlPosition();
     }
 
@@ -153,15 +158,17 @@ class Edge {
         return this.element.parentNode;
     }
 
-    _headIntersect(tailPosition) {
-        const headPosition = this.head.centerPosition();
-        const r = this._isPointingleftOrStraightDown(tailPosition, headPosition) ? 37 : -37;
-        const m = this._slope(tailPosition, headPosition);
-        if (!Number.isFinite(m)) {
-            return { x: headPosition.x, y: headPosition.y + r };
+    _pointAlongSlope(fromPoint, toPoint, distance) {
+        if (this._isPointingleftOrStraightUp(fromPoint, toPoint)) {
+            distance *= -1;
         }
-        const x = headPosition.x + r * Math.sqrt(1 / (1 + m * m));
-        const y = headPosition.y + m * r * Math.sqrt(1 / (1 + m * m));
+        const m = this._slope(toPoint, fromPoint);
+        if (!Number.isFinite(m)) {
+            return { x: fromPoint.x, y: fromPoint.y + distance };
+        }
+        const d = distance * Math.sqrt(1 / (1 + m * m));
+        const x = fromPoint.x + d;
+        const y = fromPoint.y + m * d;
         return { x, y };
     }
 
@@ -169,17 +176,17 @@ class Edge {
         return !this.tail && this.head;
     }
 
-    _isPointingleftOrStraightDown(tailPosition, headPosition) {
+    _isPointingleftOrStraightUp(tailPosition, headPosition) {
         if (headPosition.x === tailPosition.x) {
             return headPosition.y < tailPosition.y;
         }
         return headPosition.x < tailPosition.x;
     }
 
-    _setD(tailPosition, headPosition) {
-        if (this.head) {
-            headPosition = this._headIntersect(tailPosition);
-        }
+    _setD(tailPosition, headPosition, calculateIntersect = true) {
+        // if (this.head && calculateIntersect) {
+        //     headPosition = this._headIntersect(tailPosition);
+        // }
         const control = {};
         control.x = (tailPosition.x + headPosition.x) / 2;
         control.y = (tailPosition.y + headPosition.y) / 2;
