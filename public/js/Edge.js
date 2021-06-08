@@ -83,18 +83,20 @@ class Edge {
 
     resetForMovedState() {
         let startPoint;
-        let endPoint = this.head.centerPosition();
-        if (this._isStartState()) {
+        let endPoint;
+        const headPosition = this.head.centerPosition();
+        if (this._isInitialEdge()) {
             const previousStart = this._dPoints().startPoint;
             const previousEnd = this._dPoints().endPoint;
-            startPoint = {};
-            startPoint.x = endPoint.x - previousEnd.x + previousStart.x;
-            startPoint.y = endPoint.y - previousEnd.y + previousStart.y;
-            startPoint = this._pointAlongSlope(startPoint, endPoint, -37);
-            endPoint = this._pointAlongSlope(endPoint, startPoint, 37);
+            const startOffset = {};
+            startOffset.x = headPosition.x - previousEnd.x + previousStart.x;
+            startOffset.y = headPosition.y - previousEnd.y + previousStart.y;
+            startPoint = this._pointAlongSlope(startOffset, headPosition, -37);
+            endPoint = this._pointAlongSlope(headPosition, startPoint, 37);
         } else {
-            startPoint = this.tail.centerPosition();
-            endPoint = this._pointAlongSlope(endPoint, startPoint, 37);
+            const tailPosition = this.tail.centerPosition();
+            startPoint = this._pointAlongSlope(tailPosition, headPosition, 30);
+            endPoint = this._pointAlongSlope(headPosition, tailPosition, 37);
         }
         this._setD(startPoint, endPoint);
         this._setLabelToControlPosition();
@@ -107,7 +109,10 @@ class Edge {
     }
 
     setHead(toPlace) {
-        const startPoint = this._dPoints().startPoint;
+        let startPoint = this._dPoints().startPoint;
+        if (this.tail) {
+            startPoint = this.tail.centerPosition();
+        }
         let endPoint = toPlace;
         if (toPlace instanceof State) {
             this.head = toPlace;
@@ -117,6 +122,9 @@ class Edge {
         } else {
             this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
+        }
+        if (this.tail) {
+            startPoint = this._pointAlongSlope(startPoint, endPoint, 30);
         }
         this._setD(startPoint, endPoint);
         this._setLabelToControlPosition();
@@ -172,7 +180,7 @@ class Edge {
         return { x, y };
     }
 
-    _isStartState() {
+    _isInitialEdge() {
         return !this.tail && this.head;
     }
 
@@ -184,9 +192,6 @@ class Edge {
     }
 
     _setD(tailPosition, headPosition, calculateIntersect = true) {
-        // if (this.head && calculateIntersect) {
-        //     headPosition = this._headIntersect(tailPosition);
-        // }
         const control = {};
         control.x = (tailPosition.x + headPosition.x) / 2;
         control.y = (tailPosition.y + headPosition.y) / 2;
