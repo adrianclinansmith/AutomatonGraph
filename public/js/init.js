@@ -126,3 +126,10 @@ uploadButton.addEventListener('change', () => {
             console.log(error);
         });
 });
+
+// Animation Callbacks
+
+function endAnimation(event) {
+    console.log('there we go');
+    console.log(event.target);
+}
