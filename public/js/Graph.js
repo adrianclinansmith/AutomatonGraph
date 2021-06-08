@@ -40,12 +40,11 @@ class Graph {
         }
     }
 
-    run() {
-        const startState = document.getElementById('s0');
-        if (!startState) {
-            return console.log('graph cannot run: no start state');
+    runAnimation() {
+        const initialEdgeArray = this._allInitialEdges();
+        for (const initialEdge of initialEdgeArray) {
+            initialEdge.animate();
         }
-        (new State(startState)).run();
     }
 
     select(element, atPosition) {
@@ -59,6 +58,7 @@ class Graph {
             this.selectedObject = new Edge(element);
             this.selectedObject.setColor('red');
         }
+        return this.selectedObject;
     }
 
     setOrDeleteTemporaryEdge() {
@@ -100,5 +100,21 @@ class Graph {
         const xmlString = (new XMLSerializer()).serializeToString(this.svg);
         const imageType = 'image/svg+xml;charset=utf-8';
         return new Blob([xmlString], { type: imageType });
+    }
+
+    /* Private */
+
+    _allInitialEdges() {
+        const initialEdgeElements = this.svg.querySelectorAll('.edge');
+        const initialEdgeObjects = [];
+        for (const element of initialEdgeElements) {
+            if (element.id !== 'edge-template' &&
+                !element.getAttribute('data-tail')) {
+                const object = new Edge(element);
+                initialEdgeObjects.push(object);
+            }
+        }
+        console.log(initialEdgeObjects);
+        return initialEdgeObjects;
     }
 }

@@ -1,4 +1,4 @@
-/* global State */
+/* global pointAlongSlope State */
 // eslint-disable-next-line no-unused-vars
 class Edge {
     /* Static */
@@ -65,7 +65,6 @@ class Edge {
     }
 
     focusLabel() {
-        console.log(this._textInputElement());
         this._textInputElement().focus();
     }
 
@@ -89,14 +88,14 @@ class Edge {
             const previousStart = this._dPoints().startPoint;
             const previousEnd = this._dPoints().endPoint;
             const startOffset = {};
-            startOffset.x = headPosition.x - previousEnd.x + previousStart.x;
-            startOffset.y = headPosition.y - previousEnd.y + previousStart.y;
-            startPoint = this._pointAlongSlope(startOffset, headPosition, -37);
-            endPoint = this._pointAlongSlope(headPosition, startPoint, 37);
+            startOffset.x = previousStart.x - previousEnd.x + headPosition.x;
+            startOffset.y = previousStart.y - previousEnd.y + headPosition.y;
+            startPoint = pointAlongSlope(startOffset, headPosition, -37);
+            endPoint = pointAlongSlope(headPosition, startPoint, 37);
         } else {
             const tailPosition = this.tail.centerPosition();
-            startPoint = this._pointAlongSlope(tailPosition, headPosition, 30);
-            endPoint = this._pointAlongSlope(headPosition, tailPosition, 37);
+            startPoint = pointAlongSlope(tailPosition, headPosition, 30);
+            endPoint = pointAlongSlope(headPosition, tailPosition, 37);
         }
         this._setD(startPoint, endPoint);
         this._setLabelToControlPosition();
@@ -117,14 +116,14 @@ class Edge {
         if (toPlace instanceof State) {
             this.head = toPlace;
             const headPosition = this.head.centerPosition();
-            endPoint = this._pointAlongSlope(headPosition, startPoint, 37);
+            endPoint = pointAlongSlope(headPosition, startPoint, 37);
             this.element.setAttributeNS(null, 'data-head', toPlace.id());
         } else {
             this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
         }
         if (this.tail) {
-            startPoint = this._pointAlongSlope(startPoint, endPoint, 30);
+            startPoint = pointAlongSlope(startPoint, endPoint, 30);
         }
         this._setD(startPoint, endPoint);
         this._setLabelToControlPosition();
@@ -138,7 +137,7 @@ class Edge {
 
     _dPoints() {
         // tail to head: <path d="M 100,250 Q 250,100 400,250" />
-        // start edge:  <path d="M 100,250 l 400,250" />
+        // Initial edge: <path d="M 100,250 l 400,250" />
         const dParts = this.element.getAttributeNS(null, 'd').split(' ');
         const startString = dParts[1].split(',');
         const controlString = dParts[3].split(',');
@@ -166,29 +165,8 @@ class Edge {
         return this.element.parentNode;
     }
 
-    _pointAlongSlope(fromPoint, toPoint, distance) {
-        if (this._isPointingleftOrStraightUp(fromPoint, toPoint)) {
-            distance *= -1;
-        }
-        const m = this._slope(toPoint, fromPoint);
-        if (!Number.isFinite(m)) {
-            return { x: fromPoint.x, y: fromPoint.y + distance };
-        }
-        const d = distance * Math.sqrt(1 / (1 + m * m));
-        const x = fromPoint.x + d;
-        const y = fromPoint.y + m * d;
-        return { x, y };
-    }
-
     _isInitialEdge() {
         return !this.tail && this.head;
-    }
-
-    _isPointingleftOrStraightUp(tailPosition, headPosition) {
-        if (headPosition.x === tailPosition.x) {
-            return headPosition.y < tailPosition.y;
-        }
-        return headPosition.x < tailPosition.x;
     }
 
     _setD(tailPosition, headPosition, calculateIntersect = true) {
@@ -208,10 +186,6 @@ class Edge {
         const controlPosition = this._dPoints().controlPoint;
         fo.setAttributeNS(null, 'x', controlPosition.x);
         fo.setAttributeNS(null, 'y', controlPosition.y);
-    }
-
-    _slope(startpoint, endpoint) {
-        return (endpoint.y - startpoint.y) / (endpoint.x - startpoint.x);
     }
 
     _textInputElement() {

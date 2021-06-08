@@ -45,8 +45,10 @@ function initGraph() {
 function mousedown(event) {
     mouseIsDown = true;
     const mousePosition = getMousePosition(event);
-    graph.select(event.target, mousePosition);
-    if (newEdgeButton.isPressed) {
+    const selectedObject = graph.select(event.target, mousePosition);
+    if (event.altKey && selectedObject instanceof State) {
+        selectedObject.toggleGoal();
+    } else if (newEdgeButton.isPressed) {
         graph.startTemporaryEdge(event.target, mousePosition);
     }
 }
@@ -68,8 +70,7 @@ function mouseup(event) {
     if (newEdgeButton.isPressed) {
         graph.setOrDeleteTemporaryEdge();
     }
-    if (graph.selectedObject instanceof State ||
-        graph.selectedObject instanceof Edge) {
+    if (graph.selectedObject instanceof Edge) {
         graph.selectedObject.focusLabel();
     }
 }
@@ -82,11 +83,8 @@ function mouseleave(event) {
 
 function dblclick(event) {
     if (graph.selectedObject instanceof State) {
-        graph.selectedObject.toggleGoal();
+        graph.selectedObject.focusLabel();
     }
-    // if (event.target.getAttributeNS(null, 'class') === 'state') {
-    //     graph.selectedObject.focusLabel();
-    // }
 }
 
 // button event handlers
@@ -114,7 +112,7 @@ newStateButton.addEventListener('click', () => {
 });
 
 playButton.addEventListener('click', () => {
-    graph.run();
+    graph.runAnimation();
 });
 
 uploadButton.addEventListener('change', () => {
