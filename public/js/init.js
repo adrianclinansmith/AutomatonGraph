@@ -129,7 +129,19 @@ uploadButton.addEventListener('change', () => {
 
 // Animation Callbacks
 
-function endAnimation(event) {
-    console.log('there we go');
-    console.log(event.target);
+function edgeAnimationEnded(event) {
+    console.log('edge animation ended');
+    const edge = new Edge(event.target.parentNode.parentNode.children[0]);
+    const head = edge.head;
+    console.log(edge);
+    console.log(head);
+    head.animate();
+}
+
+function stateAnimationBegan(event) {
+    console.log('state animation began');
+}
+
+function stateAnimationEnded(event) {
+    console.log('state animation ended');
 }

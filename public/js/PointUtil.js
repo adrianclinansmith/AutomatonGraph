@@ -14,7 +14,7 @@ function pointAlongSlope(fromPoint, toPoint, distance) {
     if (!Number.isFinite(m)) {
         return { x: fromPoint.x, y: fromPoint.y + distance };
     }
-    const d = distance * Math.sqrt(1 / (1 + m * m));
+    const d = distance / Math.sqrt(1 + m * m);
     const x = fromPoint.x + d;
     const y = fromPoint.y + m * d;
     return { x, y };

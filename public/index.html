@@ -74,13 +74,23 @@
 						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" type="text" />
 					</foreignObject>
 					<circle class="animation-circle" r="5">
-						<animateMotion begin="indefinite" dur="2s" path onend="endAnimation(event)" />
+						<animateMotion begin="indefinite" dur="2s" path onend="edgeAnimationEnded(event)" />
 					</circle>
 				</g>
 				<!-- state template  -->
 				<g class="state-g" id="state-g-template" transform>
-					<circle class="state" r="30px" data-inedges data-outedges id style></circle>
-					<circle class="state-goal-inner-circle" r="26px" style></circle>
+					<circle class="state" r="30px" data-inedges data-outedges id style>
+						<animate begin="indefinite" dur="1s" attributeType="css"
+							attributeName="fill" to="#faf9ba" 
+							onbegin="stateAnimationBegan(event)" onend="stateAnimationEnded(event)">
+						</animate>
+					</circle>
+					<circle class="state-goal-inner-circle" r="26px" style>
+						<animate begin="indefinite" dur="1s" attributeType="css"
+							attributeName="fill" to="#faf9ba" 
+							onbegin="stateAnimationBegan(event)" onend="stateAnimationEnded(event)">
+						</animate>
+					</circle>
 					<foreignObject class="state-foreign-object" height="100%"
 						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%" x="-21" y="-23">
 						<input xmlns="http://www.w3.org/1999/xhtml" class="state-label"type="text" style value />

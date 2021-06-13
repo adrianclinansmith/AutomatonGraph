@@ -67,6 +67,14 @@ class State {
         }
     }
 
+    animate() {
+        if (this.isGoal()) {
+            this._innerAnimateElement().beginElement();
+        } else {
+            this._animateElement().beginElement();
+        }
+    }
+
     centerPosition() {
         const trans = this._g().getAttributeNS(null, 'transform');
         const x = trans.substring(trans.indexOf('(') + 1, trans.indexOf(','));
@@ -129,6 +137,10 @@ class State {
         return edges.concat(this._edges('data-outedges'));
     }
 
+    _animateElement() {
+        return this.element.children[0];
+    }
+
     _g() {
         return this.element.parentNode;
     }
@@ -142,6 +154,10 @@ class State {
             }
         }
         return edges;
+    }
+
+    _innerAnimateElement() {
+        return this._innerCircle().children[0];
     }
 
     _innerCircle() {
