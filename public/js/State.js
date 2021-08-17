@@ -39,6 +39,12 @@ class State {
     constructor(elementOrId) {
         if (typeof elementOrId === 'string' || elementOrId instanceof String) {
             this.element = document.getElementById(elementOrId);
+        } else if (elementOrId.classList.contains('state-g')) {
+            this.element = elementOrId.children[0];
+        } else if (elementOrId.classList.contains('state-animate')) {
+            this.element = elementOrId.parentNode;
+        } else if (elementOrId.classList.contains('state-inner-animate')) {
+            this.element = elementOrId.parentNode.parentNode.children[0];
         } else {
             this.element = elementOrId;
         }
@@ -48,26 +54,19 @@ class State {
     /* Instance */
 
     addInEdge(edge) {
-        let inEdges = this.element.getAttributeNS(null, 'data-inedges');
-        if (inEdges === '') {
-            this.element.setAttributeNS(null, 'data-inedges', edge.id());
-        } else {
-            inEdges += ` ${edge.id()}`;
-            this.element.setAttributeNS(null, 'data-inedges', inEdges);
-        }
+        let inEdgesString = this.element.getAttributeNS(null, 'data-inedges');
+        inEdgesString += `${edge.id()} `;
+        this.element.setAttributeNS(null, 'data-inedges', inEdgesString);
     }
 
     addOutEdge(edge) {
-        let outEdges = this.element.getAttributeNS(null, 'data-outedges');
-        if (outEdges === '') {
-            this.element.setAttributeNS(null, 'data-outedges', edge.id());
-        } else {
-            outEdges += ` ${edge.id()}`;
-            this.element.setAttributeNS(null, 'data-outedges', outEdges);
-        }
+        let outEdgesString = this.element.getAttributeNS(null, 'data-outedges');
+        outEdgesString += `${edge.id()} `;
+        this.element.setAttributeNS(null, 'data-outedges', outEdgesString);
     }
 
-    animate() {
+    animate(input) {
+        this._setDataInput(input);
         if (this.isGoal()) {
             this._innerAnimateElement().beginElement();
         } else {
@@ -76,31 +75,38 @@ class State {
     }
 
     centerPosition() {
-        const trans = this._g().getAttributeNS(null, 'transform');
+        const trans = this._gElement().getAttributeNS(null, 'transform');
         const x = trans.substring(trans.indexOf('(') + 1, trans.indexOf(','));
         const y = trans.substring(trans.indexOf(',') + 1, trans.indexOf(')'));
         return { x: parseFloat(x), y: parseFloat(y) };
     }
 
     focusLabel() {
-        this._textInput().focus();
+        this._textInputElement().focus();
     }
 
     id() {
         return this.element.getAttributeNS(null, 'id');
     }
 
-    // will use publicly
+    input() {
+        return this.element.getAttributeNS(null, 'data-input');
+    }
+
     isGoal() {
-        return this._innerCircle().style.visibility !== '';
+        return this._innerCircleElement().style.visibility !== '';
     }
 
     moveTo(position) {
         const x = position.x + this.positionOffset.x;
         const y = position.y + this.positionOffset.y;
         const translate = `translate(${x}, ${y})`;
-        this._g().setAttributeNS(null, 'transform', translate);
+        this._gElement().setAttributeNS(null, 'transform', translate);
         this._allEdges().forEach(edge => { edge.resetForMovedState(); });
+    }
+
+    outEdges() {
+        return this._edges('data-outedges');
     }
 
     run() {
@@ -111,7 +117,7 @@ class State {
 
     setColor(color) {
         this.element.style.stroke = color;
-        this._innerCircle().style.stroke = color;
+        this._innerCircleElement().style.stroke = color;
     }
 
     setPositionOffset(fromPoint) {
@@ -122,11 +128,15 @@ class State {
         this.positionOffset = positionOffset;
     }
 
+    setLabel(textString) {
+        this._textInputElement().setAttributeNS(null, 'value', textString);
+    }
+
     toggleGoal() {
         if (this.isGoal()) {
-            this._innerCircle().style.visibility = '';
+            this._innerCircleElement().style.visibility = '';
         } else {
-            this._innerCircle().style.visibility = 'visible';
+            this._innerCircleElement().style.visibility = 'visible';
         }
     }
 
@@ -141,14 +151,16 @@ class State {
         return this.element.children[0];
     }
 
-    _g() {
+    _gElement() {
         return this.element.parentNode;
     }
 
     _edges(edgeDataString) {
         const edges = [];
-        const inIds = this.element.getAttributeNS(null, edgeDataString);
-        for (const id of inIds.split(' ')) {
+        const edgeIds = this.element.getAttributeNS(null, edgeDataString);
+        console.log("edgeIds:");
+        console.log(edgeIds);
+        for (const id of edgeIds.split(' ')) {
             if (id) {
                 edges.push(new Edge(id));
             }
@@ -157,14 +169,18 @@ class State {
     }
 
     _innerAnimateElement() {
-        return this._innerCircle().children[0];
+        return this._innerCircleElement().children[0];
     }
 
-    _innerCircle() {
-        return this._g().children[1];
+    _innerCircleElement() {
+        return this._gElement().children[1];
     }
 
-    _textInput() {
-        return this._g().children[2].children[0];
+    _setDataInput(input) {
+        this.element.setAttributeNS(null, 'data-input', input);
+    }
+
+    _textInputElement() {
+        return this._gElement().children[2].children[0];
     }
 }

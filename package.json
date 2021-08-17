@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prestart": "node hello",
     "start": "nodemon server.js"
   },
   "author": "Adrian Clinansmith <adrianclinansmith@hotmail.com>",

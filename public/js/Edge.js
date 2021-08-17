@@ -45,6 +45,8 @@ class Edge {
     constructor(elementOrId) {
         if (typeof elementOrId === 'string' || elementOrId instanceof String) {
             this.element = document.getElementById(elementOrId);
+        } else if (elementOrId.getAttribute('class') === 'edge-g') {
+            this.element = elementOrId.children[0];
         } else {
             this.element = elementOrId;
         }
@@ -60,8 +62,16 @@ class Edge {
 
     /* Instance */
 
-    animate() {
+    animateOnValidInput(input) {
+        if (!this._labelValue().length) {
+            this._setDataInput(input);
+        } else if (input.length && this._labelValue().includes(input[0])) {
+            this._setDataInput(input.slice(1));
+        } else {
+            return false;
+        }
         this._animateMotionElement().beginElement();
+        return true;
     }
 
     focusLabel() {
@@ -70,6 +80,10 @@ class Edge {
 
     id() {
         return this.element.getAttributeNS(null, 'id');
+    }
+
+    input() {
+        return this.element.getAttributeNS(null, 'data-input');
     }
 
     isValidEdge() {
@@ -129,6 +143,10 @@ class Edge {
         this._setLabelToControlPosition();
     }
 
+    setLabel(textString) {
+        this._textInputElement().setAttributeNS(null, 'value', textString);
+    }
+
     /* Private Instance */
 
     _animateMotionElement() {
@@ -169,6 +187,10 @@ class Edge {
         return !this.tail && this.head;
     }
 
+    _labelValue() {
+        return this._textInputElement().value;
+    }
+
     _setD(tailPosition, headPosition, calculateIntersect = true) {
         const control = {};
         control.x = (tailPosition.x + headPosition.x) / 2;
@@ -179,6 +201,10 @@ class Edge {
         const dString = tailString + controlString + headString;
         this.element.setAttributeNS(null, 'd', dString);
         this._animateMotionElement().setAttributeNS(null, 'path', dString);
+    }
+
+    _setDataInput(input) {
+        this.element.setAttributeNS(null, 'data-input', input);
     }
 
     _setLabelToControlPosition() {

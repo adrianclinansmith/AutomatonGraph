@@ -6,10 +6,11 @@
 const downloadButton = document.getElementById('downloadButton');
 const newStateButton = document.getElementById('newStateButton');
 const newEdgeButton = document.getElementById('newEdgeButton');
-const playButton = document.getElementById('playButton');
+const playPauseButton = document.getElementById('playPauseButton');
+const stopButton = document.getElementById('stopButton');
 const uploadButton = document.getElementById('uploadButton');
 
-let graph = initGraph();
+let graph = initGraph(true);
 let mouseIsDown = false;
 
 // functions
@@ -22,7 +23,19 @@ function getMousePosition(event) {
     };
 }
 
-function initGraph() {
+function stopAnimation(inputWasAccepted) {
+    const resultLabel = document.getElementById('resultLabel');
+    if (inputWasAccepted) {
+        resultLabel.style.color = 'green';
+        resultLabel.innerHTML = 'accepted';
+    } else {
+        resultLabel.style.color = 'red';
+        resultLabel.innerHTML = 'rejected';
+    }
+    playPauseButton.innerHTML = 'play';
+}
+
+function initGraph(addDefaultElements) {
     const svg = document.getElementById('svg');
     const stateElements = document.getElementsByClassName('state');
     const edgeElements = document.getElementsByClassName('edge');
@@ -37,7 +50,23 @@ function initGraph() {
     for (const element of edgeElements) {
         Edge.setLabelCallback(element);
     }
-    return new Graph(svg);
+    const newGraph = new Graph(svg);
+    if (addDefaultElements === true) {
+        const s0 = newGraph.addNewState({ x: 400, y: 250 });
+        const s1 = newGraph.addNewState({ x: 600, y: 250 });
+        s0.setLabel('s0');
+        s1.setLabel('s1');
+        s1.toggleGoal();
+        newGraph.startTemporaryEdge(null, { x: 400, y: 150 });
+        newGraph.temporaryEdgeHeadTo(s0.element, null);
+        newGraph.setOrDeleteTemporaryEdge();
+        const conectEdge = newGraph.startTemporaryEdge(s0.element, null);
+        newGraph.temporaryEdgeHeadTo(s1.element, null);
+        newGraph.setOrDeleteTemporaryEdge();
+        conectEdge.setLabel('a,b,c');
+        newGraph.deselect();
+    }
+    return newGraph;
 }
 
 // mouse event handlers
@@ -111,8 +140,23 @@ newStateButton.addEventListener('click', () => {
     graph.addNewState();
 });
 
-playButton.addEventListener('click', () => {
-    graph.runAnimation();
+playPauseButton.addEventListener('click', () => {
+    if (playPauseButton.innerHTML === 'play') {
+        playPauseButton.innerHTML = 'pause';
+    } else {
+        playPauseButton.innerHTML = 'play';
+    }
+    document.getElementById('resultLabel').innerHTML = '';
+    graph.startAnimation();
+});
+
+stopButton.addEventListener('click', () => {
+    graph.animationShouldPlay = false;
+    const animations = document.getElementsByClassName('animate');
+    for (const animation of animations) {
+        animation.endElement();
+        // animation.pauseElement();
+    }
 });
 
 uploadButton.addEventListener('change', () => {
@@ -130,18 +174,37 @@ uploadButton.addEventListener('change', () => {
 // Animation Callbacks
 
 function edgeAnimationEnded(event) {
-    console.log('edge animation ended');
+    if (!graph.animationShouldPlay) {
+        return;
+    }
     const edge = new Edge(event.target.parentNode.parentNode.children[0]);
-    const head = edge.head;
-    console.log(edge);
-    console.log(head);
-    head.animate();
+    edge.head.animate(edge.input());
 }
 
 function stateAnimationBegan(event) {
-    console.log('state animation began');
+    graph.activeStates++;
 }
 
 function stateAnimationEnded(event) {
-    console.log('state animation ended');
+    graph.activeStates--;
+    const resultLabel = document.getElementById('resultLabel');
+    if (!graph.animationShouldPlay || resultLabel.innerHTML === 'accepted') {
+        return;
+    }
+    const state = new State(event.target);
+    const input = state.input();
+    if (input?.length === 0 && state.isGoal()) {
+        stopAnimation(true);
+        return;
+    }
+    let anEdgeWasAnimated = false;
+    for (const outEdge of state.outEdges()) {
+        const wasAnimated = outEdge.animateOnValidInput(input);
+        if (wasAnimated) {
+            anEdgeWasAnimated = true;
+        }
+    }
+    if (!anEdgeWasAnimated && graph.activeStates === 0) {
+        stopAnimation(false);
+    }
 }

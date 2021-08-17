@@ -8,11 +8,13 @@ class Graph {
         this.selectedObject = null;
         this.temporaryEdge = null;
         this.newStateAngle = Math.PI / -2;
+        this.animationShouldPlay = false;
+        this.activeStates = 0;
     }
 
     /* Instance */
 
-    addNewState() {
+    addNewState(centerPosition) {
         const x = this.width() / 2 + 30 * Math.cos(this.newStateAngle);
         const y = this.height() - 5 - 30 * (2 + Math.sin(this.newStateAngle));
         this.newStateAngle += Math.PI / 2;
@@ -21,13 +23,20 @@ class Graph {
         } else if (Math.abs(this.newStateAngle - 7 * Math.PI / 4) < 0.01) {
             this.newStateAngle = Math.PI / -2;
         }
-        const stategElement = State.createElementAt({ x, y });
+        centerPosition = centerPosition || { x, y };
+        const stategElement = State.createElementAt(centerPosition);
         this.svg.appendChild(stategElement);
+        return new State(stategElement);
     }
 
     deleteTemporaryEdge() {
         this.temporaryEdge?.remove();
         this.temporaryEdge = null;
+    }
+
+    deselect() {
+        this.selectedObject?.setColor('');
+        this.selectedObject = null;
     }
 
     height() {
@@ -40,16 +49,18 @@ class Graph {
         }
     }
 
-    runAnimation() {
+    startAnimation() {
+        this.animationShouldPlay = true;
+        this.activeStates = 0;
+        const input = document.getElementById('graphInput').value;
         const initialEdgeArray = this._allInitialEdges();
         for (const initialEdge of initialEdgeArray) {
-            initialEdge.animate();
+            initialEdge.animateOnValidInput(input);
         }
     }
 
     select(element, atPosition) {
-        this.selectedObject?.setColor('');
-        this.selectedObject = null;
+        this.deselect();
         if (element.getAttribute('class') === 'state') {
             this.selectedObject = new State(element);
             this.selectedObject.setColor('red');
@@ -75,13 +86,14 @@ class Graph {
 
     startTemporaryEdge(element, position) {
         let edgegElement;
-        if (element.getAttribute('class') === 'state') {
+        if (element?.getAttribute('class') === 'state') {
             edgegElement = Edge.createElementAt(new State(element));
         } else {
             edgegElement = Edge.createElementAt(position);
         }
         this.svg.appendChild(edgegElement);
         this.temporaryEdge = new Edge(edgegElement.children[0]);
+        return new Edge(edgegElement);
     }
 
     temporaryEdgeHeadTo(element, position) {
@@ -114,7 +126,6 @@ class Graph {
                 initialEdgeObjects.push(object);
             }
         }
-        console.log(initialEdgeObjects);
         return initialEdgeObjects;
     }
 }

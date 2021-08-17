@@ -29,6 +29,8 @@
 					background-color: transparent;
 					border: none;
 					pointer-events: none;
+					font-size: 15px;
+					font-family: Monaco, monospace;
 				}
 
 				.state {
@@ -61,39 +63,45 @@
 					background-color: transparent;
 					border: none;
 				}
+
+				.stop {
+					-webkit-animation-play-state: paused;
+					-moz-animation-play-state: paused;
+					animation-play-state: paused;
+				}
 			</style>
 			<!-- graph element templates -->
 			<svg id="template-container" pointer-events="none" visibility="hidden">
 				<!-- edge template  -->
 				<g class="edge-g" id="edge-g-template">
-					<path class="edge" d data-head data-tail id="edge-template"
+					<path class="edge" d data-head data-input data-tail id="edge-template"
 						marker-end="url(#arrowhead-red)" style="stroke: red;">
 					</path>
 					<foreignObject class="edge-foreign-object" height="100%"
 						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%">
-						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" type="text" />
+						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" spellcheck="false" type="text" />
 					</foreignObject>
 					<circle class="animation-circle" r="5">
-						<animateMotion begin="indefinite" dur="2s" path onend="edgeAnimationEnded(event)" />
+						<animateMotion begin="indefinite" class="animate edge-animate" dur="2s" path onend="edgeAnimationEnded(event)" />
 					</circle>
 				</g>
 				<!-- state template  -->
 				<g class="state-g" id="state-g-template" transform>
-					<circle class="state" r="30px" data-inedges data-outedges id style>
-						<animate begin="indefinite" dur="1s" attributeType="css"
+					<circle class="state" r="30px" data-inedges data-input data-outedges id style>
+						<animate begin="indefinite" class="animate state-animate" dur="1s" attributeType="css"
 							attributeName="fill" to="#faf9ba" 
 							onbegin="stateAnimationBegan(event)" onend="stateAnimationEnded(event)">
 						</animate>
 					</circle>
 					<circle class="state-goal-inner-circle" r="26px" style>
-						<animate begin="indefinite" dur="1s" attributeType="css"
+						<animate begin="indefinite" class="animate state-inner-animate" dur="1s" attributeType="css"
 							attributeName="fill" to="#faf9ba" 
 							onbegin="stateAnimationBegan(event)" onend="stateAnimationEnded(event)">
 						</animate>
 					</circle>
 					<foreignObject class="state-foreign-object" height="100%"
 						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%" x="-21" y="-23">
-						<input xmlns="http://www.w3.org/1999/xhtml" class="state-label"type="text" style value />
+						<input xmlns="http://www.w3.org/1999/xhtml" class="state-label"type="text" spellcheck="false" style value />
 					</foreignObject>
 				</g>
 			</svg>
@@ -113,12 +121,18 @@
 			  <!-- graph elements (to be populated) -->
 		</svg>
 	</div>
+	<label id="resultLabel"></label>
 	<!-- buttons  -->
-	<button id="playButton">play</button>
+	<button id="playPauseButton">play</button>
+	<button id="stopButton">stop</button>
 	<button id="newStateButton">new state</button>
 	<button id="newEdgeButton">new edge</button>
 	<button id="downloadButton">download</button>
 	<input type="file" name="upload" id="uploadButton">
+	<br><br><br>
+	
+	<!-- User Input -->
+	<textarea name="" id="graphInput" cols="140" rows="100"></textarea>
 	
 	<!-- scripts  -->
 	<script src="./js/PointUtil.js"></script>

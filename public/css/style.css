@@ -7,31 +7,13 @@ body {
     user-select: none;
 }
 
-/* .state {
-    fill: white;
-    stroke: black;
-    stroke-width: 2px;
-}
-
-foreignObject {
-    text-align: left;
-    background-color: transparent;
-    pointer-events: none;
-}
-
-.state-label {
-    line-height: 40px; /~* √(2) x (radius=30) = 42.43 *~/
-    width: 40px;
-    text-align: center;
-    pointer-events: none;
-    font-size: 25px;
-    font-family: Monaco, monospace;
-    background-color: transparent;
-    border: none;
-} */
-
 input:focus, select:focus {
     outline: none;
+}
+
+#resultLabel {
+    display: inline-block;
+    width: 100px;
 }
 
 
