@@ -23,18 +23,6 @@ function getMousePosition(event) {
     };
 }
 
-// function stopAnimation(inputWasAccepted) {
-//     const resultLabel = document.getElementById('resultLabel');
-//     if (inputWasAccepted) {
-//         resultLabel.style.color = 'green';
-//         resultLabel.innerHTML = 'accepted';
-//     } else {
-//         resultLabel.style.color = 'red';
-//         resultLabel.innerHTML = 'rejected';
-//     }
-//     playPauseButton.innerHTML = 'play';
-// }
-
 function initGraph(addDefaultElements) {
     const svg = document.getElementById('svg');
     const stateElements = document.getElementsByClassName('state');
@@ -168,10 +156,6 @@ uploadButton.addEventListener('change', () => {
 
 // Animation Callbacks
 
-function edgeAnimationBegan(event) {
-    graph.activeStates++;
-}
-
 function edgeAnimationEnded(event) {
     if (!graph.animationShouldPlay) {
         return;
@@ -185,22 +169,22 @@ function stateAnimationEnded(event) {
         return;
     }
     graph.activeStates--;
+    console.log('active states: ' + graph.activeStates);
     const state = new State(event.target);
-    const input = state.input();
-    if (input?.length === 0 && state.isGoal()) {
-        graph.stopAnimation(true);
+    const resultLabel = document.getElementById('resultLabel');
+    if (state.isGoalWithNoInput()) {
+        graph.stopAnimation();
         playPauseButton.innerHTML = 'play';
+        resultLabel.style.color = 'green';
+        resultLabel.innerHTML = 'accepted';
         return;
     }
-    let anEdgeWasAnimated = false;
-    for (const outEdge of state.outEdges()) {
-        const wasAnimated = outEdge.animateOnValidInput(input);
-        if (wasAnimated) {
-            anEdgeWasAnimated = true;
-        }
-    }
-    if (!anEdgeWasAnimated && graph.activeStates === 0) {
-        graph.stopAnimation(false);
+    const newlyAnimatedEdges = state.sendInputToOutEdges();
+    graph.activeStates += newlyAnimatedEdges;
+    if (newlyAnimatedEdges === 0 && graph.activeStates === 0) {
+        graph.stopAnimation();
         playPauseButton.innerHTML = 'play';
+        resultLabel.style.color = 'red';
+        resultLabel.innerHTML = 'rejected';
     }
 }

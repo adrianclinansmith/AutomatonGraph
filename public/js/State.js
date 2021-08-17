@@ -97,6 +97,10 @@ class State {
         return this._innerCircleElement().style.visibility !== '';
     }
 
+    isGoalWithNoInput() {
+        return this.isGoal() && this.input().length === 0;
+    }
+
     moveTo(position) {
         const x = position.x + this.positionOffset.x;
         const y = position.y + this.positionOffset.y;
@@ -113,6 +117,17 @@ class State {
         for (const outEdge of this._edges('data-outedges')) {
             outEdge.animate();
         }
+    }
+
+    sendInputToOutEdges() {
+        let numberOfAnimatedEdges = 0;
+        for (const outEdge of this.outEdges()) {
+            const wasAnimated = outEdge.animateOnValidInput(this.input());
+            if (wasAnimated) {
+                numberOfAnimatedEdges++;
+            }
+        }
+        return numberOfAnimatedEdges;
     }
 
     setColor(color) {

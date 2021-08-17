@@ -63,15 +63,20 @@ class Edge {
     /* Instance */
 
     animateOnValidInput(input) {
-        if (!this._labelValue().length) {
+        const edgeLabel = this._labelValue();
+        const thisEdgeHasNoLabel = edgeLabel.length === 0;
+        const inputIsAccepted = input.length > 0 && edgeLabel.includes(input[0]);
+        if (thisEdgeHasNoLabel) {
             this._setDataInput(input);
-        } else if (input.length && this._labelValue().includes(input[0])) {
+            this._animateMotionElement().beginElement();
+            return true;
+        } else if (inputIsAccepted) {
             this._setDataInput(input.slice(1));
+            this._animateMotionElement().beginElement();
+            return true;
         } else {
             return false;
         }
-        this._animateMotionElement().beginElement();
-        return true;
     }
 
     focusLabel() {

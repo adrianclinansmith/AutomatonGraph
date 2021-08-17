@@ -80,7 +80,10 @@ class Graph {
         const input = document.getElementById('graphInput').value;
         const initialEdgeArray = this._allInitialEdges();
         for (const initialEdge of initialEdgeArray) {
-            initialEdge.animateOnValidInput(input);
+            const wasAccepted = initialEdge.animateOnValidInput(input);
+            if (wasAccepted) {
+                this.activeStates++;
+            }
         }
     }
 
@@ -96,18 +99,8 @@ class Graph {
         return new Edge(edgegElement);
     }
 
-    stopAnimation(inputWasAccepted) {
+    stopAnimation() {
         this.animationShouldPlay = false;
-        const resultLabel = document.getElementById('resultLabel');
-        if (inputWasAccepted === true) {
-            resultLabel.style.color = 'green';
-            resultLabel.innerHTML = 'accepted';
-        } else if (inputWasAccepted === false) {
-            resultLabel.style.color = 'red';
-            resultLabel.innerHTML = 'rejected';
-        } else {
-            resultLabel.innerHTML = '';
-        }
         const animations = document.getElementsByClassName('animate');
         for (const animation of animations) {
             animation.endElement();
