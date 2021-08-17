@@ -23,17 +23,17 @@ function getMousePosition(event) {
     };
 }
 
-function stopAnimation(inputWasAccepted) {
-    const resultLabel = document.getElementById('resultLabel');
-    if (inputWasAccepted) {
-        resultLabel.style.color = 'green';
-        resultLabel.innerHTML = 'accepted';
-    } else {
-        resultLabel.style.color = 'red';
-        resultLabel.innerHTML = 'rejected';
-    }
-    playPauseButton.innerHTML = 'play';
-}
+// function stopAnimation(inputWasAccepted) {
+//     const resultLabel = document.getElementById('resultLabel');
+//     if (inputWasAccepted) {
+//         resultLabel.style.color = 'green';
+//         resultLabel.innerHTML = 'accepted';
+//     } else {
+//         resultLabel.style.color = 'red';
+//         resultLabel.innerHTML = 'rejected';
+//     }
+//     playPauseButton.innerHTML = 'play';
+// }
 
 function initGraph(addDefaultElements) {
     const svg = document.getElementById('svg');
@@ -151,12 +151,7 @@ playPauseButton.addEventListener('click', () => {
 });
 
 stopButton.addEventListener('click', () => {
-    graph.animationShouldPlay = false;
-    const animations = document.getElementsByClassName('animate');
-    for (const animation of animations) {
-        animation.endElement();
-        // animation.pauseElement();
-    }
+    graph.stopAnimation();
 });
 
 uploadButton.addEventListener('change', () => {
@@ -173,6 +168,10 @@ uploadButton.addEventListener('change', () => {
 
 // Animation Callbacks
 
+function edgeAnimationBegan(event) {
+    graph.activeStates++;
+}
+
 function edgeAnimationEnded(event) {
     if (!graph.animationShouldPlay) {
         return;
@@ -181,20 +180,16 @@ function edgeAnimationEnded(event) {
     edge.head.animate(edge.input());
 }
 
-function stateAnimationBegan(event) {
-    graph.activeStates++;
-}
-
 function stateAnimationEnded(event) {
-    graph.activeStates--;
-    const resultLabel = document.getElementById('resultLabel');
-    if (!graph.animationShouldPlay || resultLabel.innerHTML === 'accepted') {
+    if (!graph.animationShouldPlay) {
         return;
     }
+    graph.activeStates--;
     const state = new State(event.target);
     const input = state.input();
     if (input?.length === 0 && state.isGoal()) {
-        stopAnimation(true);
+        graph.stopAnimation(true);
+        playPauseButton.innerHTML = 'play';
         return;
     }
     let anEdgeWasAnimated = false;
@@ -205,6 +200,7 @@ function stateAnimationEnded(event) {
         }
     }
     if (!anEdgeWasAnimated && graph.activeStates === 0) {
-        stopAnimation(false);
+        graph.stopAnimation(false);
+        playPauseButton.innerHTML = 'play';
     }
 }

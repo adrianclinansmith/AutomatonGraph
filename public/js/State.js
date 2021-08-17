@@ -158,8 +158,6 @@ class State {
     _edges(edgeDataString) {
         const edges = [];
         const edgeIds = this.element.getAttributeNS(null, edgeDataString);
-        console.log("edgeIds:");
-        console.log(edgeIds);
         for (const id of edgeIds.split(' ')) {
             if (id) {
                 edges.push(new Edge(id));

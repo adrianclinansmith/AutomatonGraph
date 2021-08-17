@@ -49,16 +49,6 @@ class Graph {
         }
     }
 
-    startAnimation() {
-        this.animationShouldPlay = true;
-        this.activeStates = 0;
-        const input = document.getElementById('graphInput').value;
-        const initialEdgeArray = this._allInitialEdges();
-        for (const initialEdge of initialEdgeArray) {
-            initialEdge.animateOnValidInput(input);
-        }
-    }
-
     select(element, atPosition) {
         this.deselect();
         if (element.getAttribute('class') === 'state') {
@@ -84,6 +74,16 @@ class Graph {
         this.temporaryEdge = null;
     }
 
+    startAnimation() {
+        this.animationShouldPlay = true;
+        this.activeStates = 0;
+        const input = document.getElementById('graphInput').value;
+        const initialEdgeArray = this._allInitialEdges();
+        for (const initialEdge of initialEdgeArray) {
+            initialEdge.animateOnValidInput(input);
+        }
+    }
+
     startTemporaryEdge(element, position) {
         let edgegElement;
         if (element?.getAttribute('class') === 'state') {
@@ -94,6 +94,25 @@ class Graph {
         this.svg.appendChild(edgegElement);
         this.temporaryEdge = new Edge(edgegElement.children[0]);
         return new Edge(edgegElement);
+    }
+
+    stopAnimation(inputWasAccepted) {
+        this.animationShouldPlay = false;
+        const resultLabel = document.getElementById('resultLabel');
+        if (inputWasAccepted === true) {
+            resultLabel.style.color = 'green';
+            resultLabel.innerHTML = 'accepted';
+        } else if (inputWasAccepted === false) {
+            resultLabel.style.color = 'red';
+            resultLabel.innerHTML = 'rejected';
+        } else {
+            resultLabel.innerHTML = '';
+        }
+        const animations = document.getElementsByClassName('animate');
+        for (const animation of animations) {
+            animation.endElement();
+            // animation.pauseElement();
+        }
     }
 
     temporaryEdgeHeadTo(element, position) {

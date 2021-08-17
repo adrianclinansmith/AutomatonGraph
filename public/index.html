@@ -82,21 +82,20 @@
 						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" spellcheck="false" type="text" />
 					</foreignObject>
 					<circle class="animation-circle" r="5">
-						<animateMotion begin="indefinite" class="animate edge-animate" dur="2s" path onend="edgeAnimationEnded(event)" />
+						<animateMotion begin="indefinite" class="animate edge-animate" dur="2s"
+									   path onbegin="edgeAnimationBegan(event)" onend="edgeAnimationEnded(event)" />
 					</circle>
 				</g>
 				<!-- state template  -->
 				<g class="state-g" id="state-g-template" transform>
 					<circle class="state" r="30px" data-inedges data-input data-outedges id style>
 						<animate begin="indefinite" class="animate state-animate" dur="1s" attributeType="css"
-							attributeName="fill" to="#faf9ba" 
-							onbegin="stateAnimationBegan(event)" onend="stateAnimationEnded(event)">
+							attributeName="fill" to="#faf9ba" onend="stateAnimationEnded(event)">
 						</animate>
 					</circle>
 					<circle class="state-goal-inner-circle" r="26px" style>
 						<animate begin="indefinite" class="animate state-inner-animate" dur="1s" attributeType="css"
-							attributeName="fill" to="#faf9ba" 
-							onbegin="stateAnimationBegan(event)" onend="stateAnimationEnded(event)">
+							attributeName="fill" to="#faf9ba" onend="stateAnimationEnded(event)">
 						</animate>
 					</circle>
 					<foreignObject class="state-foreign-object" height="100%"
