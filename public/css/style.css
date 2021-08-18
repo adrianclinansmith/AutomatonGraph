@@ -11,6 +11,18 @@ input:focus, select:focus {
     outline: none;
 }
 
+.inputArea {
+    border: none;
+    font-family: Monaco, monospace;
+    font-size: 20px;
+    height: 500px;
+    resize: none;
+}
+
+#inputEditor {
+    width: 1000px;
+}
+
 #resultLabel {
     display: inline-block;
     width: 100px;

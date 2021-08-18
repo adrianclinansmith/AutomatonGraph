@@ -10,6 +10,8 @@ class Graph {
         this.newStateAngle = Math.PI / -2;
         this.animationShouldPlay = false;
         this.activeStates = 0;
+        this.inputs = [];
+        this.currentLine = 0;
     }
 
     /* Instance */
@@ -27,6 +29,12 @@ class Graph {
         const stategElement = State.createElementAt(centerPosition);
         this.svg.appendChild(stategElement);
         return new State(stategElement);
+    }
+
+    animateNextInput() {
+        this.currentLine++;
+        this.stopAnimation();
+        this.startAnimation();
     }
 
     deleteTemporaryEdge() {
@@ -75,12 +83,17 @@ class Graph {
     }
 
     startAnimation() {
+        if (this.currentLine >= this.inputs.length) {
+            console.log('hello');
+            return;
+        }
+        const currentInput = this.inputs[this.currentLine];
+        console.log('current input: ' + currentInput);
         this.animationShouldPlay = true;
         this.activeStates = 0;
-        const input = document.getElementById('graphInput').value;
         const initialEdgeArray = this._allInitialEdges();
         for (const initialEdge of initialEdgeArray) {
-            const wasAccepted = initialEdge.animateOnValidInput(input);
+            const wasAccepted = initialEdge.animateOnValidInput(currentInput);
             if (wasAccepted) {
                 this.activeStates++;
             }

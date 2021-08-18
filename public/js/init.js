@@ -10,6 +10,8 @@ const playPauseButton = document.getElementById('playPauseButton');
 const stopButton = document.getElementById('stopButton');
 const uploadButton = document.getElementById('uploadButton');
 
+const inputEditor = document.getElementById('inputEditor');
+
 let graph = initGraph(true);
 let mouseIsDown = false;
 
@@ -21,6 +23,12 @@ function getMousePosition(event) {
         x: (event.clientX - CTM.e) / CTM.a,
         y: (event.clientY - CTM.f) / CTM.d
     };
+}
+
+function appendToLine(text, toAppend, lineNumber) {
+    const lines = text.split('\n');
+    lines[lineNumber] = lines[lineNumber] + toAppend;
+    return lines.join('\n');
 }
 
 function initGraph(addDefaultElements) {
@@ -135,6 +143,9 @@ playPauseButton.addEventListener('click', () => {
         playPauseButton.innerHTML = 'play';
     }
     document.getElementById('resultLabel').innerHTML = '';
+    const inputs = inputEditor.value;
+    graph.inputs = inputs.split('\n');
+    graph.currentLine = 0;
     graph.startAnimation();
 });
 
@@ -154,6 +165,13 @@ uploadButton.addEventListener('change', () => {
         });
 });
 
+// editor event handlers
+
+function focusInputEditor() {
+    console.log('editor on focus');
+    inputEditor.value = inputEditor.value.replace(/( ✓)|( ❌)/g, '');
+};
+
 // Animation Callbacks
 
 function edgeAnimationEnded(event) {
@@ -169,22 +187,23 @@ function stateAnimationEnded(event) {
         return;
     }
     graph.activeStates--;
-    console.log('active states: ' + graph.activeStates);
     const state = new State(event.target);
     const resultLabel = document.getElementById('resultLabel');
     if (state.isGoalWithNoInput()) {
-        graph.stopAnimation();
+        inputEditor.value = appendToLine(inputEditor.value, ' ✓', graph.currentLine);
         playPauseButton.innerHTML = 'play';
         resultLabel.style.color = 'green';
         resultLabel.innerHTML = 'accepted';
+        graph.animateNextInput();
         return;
     }
     const newlyAnimatedEdges = state.sendInputToOutEdges();
     graph.activeStates += newlyAnimatedEdges;
     if (newlyAnimatedEdges === 0 && graph.activeStates === 0) {
-        graph.stopAnimation();
+        inputEditor.value = appendToLine(inputEditor.value, ' ❌', graph.currentLine);
         playPauseButton.innerHTML = 'play';
         resultLabel.style.color = 'red';
         resultLabel.innerHTML = 'rejected';
+        graph.animateNextInput();
     }
 }
