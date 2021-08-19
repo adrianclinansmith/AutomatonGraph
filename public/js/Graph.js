@@ -12,6 +12,7 @@ class Graph {
         this.activeStates = 0;
         this.inputs = [];
         this.currentLine = 0;
+        this.acceptedAll = true;
     }
 
     /* Instance */
@@ -34,7 +35,7 @@ class Graph {
     animateNextInput() {
         this.currentLine++;
         this.stopAnimation();
-        this.startAnimation();
+        return this.startAnimation();
     }
 
     deleteTemporaryEdge() {
@@ -84,8 +85,7 @@ class Graph {
 
     startAnimation() {
         if (this.currentLine >= this.inputs.length) {
-            console.log('hello');
-            return;
+            return false;
         }
         const currentInput = this.inputs[this.currentLine];
         console.log('current input: ' + currentInput);
@@ -98,6 +98,7 @@ class Graph {
                 this.activeStates++;
             }
         }
+        return true;
     }
 
     startTemporaryEdge(element, position) {

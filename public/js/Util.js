@@ -1,4 +1,11 @@
 /* eslint-disable no-unused-vars */
+
+function appendToLine(originalString, toAppend, lineNumber) {
+    const lines = originalString.split('\n');
+    lines[lineNumber] = lines[lineNumber] + toAppend;
+    return lines.join('\n');
+}
+
 function isPointingleftOrStraightUp(tailPosition, headPosition) {
     if (headPosition.x === tailPosition.x) {
         return headPosition.y < tailPosition.y;

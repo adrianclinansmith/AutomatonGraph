@@ -1,4 +1,4 @@
-/* global Edge Graph State */
+/* global appendToLine Edge Graph State */
 /* eslint-disable no-unused-vars */
 
 // global data
@@ -10,6 +10,7 @@ const playPauseButton = document.getElementById('playPauseButton');
 const stopButton = document.getElementById('stopButton');
 const uploadButton = document.getElementById('uploadButton');
 
+const resultLabel = document.getElementById('resultLabel');
 const inputEditor = document.getElementById('inputEditor');
 
 let graph = initGraph(true);
@@ -25,10 +26,17 @@ function getMousePosition(event) {
     };
 }
 
-function appendToLine(text, toAppend, lineNumber) {
-    const lines = text.split('\n');
-    lines[lineNumber] = lines[lineNumber] + toAppend;
-    return lines.join('\n');
+function finishedInputLineAndAccept(acceptedCurrent) {
+    graph.acceptedAll = graph.acceptedAll && acceptedCurrent;
+    const currentLine = graph.currentLine;
+    const checkOrX = acceptedCurrent ? ' ✓' : ' ❌';
+    inputEditor.value = appendToLine(inputEditor.value, checkOrX, currentLine);
+    playPauseButton.innerHTML = 'play';
+    const inputIsFinished = !graph.animateNextInput();
+    if (inputIsFinished) {
+        resultLabel.style.color = graph.acceptedAll ? 'green' : 'red';
+        resultLabel.innerHTML = graph.acceptedAll ? 'accepted' : 'rejected';
+    }
 }
 
 function initGraph(addDefaultElements) {
@@ -146,6 +154,7 @@ playPauseButton.addEventListener('click', () => {
     const inputs = inputEditor.value;
     graph.inputs = inputs.split('\n');
     graph.currentLine = 0;
+    graph.acceptedAll = true;
     graph.startAnimation();
 });
 
@@ -188,22 +197,13 @@ function stateAnimationEnded(event) {
     }
     graph.activeStates--;
     const state = new State(event.target);
-    const resultLabel = document.getElementById('resultLabel');
     if (state.isGoalWithNoInput()) {
-        inputEditor.value = appendToLine(inputEditor.value, ' ✓', graph.currentLine);
-        playPauseButton.innerHTML = 'play';
-        resultLabel.style.color = 'green';
-        resultLabel.innerHTML = 'accepted';
-        graph.animateNextInput();
+        finishedInputLineAndAccept(true);
         return;
     }
     const newlyAnimatedEdges = state.sendInputToOutEdges();
     graph.activeStates += newlyAnimatedEdges;
-    if (newlyAnimatedEdges === 0 && graph.activeStates === 0) {
-        inputEditor.value = appendToLine(inputEditor.value, ' ❌', graph.currentLine);
-        playPauseButton.innerHTML = 'play';
-        resultLabel.style.color = 'red';
-        resultLabel.innerHTML = 'rejected';
-        graph.animateNextInput();
+    if (graph.activeStates === 0) {
+        finishedInputLineAndAccept(false);
     }
 }
