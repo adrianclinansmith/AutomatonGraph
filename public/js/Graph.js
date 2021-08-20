@@ -11,7 +11,7 @@ class Graph {
         this.animationShouldPlay = false;
         this.activeStates = 0;
         this.inputs = [];
-        this.currentLine = 0;
+        this.currentLineNo = 0;
         this.acceptedAll = true;
     }
 
@@ -33,7 +33,7 @@ class Graph {
     }
 
     animateNextInput() {
-        this.currentLine++;
+        this.currentLineNo++;
         this.stopAnimation();
         return this.startAnimation();
     }
@@ -72,7 +72,7 @@ class Graph {
     }
 
     setOrDeleteTemporaryEdge() {
-        if (this.temporaryEdge?.isValidEdge()) {
+        if (this.temporaryEdge?.head) {
             this.selectedObject?.setColor('');
             this.selectedObject = this.temporaryEdge;
             this.selectedObject.tail?.addOutEdge(this.selectedObject);
@@ -84,10 +84,10 @@ class Graph {
     }
 
     startAnimation() {
-        if (this.currentLine >= this.inputs.length) {
+        if (this.currentLineNo >= this.inputs.length) {
             return false;
         }
-        const currentInput = this.inputs[this.currentLine];
+        const currentInput = this.inputs[this.currentLineNo];
         console.log('current input: ' + currentInput);
         this.animationShouldPlay = true;
         this.activeStates = 0;

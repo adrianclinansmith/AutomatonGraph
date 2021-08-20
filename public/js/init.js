@@ -10,8 +10,8 @@ const playPauseButton = document.getElementById('playPauseButton');
 const stopButton = document.getElementById('stopButton');
 const uploadButton = document.getElementById('uploadButton');
 
-const resultLabel = document.getElementById('resultLabel');
 const inputEditor = document.getElementById('inputEditor');
+const resultLabel = document.getElementById('resultLabel');
 
 let graph = initGraph(true);
 let mouseIsDown = false;
@@ -28,9 +28,9 @@ function getMousePosition(event) {
 
 function finishedInputLineAndAccept(acceptedCurrent) {
     graph.acceptedAll = graph.acceptedAll && acceptedCurrent;
-    const currentLine = graph.currentLine;
+    const currentLineNo = graph.currentLineNo;
     const checkOrX = acceptedCurrent ? ' ✓' : ' ❌';
-    inputEditor.value = appendToLine(inputEditor.value, checkOrX, currentLine);
+    inputEditor.value = appendToLine(inputEditor.value, checkOrX, currentLineNo);
     playPauseButton.innerHTML = 'play';
     const inputIsFinished = !graph.animateNextInput();
     if (inputIsFinished) {
@@ -153,7 +153,7 @@ playPauseButton.addEventListener('click', () => {
     document.getElementById('resultLabel').innerHTML = '';
     const inputs = inputEditor.value;
     graph.inputs = inputs.split('\n');
-    graph.currentLine = 0;
+    graph.currentLineNo = 0;
     graph.acceptedAll = true;
     graph.startAnimation();
 });
@@ -176,10 +176,10 @@ uploadButton.addEventListener('change', () => {
 
 // editor event handlers
 
-function focusInputEditor() {
+inputEditor.addEventListener('focus', () => {
     console.log('editor on focus');
     inputEditor.value = inputEditor.value.replace(/( ✓)|( ❌)/g, '');
-};
+});
 
 // Animation Callbacks
 

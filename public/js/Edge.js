@@ -15,20 +15,22 @@ class Edge {
             i += 1;
         }
         edgeElement.setAttributeNS(null, 'id', `e${i}`);
-        let startPosition;
+        let startPoint;
         if (place instanceof State) {
-            startPosition = place.centerPosition();
+            startPoint = place.centerPosition();
             edgeElement.setAttributeNS(null, 'data-tail', place.id());
             edgeElement.setAttributeNS(null, 'data-head', place.id());
         } else {
-            startPosition = place;
+            startPoint = place;
         }
-        const { x, y } = startPosition;
+        const { x, y } = startPoint;
         const dString = `M ${x},${y} Q ${x},${y} ${x},${y}`;
+        console.log(`start point: (${startPoint.x}, ${startPoint.y})`);
+        console.log(dString);
         edgeElement.setAttributeNS(null, 'd', dString);
         animateMotionElement.setAttributeNS(null, 'path', dString);
-        foreignObjectElement.setAttributeNS(null, 'x', startPosition.x);
-        foreignObjectElement.setAttributeNS(null, 'y', startPosition.y);
+        foreignObjectElement.setAttributeNS(null, 'x', startPoint.x);
+        foreignObjectElement.setAttributeNS(null, 'y', startPoint.y);
         Edge.setLabelCallback(edgeElement);
         return gElement;
     }
@@ -91,10 +93,6 @@ class Edge {
         return this.element.getAttributeNS(null, 'data-input');
     }
 
-    isValidEdge() {
-        return this.head && this.head.id() !== this.tail?.id();
-    }
-
     remove() {
         this._gElement().remove();
     }
@@ -102,6 +100,7 @@ class Edge {
     resetForMovedState() {
         let startPoint;
         let endPoint;
+        let controlPoint;
         const headPosition = this.head.centerPosition();
         if (this._isInitialEdge()) {
             const previousStart = this._dPoints().startPoint;
@@ -111,12 +110,18 @@ class Edge {
             startOffset.y = previousStart.y - previousEnd.y + headPosition.y;
             startPoint = pointAlongSlope(startOffset, headPosition, -37);
             endPoint = pointAlongSlope(headPosition, startPoint, 37);
+        } else if (this._isLoop()) {
+            const tailPosition = this.tail.centerPosition();
+            controlPoint = { x: tailPosition.x, y: tailPosition.y - 120 };
+            startPoint = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
+            endPoint = this.tail.pointOnPerimeter(-Math.PI / 4);
+            endPoint.y -= 7;
         } else {
             const tailPosition = this.tail.centerPosition();
             startPoint = pointAlongSlope(tailPosition, headPosition, 30);
             endPoint = pointAlongSlope(headPosition, tailPosition, 37);
         }
-        this._setD(startPoint, endPoint);
+        this._setD(startPoint, endPoint, controlPoint);
         this._setLabelToControlPosition();
     }
 
@@ -131,8 +136,14 @@ class Edge {
         if (this.tail) {
             startPoint = this.tail.centerPosition();
         }
+        let controlPoint;
         let endPoint = toPlace;
-        if (toPlace instanceof State) {
+        if (this.tail && this.tail.equals(toPlace)) {
+            controlPoint = { x: startPoint.x, y: startPoint.y - 120 };
+            startPoint = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
+            endPoint = this.tail.pointOnPerimeter(-Math.PI / 4);
+            endPoint.y -= 7;
+        } else if (toPlace instanceof State) {
             this.head = toPlace;
             const headPosition = this.head.centerPosition();
             endPoint = pointAlongSlope(headPosition, startPoint, 37);
@@ -141,10 +152,11 @@ class Edge {
             this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
         }
-        if (this.tail) {
+        if (this.tail && !this.tail.equals(toPlace)) {
+            console.log('oopsies');
             startPoint = pointAlongSlope(startPoint, endPoint, 30);
         }
-        this._setD(startPoint, endPoint);
+        this._setD(startPoint, endPoint, controlPoint);
         this._setLabelToControlPosition();
     }
 
@@ -192,18 +204,27 @@ class Edge {
         return !this.tail && this.head;
     }
 
+    _isLoop() {
+        return this.head?.equals(this.tail) === true;
+    }
+
     _labelValue() {
         return this._textInputElement().value;
     }
 
-    _setD(tailPosition, headPosition, calculateIntersect = true) {
-        const control = {};
-        control.x = (tailPosition.x + headPosition.x) / 2;
-        control.y = (tailPosition.y + headPosition.y) / 2;
+    _setD(tailPosition, headPosition, controlPosition) {
+        console.log(`crtl: ${controlPosition?.x}, ${controlPosition?.y}`);
+        if (controlPosition === undefined) {
+            console.log('yes undefined');
+            controlPosition = {};
+            controlPosition.x = (tailPosition.x + headPosition.x) / 2;
+            controlPosition.y = (tailPosition.y + headPosition.y) / 2;
+        }
         const tailString = `M ${tailPosition.x},${tailPosition.y}`;
-        const controlString = ` Q ${control.x},${control.y}`;
+        const controlString = ` Q ${controlPosition.x},${controlPosition.y}`;
         const headString = ` ${headPosition.x},${headPosition.y}`;
         const dString = tailString + controlString + headString;
+        console.log(`d: ${dString}`);
         this.element.setAttributeNS(null, 'd', dString);
         this._animateMotionElement().setAttributeNS(null, 'path', dString);
     }
