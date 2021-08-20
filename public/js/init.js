@@ -18,6 +18,10 @@ let mouseIsDown = false;
 
 // functions
 
+function clearInputScore() {
+    inputEditor.value = inputEditor.value.replace(/( ✓)|( ❌)/g, '');
+}
+
 function getMousePosition(event) {
     const CTM = graph.svg.getScreenCTM();
     return {
@@ -155,6 +159,7 @@ playPauseButton.addEventListener('click', () => {
     graph.inputs = inputs.split('\n');
     graph.currentLineNo = 0;
     graph.acceptedAll = true;
+    clearInputScore();
     graph.startAnimation();
 });
 
@@ -178,7 +183,7 @@ uploadButton.addEventListener('change', () => {
 
 inputEditor.addEventListener('focus', () => {
     console.log('editor on focus');
-    inputEditor.value = inputEditor.value.replace(/( ✓)|( ❌)/g, '');
+    clearInputScore();
 });
 
 // Animation Callbacks

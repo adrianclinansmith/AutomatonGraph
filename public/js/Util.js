@@ -13,6 +13,10 @@ function isPointingleftOrStraightUp(tailPosition, headPosition) {
     return headPosition.x < tailPosition.x;
 }
 
+/*
+Returns a point on the line defined by fromPoint and toPoint, starting at
+fromPoint and travelling the given distance towards toPoint.
+*/
 function pointAlongSlope(fromPoint, toPoint, distance) {
     if (isPointingleftOrStraightUp(fromPoint, toPoint)) {
         distance *= -1;
@@ -27,6 +31,9 @@ function pointAlongSlope(fromPoint, toPoint, distance) {
     return { x, y };
 }
 
+/*
+Returns the slope between startpiont and endpoint.
+*/
 function slope(startpoint, endpoint) {
     return (endpoint.y - startpoint.y) / (endpoint.x - startpoint.x);
 }

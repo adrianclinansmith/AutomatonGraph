@@ -119,10 +119,16 @@ class State {
 
     pointOnPerimeter(radAngle) {
         const center = this.centerPosition();
-        const r = this._radius();
+        const r = this.radius();
         const x = r * Math.cos(radAngle) + center.x;
         const y = r * Math.sin(radAngle) + center.y;
         return { x, y };
+    }
+
+    radius() {
+        let rString = this.element.getAttributeNS(null, 'r');
+        rString = rString.replace('px', '');
+        return Number(rString);
     }
 
     run() {
@@ -199,12 +205,6 @@ class State {
 
     _innerCircleElement() {
         return this._gElement().children[1];
-    }
-
-    _radius() {
-        let rString = this.element.getAttributeNS(null, 'r');
-        rString = rString.replace('px', '');
-        return Number(rString);
     }
 
     _setDataInput(input) {

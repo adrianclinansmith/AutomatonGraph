@@ -110,16 +110,10 @@ class Edge {
             startOffset.y = previousStart.y - previousEnd.y + headPosition.y;
             startPoint = pointAlongSlope(startOffset, headPosition, -37);
             endPoint = pointAlongSlope(headPosition, startPoint, 37);
-        } else if (this._isLoop()) {
-            const tailPosition = this.tail.centerPosition();
-            controlPoint = { x: tailPosition.x, y: tailPosition.y - 120 };
-            startPoint = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
-            endPoint = this.tail.pointOnPerimeter(-Math.PI / 4);
-            endPoint.y -= 7;
         } else {
-            const tailPosition = this.tail.centerPosition();
-            startPoint = pointAlongSlope(tailPosition, headPosition, 30);
-            endPoint = pointAlongSlope(headPosition, tailPosition, 37);
+            startPoint = this._getStartPointForNewHead(this.head);
+            endPoint = this._getEndPointForNewHead(this.head);
+            controlPoint = this._getControlPointForNewHead(this.head);
         }
         this._setD(startPoint, endPoint, controlPoint);
         this._setLabelToControlPosition();
@@ -132,32 +126,18 @@ class Edge {
     }
 
     setHead(toPlace) {
-        let startPoint = this._dPoints().startPoint;
-        if (this.tail) {
-            startPoint = this.tail.centerPosition();
-        }
-        let controlPoint;
-        let endPoint = toPlace;
-        if (this.tail && this.tail.equals(toPlace)) {
-            controlPoint = { x: startPoint.x, y: startPoint.y - 120 };
-            startPoint = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
-            endPoint = this.tail.pointOnPerimeter(-Math.PI / 4);
-            endPoint.y -= 7;
-        } else if (toPlace instanceof State) {
+        const startPoint = this._getStartPointForNewHead(toPlace);
+        const endPoint = this._getEndPointForNewHead(toPlace);
+        const controlPoint = this._getControlPointForNewHead(toPlace);
+        this._setD(startPoint, endPoint, controlPoint);
+        this._setLabelToControlPosition();
+        if (toPlace instanceof State) {
             this.head = toPlace;
-            const headPosition = this.head.centerPosition();
-            endPoint = pointAlongSlope(headPosition, startPoint, 37);
             this.element.setAttributeNS(null, 'data-head', toPlace.id());
         } else {
             this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
         }
-        if (this.tail && !this.tail.equals(toPlace)) {
-            console.log('oopsies');
-            startPoint = pointAlongSlope(startPoint, endPoint, 30);
-        }
-        this._setD(startPoint, endPoint, controlPoint);
-        this._setLabelToControlPosition();
     }
 
     setLabel(textString) {
@@ -198,6 +178,49 @@ class Edge {
 
     _gElement() {
         return this.element.parentNode;
+    }
+
+    _getControlPointForNewHead(newHead) {
+        if (this.tail && this.tail.equals(newHead)) {
+            const statePosition = newHead.centerPosition();
+            return { x: statePosition.x, y: statePosition.y - 120 };
+        }
+        return undefined;
+    }
+
+    _getEndPointForNewHead(newHead) {
+        if (!(newHead instanceof State)) {
+            return newHead;
+        } else if (newHead.equals(this.tail)) {
+            const endPoint = newHead.pointOnPerimeter(-Math.PI / 4);
+            return { x: endPoint.x, y: endPoint.y - 7 };
+        }
+        const radius = newHead.radius();
+        const headPosition = newHead.centerPosition();
+        let tailPosition;
+        if (this.tail) {
+            tailPosition = this.tail.centerPosition();
+        } else {
+            tailPosition = this._dPoints().startPoint;
+        }
+        return pointAlongSlope(headPosition, tailPosition, radius + 7);
+    }
+
+    _getStartPointForNewHead(newHead) {
+        if (!this.tail) {
+            return this._dPoints().startPoint;
+        } else if (this.tail.equals(newHead)) {
+            return newHead.pointOnPerimeter(-3 * Math.PI / 4);
+        }
+        const radius = this.tail.radius();
+        const tailPosition = this.tail.centerPosition();
+        let headPosition;
+        if (newHead instanceof State) {
+            headPosition = newHead.centerPosition();
+        } else {
+            headPosition = newHead;
+        }
+        return pointAlongSlope(tailPosition, headPosition, radius);
     }
 
     _isInitialEdge() {
