@@ -1,4 +1,4 @@
-/* global Edge */
+/* global Edge pointAlongSlope */
 // eslint-disable-next-line no-unused-vars
 class State {
     /* Static */
@@ -105,6 +105,12 @@ class State {
         return this.isGoal() && this.input().length === 0;
     }
 
+    lineIntersect(endpoint, additionalRadius) {
+        let radius = this.radius();
+        radius += additionalRadius || 0;
+        return pointAlongSlope(this.centerPosition(), endpoint, radius);
+    }
+
     moveTo(position) {
         const x = position.x + this.positionOffset.x;
         const y = position.y + this.positionOffset.y;
@@ -112,6 +118,13 @@ class State {
         this._gElement().setAttributeNS(null, 'transform', translate);
         this._allEdges().forEach(edge => { edge.resetForMovedState(); });
     }
+
+    // onAxisOfSymmetry(withOtherState, atPoint) {
+    //     const midpoint = this._midpointTo(withOtherState);
+    //     const axisSlope = -1 / this._slopeTo(withOtherState);
+    //     console.log(`axis slope: ${axisSlope}`);
+    //     return pointOnLineClosestTo(atPoint, midpoint, axisSlope);
+    // }
 
     outEdges() {
         return this._edges('data-outedges');
@@ -207,9 +220,25 @@ class State {
         return this._gElement().children[1];
     }
 
+    // _midpointTo(otherState) {
+    //     const thisPosition = this.centerPosition();
+    //     const otherPosition = otherState.centerPosition();
+    //     const x = (thisPosition.x + otherPosition.x) / 2;
+    //     const y = (thisPosition.y + otherPosition.y) / 2;
+    //     return { x, y };
+    // }
+
     _setDataInput(input) {
         this.element.setAttributeNS(null, 'data-input', input);
     }
+
+    // _slopeTo(otherState) {
+    //     const thisPosition = this.centerPosition();
+    //     const otherPosition = otherState.centerPosition();
+    //     const rise = otherPosition.y - thisPosition.y;
+    //     const run = otherPosition.x - thisPosition.x;
+    //     return rise / run;
+    // }
 
     _textInputElement() {
         return this._gElement().children[2].children[0];

@@ -6,11 +6,36 @@ function appendToLine(originalString, toAppend, lineNumber) {
     return lines.join('\n');
 }
 
-function isPointingleftOrStraightUp(tailPosition, headPosition) {
-    if (headPosition.x === tailPosition.x) {
-        return headPosition.y < tailPosition.y;
+function distanceBetween(fromPoint, toPoint) {
+    return Math.hypot(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y);
+}
+
+/*
+Returns a point on line closest to givenPoint.
+Line must consist of a point and a slope.
+*/
+function pointOnLineClosestTo(givenPoint, line) {
+    if (!Number.isFinite(line.slope)) {
+        return { x: line.point.x, y: givenPoint.y };
     }
-    return headPosition.x < tailPosition.x;
+    const a = line.slope;
+    const b = -1 / line.slope;
+    const c = -line.slope * line.point.x + line.point.y;
+    const d = givenPoint.x / line.slope + givenPoint.y;
+    return { x: (d - c) / (a - b), y: a * (d - c) / (a - b) + c };
+}
+
+function isPointingleftOrStraightUp(arrowTail, arrowTip) {
+    if (arrowTip.x === arrowTail.x) {
+        return arrowTip.y < arrowTail.y;
+    }
+    return arrowTip.x < arrowTail.x;
+}
+
+function midpoint(fromPoint, toPoint) {
+    const x = (fromPoint.x + toPoint.x) / 2;
+    const y = (fromPoint.y + toPoint.y) / 2;
+    return { x, y };
 }
 
 /*
@@ -21,7 +46,7 @@ function pointAlongSlope(fromPoint, toPoint, distance) {
     if (isPointingleftOrStraightUp(fromPoint, toPoint)) {
         distance *= -1;
     }
-    const m = slope(fromPoint, toPoint);
+    const m = slopeBetween(fromPoint, toPoint);
     if (!Number.isFinite(m)) {
         return { x: fromPoint.x, y: fromPoint.y + distance };
     }
@@ -34,6 +59,6 @@ function pointAlongSlope(fromPoint, toPoint, distance) {
 /*
 Returns the slope between startpiont and endpoint.
 */
-function slope(startpoint, endpoint) {
+function slopeBetween(startpoint, endpoint) {
     return (endpoint.y - startpoint.y) / (endpoint.x - startpoint.x);
 }

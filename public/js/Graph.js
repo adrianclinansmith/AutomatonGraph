@@ -55,6 +55,9 @@ class Graph {
     moveSelectedTo(position) {
         if (this.selectedObject instanceof State) {
             this.selectedObject.moveTo(position);
+        } else if (this.selectedObject instanceof Edge &&
+                   this.selectedObject.controlSelected) {
+            this.selectedObject.moveControlTo(position);
         }
     }
 
@@ -64,7 +67,7 @@ class Graph {
             this.selectedObject = new State(element);
             this.selectedObject.setColor('red');
             this.selectedObject.setPositionOffset(atPosition);
-        } else if (element.getAttribute('class') === 'edge') {
+        } else if (element.getAttribute('class').startsWith('edge')) {
             this.selectedObject = new Edge(element);
             this.selectedObject.setColor('red');
         }
