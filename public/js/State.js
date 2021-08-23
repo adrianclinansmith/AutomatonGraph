@@ -1,4 +1,4 @@
-/* global Edge pointAlongSlope */
+/* global Edge getPointTowards midpoint */
 // eslint-disable-next-line no-unused-vars
 class State {
     /* Static */
@@ -48,6 +48,9 @@ class State {
         } else {
             this.element = elementOrId;
         }
+        const centerPosition = this.centerPosition();
+        this.x = centerPosition.x;
+        this.y = centerPosition.y;
         this.positionOffset = { x: 0, y: 0 };
     }
 
@@ -105,29 +108,28 @@ class State {
         return this.isGoal() && this.input().length === 0;
     }
 
-    lineIntersect(endpoint, additionalRadius) {
+    intersectTowards(point, spacing) {
         let radius = this.radius();
-        radius += additionalRadius || 0;
-        return pointAlongSlope(this.centerPosition(), endpoint, radius);
+        radius += spacing || 0;
+        return getPointTowards(this.centerPosition(), point, radius);
     }
 
     moveTo(position) {
-        const x = position.x + this.positionOffset.x;
-        const y = position.y + this.positionOffset.y;
-        const translate = `translate(${x}, ${y})`;
+        this.x = position.x + this.positionOffset.x;
+        this.y = position.y + this.positionOffset.y;
+        const translate = `translate(${this.x}, ${this.y})`;
         this._gElement().setAttributeNS(null, 'transform', translate);
         this._allEdges().forEach(edge => { edge.resetForMovedState(); });
     }
 
-    // onAxisOfSymmetry(withOtherState, atPoint) {
-    //     const midpoint = this._midpointTo(withOtherState);
-    //     const axisSlope = -1 / this._slopeTo(withOtherState);
-    //     console.log(`axis slope: ${axisSlope}`);
-    //     return pointOnLineClosestTo(atPoint, midpoint, axisSlope);
-    // }
-
     outEdges() {
         return this._edges('data-outedges');
+    }
+
+    pointBetween(otherState) {
+        const thisPosition = this.centerPosition();
+        const otherPosition = otherState.centerPosition();
+        return midpoint(thisPosition, otherPosition);
     }
 
     pointOnPerimeter(radAngle) {

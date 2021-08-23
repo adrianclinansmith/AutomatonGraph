@@ -24,6 +24,7 @@
 				.edge-foreign-object {
 					text-align: left;
 					background-color: transparent;
+					pointer-events: none;
 				}
 
 				.edge-label {
@@ -75,8 +76,9 @@
 			<svg id="template-container" pointer-events="none" visibility="hidden">
 				<!-- edge template  -->
 				<g class="edge-g" id="edge-g-template">
-					<path class="edge" d data-head data-input data-tail id="edge-template"
-						marker-end="url(#arrowhead-red)" style="stroke: red;">
+					<path class="edge" data-controldistance data-controlisforward d data-head
+						data-input data-tail id="edge-template" marker-end="url(#arrowhead-red)"
+						style="stroke: red;">
 					</path>
 					<foreignObject class="edge-foreign-object" height="100%"
 						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%">
