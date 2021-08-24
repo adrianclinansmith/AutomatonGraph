@@ -55,13 +55,6 @@ function getPointTowards(fromPoint, toPoint, distance) {
     }
     const m = slopeBetween(fromPoint, toPoint);
     return pointAlongSlope(fromPoint, m, distance);
-    // if (!Number.isFinite(m)) {
-    //     return { x: fromPoint.x, y: fromPoint.y + distance };
-    // }
-    // const d = distance / Math.sqrt(1 + m * m);
-    // const x = fromPoint.x + d;
-    // const y = fromPoint.y + m * d;
-    // return { x, y };
 }
 
 function pointAlongSlope(fromPoint, slope, distance) {

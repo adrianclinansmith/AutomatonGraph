@@ -99,9 +99,7 @@ class Edge {
         if (this._isInitialEdge()) {
             const head = this.head instanceof State ? this.head : this._dPoints().endPoint;
             const endpoints = this._calculateEndpointsFor(position, head);
-            this._setD(endpoints.start, endpoints.end);
-            this._setControlElementToControlPoint();
-            this._setLabelToControlPoint();
+            this._setDAndPositionElements(endpoints.start, endpoints.end);
             return;
         } else if (this._isLoop()) {
             return;
@@ -114,9 +112,7 @@ class Edge {
         const controlPoint = getPointTowards(vertex, midStartEnd, -distance);
         const startPoint = this.tail.intersectTowards(controlPoint);
         const endPoint = this.head.intersectTowards(controlPoint, 7);
-        this._setD(startPoint, endPoint, controlPoint);
-        this._setControlElementToControlPoint(vertex);
-        this._setLabelToControlPoint(vertex);
+        this._setDAndPositionElements(startPoint, endPoint, controlPoint);
         this._storeControlDistance();
         this._storeControlIsForward();
     }
@@ -129,7 +125,6 @@ class Edge {
         let startPoint;
         let endPoint;
         let controlPoint;
-        let vertex;
         if (this._isInitialEdge()) {
             const headPosition = this.head.centerPosition();
             const previousStart = this._dPoints().startPoint;
@@ -149,16 +144,8 @@ class Edge {
             startPoint = points.start;
             endPoint = points.end;
             controlPoint = points.control;
-            const mid = midpoint(startPoint, endPoint);
-            vertex = midpoint(mid, controlPoint);
-            // console.log(`mid: ${pointAsString(mid)}`);
-            // console.log(`control: ${pointAsString(controlPoint)}`);
-            // console.log(`vetrex: ${pointAsString(vertex)}`);
         }
-        this._setD(startPoint, endPoint, controlPoint);
-        this._setControlElementToControlPoint(vertex);
-        this._setLabelToControlPoint();
-        // this._storeControlDistance();
+        this._setDAndPositionElements(startPoint, endPoint, controlPoint);
     }
 
     setColor(color) {
@@ -172,7 +159,6 @@ class Edge {
     setHead(toPlace) {
         const tail = this.tail ? this.tail : this._dPoints().startPoint;
         const endpoints = this._calculateEndpointsFor(tail, toPlace);
-        this._setD(endpoints.start, endpoints.end, endpoints.control);
         if (toPlace instanceof State) {
             this.head = toPlace;
             this.element.setAttributeNS(null, 'data-head', toPlace.id());
@@ -180,8 +166,7 @@ class Edge {
             this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
         }
-        this._setControlElementToControlPoint();
-        this._setLabelToControlPoint();
+        this._setDAndPositionElements(endpoints.start, endpoints.end, endpoints.control);
         this._storeControlDistance();
     }
 
@@ -202,21 +187,6 @@ class Edge {
         const slope = -1 / slopeBetween(this.head, this.tail);
         return { point, slope };
     }
-
-    // _axisOfSymmetry(newStart, newEnd) {
-    //     const d = this._dPoints();
-    //     let startPoint = newStart;
-    //     let endPoint = newEnd;
-    //     if (!startPoint) {
-    //         startPoint = d.startPoint;
-    //     }
-    //     if (!endPoint) {
-    //         endPoint = d.endPoint;
-    //     }
-    //     const point = midpoint(startPoint, endPoint);
-    //     const slope = -1 / slopeBetween(startPoint, endPoint);
-    //     return { point, slope };
-    // }
 
     _controlElement() {
         return this._gElement().children[2];
@@ -253,7 +223,8 @@ class Edge {
     }
 
     _getControlDistance() {
-        return this.element.getAttributeNS(null, 'data-controldistance');
+        const attribute = 'data-controldistance';
+        return Number(this.element.getAttributeNS(null, attribute));
     }
 
     _getControlIsForward() {
@@ -293,6 +264,18 @@ class Edge {
         return this._textInputElement().value;
     }
 
+    _positionControlElementAt(point) {
+        const controlElement = this._controlElement();
+        controlElement.setAttributeNS(null, 'cx', point.x);
+        controlElement.setAttributeNS(null, 'cy', point.y);
+    }
+
+    _positionLabelAt(point) {
+        const fo = this._foreignObjectElement();
+        fo.setAttributeNS(null, 'x', point.x);
+        fo.setAttributeNS(null, 'y', point.y);
+    }
+
     _pointOnAxisBetweenHeadAndTail() {
         const betweenHeadAndTail = this.head.pointBetween(this.tail);
         const axisOfSymmetry = this._axisOfSymmetry();
@@ -316,32 +299,25 @@ class Edge {
         return { start, end, control };
     }
 
-    _setControlElementToControlPoint(controlPoint) {
-        let position;
-        if (this._isInitialEdge()) {
-            position = this._dPoints().startPoint;
-        } else if (controlPoint) {
-            position = controlPoint;
-        } else {
-            position = this._dPoints().controlPoint;
+    _setD(startPoint, endPoint, controlPoint) {
+        if (controlPoint === undefined) {
+            controlPoint = {};
+            controlPoint.x = (startPoint.x + endPoint.x) / 2;
+            controlPoint.y = (startPoint.y + endPoint.y) / 2;
         }
-        const controlElement = this._controlElement();
-        controlElement.setAttributeNS(null, 'cx', position.x);
-        controlElement.setAttributeNS(null, 'cy', position.y);
-    }
-
-    _setD(tailPosition, headPosition, controlPosition) {
-        if (controlPosition === undefined) {
-            controlPosition = {};
-            controlPosition.x = (tailPosition.x + headPosition.x) / 2;
-            controlPosition.y = (tailPosition.y + headPosition.y) / 2;
-        }
-        const tailString = `M ${tailPosition.x},${tailPosition.y}`;
-        const controlString = ` Q ${controlPosition.x},${controlPosition.y}`;
-        const headString = ` ${headPosition.x},${headPosition.y}`;
+        const tailString = `M ${startPoint.x},${startPoint.y}`;
+        const controlString = ` Q ${controlPoint.x},${controlPoint.y}`;
+        const headString = ` ${endPoint.x},${endPoint.y}`;
         const dString = tailString + controlString + headString;
         this.element.setAttributeNS(null, 'd', dString);
         this._animateMotionElement().setAttributeNS(null, 'path', dString);
+    }
+
+    _setDAndPositionElements(startPoint, endPoint, controlPoint) {
+        this._setD(startPoint, endPoint, controlPoint);
+        const vertex = this._vertexPosition();
+        this._positionControlElementAt(vertex);
+        this._positionLabelAt(vertex);
     }
 
     _setDataInput(input) {
@@ -394,5 +370,14 @@ class Edge {
 
     _textInputElement() {
         return this._foreignObjectElement().children[0];
+    }
+
+    _vertexPosition() {
+        if (this._isInitialEdge()) {
+            return this._dPoints().startPoint;
+        }
+        const d = this._dPoints();
+        const basePoint = midpoint(d.startPoint, d.endPoint);
+        return midpoint(basePoint, d.controlPoint);
     }
 }
