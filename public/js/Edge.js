@@ -1,5 +1,5 @@
-/* global distanceBetween getPointTowards State midpoint slopeBetween
-pointOnLineClosestTo pointAlongSlope pointAsString */
+/* global onEdgeLabelInput distanceBetween getPointTowards State midpoint slopeBetween
+pointOnLineClosestTo pointAlongSlope pointAsString pointingDownOrTrueLeft  */
 // eslint-disable-next-line no-unused-vars
 class Edge {
     /* Static */
@@ -9,6 +9,7 @@ class Edge {
         const gElement = template.cloneNode(true);
         const edgeElement = gElement.children[0];
         const foreignObjectElement = gElement.children[1];
+        const labelElement = foreignObjectElement.children[0];
         const animateMotionElement = gElement.children[3].children[0];
         gElement.setAttributeNS(null, 'id', '');
         let i = 0;
@@ -30,15 +31,8 @@ class Edge {
         animateMotionElement.setAttributeNS(null, 'path', dString);
         foreignObjectElement.setAttributeNS(null, 'x', startPoint.x);
         foreignObjectElement.setAttributeNS(null, 'y', startPoint.y);
-        Edge.setLabelCallback(edgeElement);
+        labelElement.oninput = onEdgeLabelInput;
         return gElement;
-    }
-
-    static setLabelCallback(edgeElement) {
-        const label = edgeElement.parentNode.children[1].children[0];
-        label.oninput = function(event) {
-            event.target.setAttributeNS(null, 'value', event.target.value);
-        };
     }
 
     /* Constructor */
@@ -97,9 +91,8 @@ class Edge {
 
     moveControlTo(position) {
         if (this._isInitialEdge()) {
-            const head = this.head instanceof State ? this.head : this._dPoints().endPoint;
-            const endpoints = this._calculateEndpointsFor(position, head);
-            this._setDAndPositionElements(endpoints.start, endpoints.end);
+            const endpoint = this.head.intersectTowards(position, 7);
+            this._setDAndPositionElements(position, endpoint);
             return;
         } else if (this._isLoop()) {
             return;
@@ -122,30 +115,20 @@ class Edge {
     }
 
     resetForMovedState() {
-        let startPoint;
-        let endPoint;
-        let controlPoint;
+        let newD = {};
         if (this._isInitialEdge()) {
-            const headPosition = this.head.centerPosition();
-            const previousStart = this._dPoints().startPoint;
-            const previousEnd = this._dPoints().endPoint;
-            const startOffset = {};
-            startOffset.x = previousStart.x - previousEnd.x + headPosition.x;
-            startOffset.y = previousStart.y - previousEnd.y + headPosition.y;
-            startPoint = getPointTowards(startOffset, headPosition, -37);
-            endPoint = getPointTowards(headPosition, startPoint, 37);
+            const last = this._dPoints();
+            const offset = {};
+            offset.x = last.startPoint.x - last.endPoint.x + this.head.x;
+            offset.y = last.startPoint.y - last.endPoint.y + this.head.y;
+            newD.start = getPointTowards(offset, this.head, -37);
+            newD.end = getPointTowards(this.head, newD.start, 37);
         } else if (this._isLoop()) {
-            const points = this._calculateEndpointsFor(this.tail, this.head);
-            startPoint = points.start;
-            endPoint = points.end;
-            controlPoint = points.control;
+            newD = this._calculatePointsForLoop();
         } else {
-            const points = this._resetForMovedStateOfRegularEdge();
-            startPoint = points.start;
-            endPoint = points.end;
-            controlPoint = points.control;
+            newD = this._calculatePointsForRegularEdge();
         }
-        this._setDAndPositionElements(startPoint, endPoint, controlPoint);
+        this._setDAndPositionElements(newD.start, newD.end, newD.control);
     }
 
     setColor(color) {
@@ -157,8 +140,6 @@ class Edge {
     }
 
     setHead(toPlace) {
-        const tail = this.tail ? this.tail : this._dPoints().startPoint;
-        const endpoints = this._calculateEndpointsFor(tail, toPlace);
         if (toPlace instanceof State) {
             this.head = toPlace;
             this.element.setAttributeNS(null, 'data-head', toPlace.id());
@@ -166,8 +147,22 @@ class Edge {
             this.head = null;
             this.element.setAttributeNS(null, 'data-head', '');
         }
-        this._setDAndPositionElements(endpoints.start, endpoints.end, endpoints.control);
-        this._storeControlDistance();
+        let newD = {};
+        if (this._isInitialEdge()) {
+            newD.start = this._dPoints().startPoint;
+            newD.end = this.head.intersectTowards(newD.start, 7);
+        } else if (this._isLoop()) {
+            newD = this._calculatePointsForLoop();
+        } else if (this._isRegularEdge()) {
+            newD = this._calculatePointsForRegularEdge();
+        } else if (this.tail) {
+            newD.start = this.tail.intersectTowards(toPlace);
+            newD.end = toPlace;
+        } else {
+            newD.start = this._dPoints().startPoint;
+            newD.end = toPlace;
+        }
+        this._setDAndPositionElements(newD.start, newD.end, newD.control);
     }
 
     setLabel(textString) {
@@ -224,32 +219,33 @@ class Edge {
 
     _getControlDistance() {
         const attribute = 'data-controldistance';
-        return Number(this.element.getAttributeNS(null, attribute));
+        return Number(this.element.getAttributeNS(null, attribute)) || 0;
     }
 
     _getControlIsForward() {
         return this.element.getAttributeNS(null, 'data-controlisforward');
     }
 
-    _calculateEndpointsFor(newTail, newHead) {
-        let start, end, control;
-        if (newTail instanceof State && newTail.equals(newHead)) {
-            start = newHead.pointOnPerimeter(-3 * Math.PI / 4);
-            end = newHead.pointOnPerimeter(-Math.PI / 4);
-            const statePosition = newTail.centerPosition();
-            control = { x: statePosition.x, y: statePosition.y - 120 };
-            end.y -= 7;
-            return { start, end, control };
+    _calculatePointsForLoop() {
+        const start = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
+        const end = this.tail.pointOnPerimeter(-Math.PI / 4);
+        end.y -= 7;
+        const control = { x: this.tail.x, y: this.tail.y - 120 };
+        return { start, end, control };
+    }
+
+    _calculatePointsForRegularEdge() {
+        const axis = this._axisOfSymmetry();
+        let distance = this._getControlDistance();
+        const forward = this._getControlIsForward();
+        const downOrTrueLeft = pointingDownOrTrueLeft(this.tail, this.head);
+        if ((forward && downOrTrueLeft) || !(forward || downOrTrueLeft)) {
+            distance *= -1;
         }
-        start = newTail instanceof State ? newTail.centerPosition() : newTail;
-        end = newHead instanceof State ? newHead.centerPosition() : newHead;
-        if (newTail instanceof State) {
-            start = getPointTowards(start, end, 30);
-        }
-        if (newHead instanceof State) {
-            end = getPointTowards(end, start, 37);
-        }
-        return { start, end };
+        const control = pointAlongSlope(axis.point, axis.slope, distance);
+        const start = this.tail.intersectTowards(control);
+        const end = this.head.intersectTowards(control, 7);
+        return { start, end, control };
     }
 
     _isInitialEdge() {
@@ -258,6 +254,10 @@ class Edge {
 
     _isLoop() {
         return this.head && this.head.equals(this.tail);
+    }
+
+    _isRegularEdge() {
+        return this.tail && this.head && !this.tail.equals(this.head);
     }
 
     _labelValue() {
@@ -274,29 +274,6 @@ class Edge {
         const fo = this._foreignObjectElement();
         fo.setAttributeNS(null, 'x', point.x);
         fo.setAttributeNS(null, 'y', point.y);
-    }
-
-    _pointOnAxisBetweenHeadAndTail() {
-        const betweenHeadAndTail = this.head.pointBetween(this.tail);
-        const axisOfSymmetry = this._axisOfSymmetry();
-        return pointOnLineClosestTo(betweenHeadAndTail, axisOfSymmetry);
-    }
-
-    _resetForMovedStateOfRegularEdge() {
-        const axisSlope = this._axisOfSymmetry().slope;
-        const basePoint = this._pointOnAxisBetweenHeadAndTail();
-        let distance = this._getControlDistance();
-        const isForward = this._getControlIsForward();
-        const tail = this.tail;
-        const head = this.head;
-        const headIsbelowOrLeft = head.y > tail.y || (head.y === tail.y && head.x < tail.x);
-        if ((isForward && headIsbelowOrLeft) || !(isForward || headIsbelowOrLeft)) {
-            distance *= -1;
-        }
-        const control = pointAlongSlope(basePoint, axisSlope, distance);
-        const start = this.tail.intersectTowards(control);
-        const end = this.head.intersectTowards(control, 7);
-        return { start, end, control };
     }
 
     _setD(startPoint, endPoint, controlPoint) {
@@ -324,18 +301,6 @@ class Edge {
         this.element.setAttributeNS(null, 'data-input', input);
     }
 
-    _setLabelToControlPoint(controlPoint) {
-        const fo = this._foreignObjectElement();
-        let controlPosition;
-        if (controlPoint) {
-            controlPosition = controlPoint;
-        } else {
-            controlPosition = this._dPoints().controlPoint;
-        }
-        fo.setAttributeNS(null, 'x', controlPosition.x);
-        fo.setAttributeNS(null, 'y', controlPosition.y);
-    }
-
     _storeControlDistance() {
         if (!this.head || !this.tail) {
             return;
@@ -352,7 +317,7 @@ class Edge {
         if (!this.head && !this.tail) {
             return;
         }
-        const basePoint = this._pointOnAxisBetweenHeadAndTail();
+        const basePoint = this._axisOfSymmetry().point;
         const controlPoint = this._dPoints().controlPoint;
         let controlIsForward;
         if (this.head.y < this.tail.y) {

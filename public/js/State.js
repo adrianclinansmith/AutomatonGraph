@@ -1,4 +1,4 @@
-/* global Edge getPointTowards midpoint */
+/* global Edge onStateLabelInput getPointTowards midpoint */
 // eslint-disable-next-line no-unused-vars
 class State {
     /* Static */
@@ -7,6 +7,7 @@ class State {
         const template = document.getElementById('state-g-template');
         const gElement = template.cloneNode(true);
         const circleElement = gElement.children[0];
+        const labelElement = gElement.children[2].children[0];
         gElement.setAttributeNS(null, 'id', '');
         const translate = `translate(${position.x}, ${position.y})`;
         gElement.setAttributeNS(null, 'transform', translate);
@@ -15,23 +16,8 @@ class State {
             i += 1;
         }
         circleElement.setAttributeNS(null, 'id', `s${i}`);
-        State.setLabelCallback(circleElement);
+        labelElement.oninput = onStateLabelInput;
         return gElement;
-    }
-
-    static setLabelCallback(stateElement) {
-        const label = stateElement.parentNode.children[2].children[0];
-        label.oninput = function(event) {
-            const target = event.target;
-            let textOverflow = true;
-            let size = 25;
-            while (textOverflow && size > 1) {
-                target.style.fontSize = `${size}px`;
-                target.setAttributeNS(null, 'value', target.value);
-                textOverflow = target.scrollWidth > target.clientWidth;
-                size -= 1;
-            }
-        };
     }
 
     /* Constructor */
@@ -111,7 +97,7 @@ class State {
     intersectTowards(point, spacing) {
         let radius = this.radius();
         radius += spacing || 0;
-        return getPointTowards(this.centerPosition(), point, radius);
+        return getPointTowards(this, point, radius);
     }
 
     moveTo(position) {

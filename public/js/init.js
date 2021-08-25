@@ -52,11 +52,13 @@ function initGraph(addDefaultElements) {
     svg.addEventListener('mouseup', mouseup);
     svg.addEventListener('mouseleave', mouseleave);
     svg.addEventListener('dblclick', dblclick);
-    for (const element of stateElements) {
-        State.setLabelCallback(element);
+    for (const stateElement of stateElements) {
+        const stateLabel = stateElement.parentNode.children[2].children[0];
+        stateLabel.oninput = onStateLabelInput;
     }
-    for (const element of edgeElements) {
-        Edge.setLabelCallback(element);
+    for (const edgeElement of edgeElements) {
+        const edgeLabel = edgeElement.parentNode.children[1].children[0];
+        edgeLabel.oninput = onEdgeLabelInput;
     }
     const newGraph = new Graph(svg);
     if (addDefaultElements === true) {
@@ -212,3 +214,23 @@ function stateAnimationEnded(event) {
         finishedInputLineAndAccept(false);
     }
 }
+
+// Graph Element Callbacks
+
+function onEdgeLabelInput(event) {
+    console.log('onEdgeLabelInput');
+    event.target.setAttributeNS(null, 'value', event.target.value);
+};
+
+function onStateLabelInput(event) {
+    console.log('onStateLabelInput');
+    const labelElement = event.target;
+    let textOverflow = true;
+    let size = 25;
+    while (textOverflow && size > 1) {
+        labelElement.style.fontSize = `${size}px`;
+        labelElement.setAttributeNS(null, 'value', labelElement.value);
+        textOverflow = labelElement.scrollWidth > labelElement.clientWidth;
+        size -= 1;
+    }
+};

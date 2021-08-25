@@ -32,7 +32,14 @@ function pointOnLineClosestTo(givenPoint, line) {
     return { x: (d - c) / (a - b), y: a * (d - c) / (a - b) + c };
 }
 
-function isPointingleftOrStraightUp(tailPoint, tipPoint) {
+function pointingDownOrTrueLeft(tailPoint, tipPoint) {
+    if (tipPoint.y === tailPoint.y) {
+        return tipPoint.x < tailPoint.x;
+    }
+    return tipPoint.y > tailPoint.y;
+}
+
+function pointingLeftOrTrueUp(tailPoint, tipPoint) {
     if (tipPoint.x === tailPoint.x) {
         return tipPoint.y < tailPoint.y;
     }
@@ -50,7 +57,7 @@ Returns a point on the line defined by fromPoint and toPoint, starting at
 fromPoint and travelling the given distance towards toPoint.
 */
 function getPointTowards(fromPoint, toPoint, distance) {
-    if (isPointingleftOrStraightUp(fromPoint, toPoint)) {
+    if (pointingLeftOrTrueUp(fromPoint, toPoint)) {
         distance *= -1;
     }
     const m = slopeBetween(fromPoint, toPoint);
