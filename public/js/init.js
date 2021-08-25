@@ -1,4 +1,4 @@
-/* global appendToLine Edge Graph State */
+/* global Edge Graph State Util */
 /* eslint-disable no-unused-vars */
 
 // global data
@@ -32,9 +32,9 @@ function getMousePosition(event) {
 
 function finishedInputLineAndAccept(acceptedCurrent) {
     graph.acceptedAll = graph.acceptedAll && acceptedCurrent;
-    const currentLineNo = graph.currentLineNo;
-    const checkOrX = acceptedCurrent ? ' ✓' : ' ❌';
-    inputEditor.value = appendToLine(inputEditor.value, checkOrX, currentLineNo);
+    const lineNo = graph.currentLineNo;
+    const result = acceptedCurrent ? ' ✓' : ' ❌';
+    inputEditor.value = Util.appendToLine(inputEditor.value, result, lineNo);
     playPauseButton.innerHTML = 'play';
     const inputIsFinished = !graph.animateNextInput();
     if (inputIsFinished) {

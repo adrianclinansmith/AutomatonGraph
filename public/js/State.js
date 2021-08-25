@@ -1,4 +1,4 @@
-/* global Edge onStateLabelInput getPointTowards midpoint */
+/* global Edge onStateLabelInput Util */
 // eslint-disable-next-line no-unused-vars
 class State {
     /* Static */
@@ -34,7 +34,7 @@ class State {
         } else {
             this.element = elementOrId;
         }
-        const centerPosition = this.centerPosition();
+        const centerPosition = this._centerPosition();
         this.x = centerPosition.x;
         this.y = centerPosition.y;
         this.positionOffset = { x: 0, y: 0 };
@@ -61,13 +61,6 @@ class State {
         } else {
             this._animateElement().beginElement();
         }
-    }
-
-    centerPosition() {
-        const trans = this._gElement().getAttributeNS(null, 'transform');
-        const x = trans.substring(trans.indexOf('(') + 1, trans.indexOf(','));
-        const y = trans.substring(trans.indexOf(',') + 1, trans.indexOf(')'));
-        return { x: parseFloat(x), y: parseFloat(y) };
     }
 
     equals(otherState) {
@@ -97,7 +90,7 @@ class State {
     intersectTowards(point, spacing) {
         let radius = this.radius();
         radius += spacing || 0;
-        return getPointTowards(this, point, radius);
+        return Util.goFromPointToPoint(this, point, radius);
     }
 
     moveTo(position) {
@@ -113,16 +106,13 @@ class State {
     }
 
     pointBetween(otherState) {
-        const thisPosition = this.centerPosition();
-        const otherPosition = otherState.centerPosition();
-        return midpoint(thisPosition, otherPosition);
+        return Util.midpoint(this, otherState);
     }
 
     pointOnPerimeter(radAngle) {
-        const center = this.centerPosition();
         const r = this.radius();
-        const x = r * Math.cos(radAngle) + center.x;
-        const y = r * Math.sin(radAngle) + center.y;
+        const x = r * Math.cos(radAngle) + this.x;
+        const y = r * Math.sin(radAngle) + this.y;
         return { x, y };
     }
 
@@ -155,10 +145,9 @@ class State {
     }
 
     setPositionOffset(fromPoint) {
-        const centerPosition = this.centerPosition();
         const positionOffset = {};
-        positionOffset.x = centerPosition.x - fromPoint.x;
-        positionOffset.y = centerPosition.y - fromPoint.y;
+        positionOffset.x = this.x - fromPoint.x;
+        positionOffset.y = this.y - fromPoint.y;
         this.positionOffset = positionOffset;
     }
 
@@ -185,6 +174,13 @@ class State {
         return this.element.children[0];
     }
 
+    _centerPosition() {
+        const trans = this._gElement().getAttributeNS(null, 'transform');
+        const x = trans.substring(trans.indexOf('(') + 1, trans.indexOf(','));
+        const y = trans.substring(trans.indexOf(',') + 1, trans.indexOf(')'));
+        return { x: parseFloat(x), y: parseFloat(y) };
+    }
+
     _gElement() {
         return this.element.parentNode;
     }
@@ -208,25 +204,9 @@ class State {
         return this._gElement().children[1];
     }
 
-    // _midpointTo(otherState) {
-    //     const thisPosition = this.centerPosition();
-    //     const otherPosition = otherState.centerPosition();
-    //     const x = (thisPosition.x + otherPosition.x) / 2;
-    //     const y = (thisPosition.y + otherPosition.y) / 2;
-    //     return { x, y };
-    // }
-
     _setDataInput(input) {
         this.element.setAttributeNS(null, 'data-input', input);
     }
-
-    // _slopeTo(otherState) {
-    //     const thisPosition = this.centerPosition();
-    //     const otherPosition = otherState.centerPosition();
-    //     const rise = otherPosition.y - thisPosition.y;
-    //     const run = otherPosition.x - thisPosition.x;
-    //     return rise / run;
-    // }
 
     _textInputElement() {
         return this._gElement().children[2].children[0];
