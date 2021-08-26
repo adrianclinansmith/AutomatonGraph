@@ -1,4 +1,5 @@
-/* global onEdgeLabelInput State Util  */
+/* global onEdgeLabelInput onEdgeLabelFocusOut onEdgeLabelDoubleClick
+onEdgeLabelMouseDown State Util */
 // eslint-disable-next-line no-unused-vars
 class Edge {
     /* Static */
@@ -27,6 +28,9 @@ class Edge {
         foreignObjectElement.setAttributeNS(null, 'x', x);
         foreignObjectElement.setAttributeNS(null, 'y', y);
         labelElement.oninput = onEdgeLabelInput;
+        labelElement.ondblclick = onEdgeLabelDoubleClick;
+        labelElement.onfocusout = onEdgeLabelFocusOut;
+        labelElement.onmousedown = onEdgeLabelMouseDown;
         return gElement;
     }
 
@@ -72,8 +76,18 @@ class Edge {
         }
     }
 
+    deselect() {
+        this.setColor('');
+        const labelElement = this._labelElement();
+        labelElement.style['user-select'] = 'none';
+        labelElement.style['-webkit-user-select'] = 'none';
+    }
+
     focusLabel() {
-        this._textInputElement().focus();
+        const labelElement = this._labelElement();
+        labelElement.style['user-select'] = 'all';
+        labelElement.style['-webkit-user-select'] = 'all';
+        labelElement.select();
     }
 
     id() {
@@ -128,8 +142,9 @@ class Edge {
 
     setColor(color) {
         this.element.style.stroke = color;
-        this._controlElement().style.stroke = color;
-        this._controlElement().style.fill = color;
+        const controlElement = this._controlElement();
+        controlElement.style.stroke = color;
+        controlElement.style.fill = color;
         const arrowUrl = 'url(#arrowhead' + (color ? `-${color})` : ')');
         this.element.setAttributeNS(null, 'marker-end', arrowUrl);
     }
@@ -161,7 +176,17 @@ class Edge {
     }
 
     setLabel(textString) {
-        this._textInputElement().setAttributeNS(null, 'value', textString);
+        const labelElement = this._labelElement();
+        labelElement.setAttributeNS(null, 'value', textString);
+        const event = new Event('input', {
+            bubbles: true,
+            cancelable: true
+        });
+        labelElement.dispatchEvent(event);
+    }
+
+    select() {
+        this.setColor('red');
     }
 
     /* Private Instance */
@@ -256,7 +281,7 @@ class Edge {
     }
 
     _labelValue() {
-        return this._textInputElement().value;
+        return this._labelElement().value;
     }
 
     _positionControlElementAt(point) {
@@ -328,7 +353,7 @@ class Edge {
         this.element.setAttributeNS(null, 'data-controlisforward', result);
     }
 
-    _textInputElement() {
+    _labelElement() {
         return this._foreignObjectElement().children[0];
     }
 

@@ -44,7 +44,11 @@ class Graph {
     }
 
     deselect() {
-        this.selectedObject?.setColor('');
+        if (this.selectedObject instanceof Edge) {
+            this.selectedObject.deselect();
+        } else {
+            this.selectedObject?.setColor('');
+        }
         this.selectedObject = null;
     }
 
@@ -63,13 +67,14 @@ class Graph {
 
     select(element, atPosition) {
         this.deselect();
-        if (element.getAttribute('class') === 'state') {
+        const type = element.getAttribute('class');
+        if (type === 'state') {
             this.selectedObject = new State(element);
             this.selectedObject.setColor('red');
             this.selectedObject.setPositionOffset(atPosition);
-        } else if (element.getAttribute('class').startsWith('edge')) {
+        } else if (type === 'edge' || type === 'edge-control') {
             this.selectedObject = new Edge(element);
-            this.selectedObject.setColor('red');
+            this.selectedObject.select();
         }
         return this.selectedObject;
     }

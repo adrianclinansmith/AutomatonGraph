@@ -24,15 +24,18 @@
 				.edge-foreign-object {
 					text-align: left;
 					background-color: transparent;
-					pointer-events: none;
+					/* pointer-events: none;  */
 				}
 
 				.edge-label {
-					background-color: transparent;
+					background-color: pink;
 					border: none;
-					pointer-events: none;
-					font-size: 15px;
+					cursor: default;
 					font-family: Monaco, monospace;
+					font-size: 15px;
+					pointer-events: none;
+					user-select: none;
+					-webkit-user-select: none;
 				}
 
 				.state {
@@ -80,14 +83,16 @@
 						data-input data-tail id="edge-template" marker-end="url(#arrowhead-red)"
 						style="stroke: red;">
 					</path>
-					<foreignObject class="edge-foreign-object" height="100%"
-						requiredExtensions="http://www.w3.org/1999/xhtml" width="100%">
-						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" spellcheck="false" type="text" />
+					<foreignObject class="edge-foreign-object" height="100%" width="100%"
+						requiredExtensions="http://www.w3.org/1999/xhtml">
+						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" spellcheck="false"
+						type="text" size="0" />
 					</foreignObject>
 					<circle class="edge-control" r="5px" cx cy></circle>
 					<circle class="animation-circle" r="5px">
 						<animateMotion begin="indefinite" class="animate edge-animate" dur="2s"
-									   path onend="edgeAnimationEnded(event)" />
+									   path onbegin="edgeAnimationBegin(event)" 
+									   onend="edgeAnimationEnded(event)" />
 					</circle>
 				</g>
 				<!-- state template  -->

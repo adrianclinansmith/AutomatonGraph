@@ -152,7 +152,13 @@ class State {
     }
 
     setLabel(textString) {
-        this._textInputElement().setAttributeNS(null, 'value', textString);
+        const textInputElement = this._textInputElement();
+        textInputElement.setAttributeNS(null, 'value', textString);
+        const event = new Event('input', {
+            bubbles: true,
+            cancelable: true
+        });
+        textInputElement.dispatchEvent(event);
     }
 
     toggleGoal() {

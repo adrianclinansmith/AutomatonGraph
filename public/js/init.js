@@ -59,6 +59,9 @@ function initGraph(addDefaultElements) {
     for (const edgeElement of edgeElements) {
         const edgeLabel = edgeElement.parentNode.children[1].children[0];
         edgeLabel.oninput = onEdgeLabelInput;
+        edgeLabel.onmousedown = onEdgeLabelMouseDown;
+        edgeLabel.ondblclick = onEdgeLabelDoubleClick;
+        edgeLabel.onfocusout = onEdgeLabelFocusOut;
     }
     const newGraph = new Graph(svg);
     if (addDefaultElements === true) {
@@ -121,7 +124,10 @@ function mouseleave(event) {
 }
 
 function dblclick(event) {
-    if (graph.selectedObject instanceof State) {
+    if (event.target.getAttribute('class') === 'edge-label' &&
+       event.target.value.length > 0) {
+        event.target.focus();
+    } else if (graph.selectedObject instanceof State) {
         graph.selectedObject.focusLabel();
     }
 }
@@ -151,6 +157,7 @@ newStateButton.addEventListener('click', () => {
 });
 
 playPauseButton.addEventListener('click', () => {
+    console.log('\n\n\n');
     if (playPauseButton.innerHTML === 'play') {
         playPauseButton.innerHTML = 'pause';
     } else {
@@ -190,6 +197,10 @@ inputEditor.addEventListener('focus', () => {
 
 // Animation Callbacks
 
+function edgeAnimationBegin(event) {
+    console.log('begin edge animcation');
+}
+
 function edgeAnimationEnded(event) {
     if (!graph.animationShouldPlay) {
         return;
@@ -205,6 +216,7 @@ function stateAnimationEnded(event) {
     graph.activeStates--;
     const state = new State(event.target);
     if (state.isGoalWithNoInput()) {
+        console.log('goal no input');
         finishedInputLineAndAccept(true);
         return;
     }
@@ -217,20 +229,42 @@ function stateAnimationEnded(event) {
 
 // Graph Element Callbacks
 
+function onEdgeLabelMouseDown(event) {
+    console.log('edge label mouse down');
+}
+
+function onEdgeLabelDoubleClick(event) {
+    event.target.style['user-select'] = 'all';
+    event.target.style['-webkit-user-select'] = 'all';
+    event.target.select();
+    console.log(event.target);
+};
+
+function onEdgeLabelFocusOut(event) {
+    event.target.style['user-select'] = 'none';
+    event.target.style['-webkit-user-select'] = 'none';
+}
+
 function onEdgeLabelInput(event) {
-    console.log('onEdgeLabelInput');
-    event.target.setAttributeNS(null, 'value', event.target.value);
+    console.log('edge label on input');
+    const labelElement = event.target;
+    labelElement.setAttributeNS(null, 'value', labelElement.value);
+    labelElement.setAttributeNS(null, 'size', labelElement.value.length);
+    if (labelElement.value.length > 0) {
+        labelElement.style.pointerEvents = 'auto';
+    } else {
+        labelElement.style.pointerEvents = 'none';
+    }
 };
 
 function onStateLabelInput(event) {
-    console.log('onStateLabelInput');
     const labelElement = event.target;
+    labelElement.setAttributeNS(null, 'value', labelElement.value);
     let textOverflow = true;
-    let size = 25;
-    while (textOverflow && size > 1) {
-        labelElement.style.fontSize = `${size}px`;
-        labelElement.setAttributeNS(null, 'value', labelElement.value);
+    let fontSize = 25;
+    while (textOverflow && fontSize > 1) {
+        labelElement.style.fontSize = `${fontSize}px`;
         textOverflow = labelElement.scrollWidth > labelElement.clientWidth;
-        size -= 1;
+        fontSize -= 1;
     }
 };
