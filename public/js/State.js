@@ -42,10 +42,25 @@ class State {
 
     /* Instance */
 
+    getLineNo() {
+        return Number(this.element.getAttributeNS(null, 'data-lineno'));
+    }
+
+    setLineNo(lineNo) {
+        this.element.setAttributeNS(null, 'data-lineno', lineNo);
+    }
+
     addInEdge(edge) {
         let inEdgesString = this.element.getAttributeNS(null, 'data-inedges');
         inEdgesString += `${edge.id()} `;
         this.element.setAttributeNS(null, 'data-inedges', inEdgesString);
+    }
+
+    addInput(input) {
+        const storedInputsArray = this._storedInputsArray();
+        storedInputsArray.push(input);
+        const storedInputsString = Util.arrayToCsvString(storedInputsArray);
+        this.element.setAttributeNS(null, 'data-input', storedInputsString);
     }
 
     addOutEdge(edge) {
@@ -54,13 +69,16 @@ class State {
         this.element.setAttributeNS(null, 'data-outedges', outEdgesString);
     }
 
-    animate(input) {
-        this._setDataInput(input);
+    animate() {
         if (this.isGoal()) {
             this._innerAnimateElement().beginElement();
         } else {
             this._animateElement().beginElement();
         }
+    }
+
+    clearStoredInputs() {
+        this.element.setAttributeNS(null, 'data-input', '');
     }
 
     equals(otherState) {
@@ -75,22 +93,14 @@ class State {
         return this.element.getAttributeNS(null, 'id');
     }
 
-    input() {
-        return this.element.getAttributeNS(null, 'data-input');
-    }
-
-    isGoal() {
-        return this._innerCircleElement().style.visibility !== '';
-    }
-
-    isGoalWithNoInput() {
-        return this.isGoal() && this.input().length === 0;
-    }
-
     intersectTowards(point, spacing) {
         let radius = this.radius();
         radius += spacing || 0;
         return Util.goFromPointToPoint(this, point, radius);
+    }
+
+    isGoal() {
+        return this._innerCircleElement().style.visibility !== '';
     }
 
     moveTo(position) {
@@ -116,6 +126,14 @@ class State {
         return { x, y };
     }
 
+    popInput() {
+        const dataInputs = this.element.getAttributeNS(null, 'data-input');
+        const firstInput = Util.popFromCsvString(dataInputs);
+        const newDataInputs = Util.removeFirstFromCsvString(dataInputs);
+        this.element.setAttributeNS(null, 'data-input', newDataInputs);
+        return firstInput;
+    }
+
     radius() {
         let rString = this.element.getAttributeNS(null, 'r');
         rString = rString.replace('px', '');
@@ -128,27 +146,9 @@ class State {
         }
     }
 
-    sendInputToOutEdges() {
-        let numberOfAnimatedEdges = 0;
-        for (const outEdge of this.outEdges()) {
-            const wasAnimated = outEdge.animateOnValidInput(this.input());
-            if (wasAnimated) {
-                numberOfAnimatedEdges++;
-            }
-        }
-        return numberOfAnimatedEdges;
-    }
-
     setColor(color) {
         this.element.style.stroke = color;
         this._innerCircleElement().style.stroke = color;
-    }
-
-    setPositionOffset(fromPoint) {
-        const positionOffset = {};
-        positionOffset.x = this.x - fromPoint.x;
-        positionOffset.y = this.y - fromPoint.y;
-        this.positionOffset = positionOffset;
     }
 
     setLabel(textString) {
@@ -159,6 +159,13 @@ class State {
             cancelable: true
         });
         textInputElement.dispatchEvent(event);
+    }
+
+    setPositionOffset(fromPoint) {
+        const positionOffset = {};
+        positionOffset.x = this.x - fromPoint.x;
+        positionOffset.y = this.y - fromPoint.y;
+        this.positionOffset = positionOffset;
     }
 
     toggleGoal() {
@@ -210,8 +217,9 @@ class State {
         return this._gElement().children[1];
     }
 
-    _setDataInput(input) {
-        this.element.setAttributeNS(null, 'data-input', input);
+    _storedInputsArray() {
+        const dataInputs = this.element.getAttributeNS(null, 'data-input');
+        return Util.csvStringToArray(dataInputs);
     }
 
     _textInputElement() {

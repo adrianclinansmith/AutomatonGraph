@@ -30,14 +30,16 @@ function getMousePosition(event) {
     };
 }
 
-function finishedInputLineAndAccept(acceptedCurrent) {
-    graph.acceptedAll = graph.acceptedAll && acceptedCurrent;
+function finishedInputLineAndAccept(accepted) {
+    console.log(`~~~${accepted ? 'ACCEPT' : 'REJECT'}~~~`);
+    graph.acceptedAll = graph.acceptedAll && accepted;
     const lineNo = graph.currentLineNo;
-    const result = acceptedCurrent ? ' ✓' : ' ❌';
+    const result = accepted ? ' ✓' : ' ❌';
     inputEditor.value = Util.appendToLine(inputEditor.value, result, lineNo);
-    playPauseButton.innerHTML = 'play';
-    const inputIsFinished = !graph.animateNextInput();
-    if (inputIsFinished) {
+    const triggeredInitialEdges = graph.animateNextInput();
+    if (triggeredInitialEdges === 0) {
+        finishedInputLineAndAccept(false);
+    } else if (triggeredInitialEdges === false) {
         resultLabel.style.color = graph.acceptedAll ? 'green' : 'red';
         resultLabel.innerHTML = graph.acceptedAll ? 'accepted' : 'rejected';
     }
@@ -76,7 +78,7 @@ function initGraph(addDefaultElements) {
         const conectEdge = newGraph.startTemporaryEdge(s0.element, null);
         newGraph.temporaryEdgeHeadTo(s1.element, null);
         newGraph.setOrDeleteTemporaryEdge();
-        conectEdge.setLabel('a,b,c');
+        conectEdge.setLabel('a,b');
         newGraph.deselect();
     }
     return newGraph;
@@ -157,19 +159,17 @@ newStateButton.addEventListener('click', () => {
 });
 
 playPauseButton.addEventListener('click', () => {
-    console.log('\n\n\n');
-    if (playPauseButton.innerHTML === 'play') {
-        playPauseButton.innerHTML = 'pause';
-    } else {
-        playPauseButton.innerHTML = 'play';
-    }
+    console.log('\n\n\npressed play:\n\n\n');
     document.getElementById('resultLabel').innerHTML = '';
-    const inputs = inputEditor.value;
-    graph.inputs = inputs.split('\n');
+    clearInputScore();
+    const inputString = inputEditor.value.replace(/[ ]+/g, '');
+    graph.inputs = inputString.split('\n');
     graph.currentLineNo = 0;
     graph.acceptedAll = true;
-    clearInputScore();
-    graph.startAnimation();
+    const numberInitiallyAccepted = graph.startAnimation();
+    if (numberInitiallyAccepted === 0) {
+        finishedInputLineAndAccept(false);
+    }
 });
 
 stopButton.addEventListener('click', () => {
@@ -191,53 +191,82 @@ uploadButton.addEventListener('change', () => {
 // editor event handlers
 
 inputEditor.addEventListener('focus', () => {
-    console.log('editor on focus');
     clearInputScore();
 });
 
 // Animation Callbacks
 
 function edgeAnimationBegin(event) {
-    console.log('begin edge animcation');
+    // const edge = new Edge(event.target);
+    // console.log(`${edge.id()}: BEGIN edge animation`);
 }
 
-function edgeAnimationEnded(event) {
+function edgeAnimationEnd(event) {
+    const edge = new Edge(event.target);
+    console.log(`${edge.id()}: END edge animation`);
+    console.log(`  Stored inputs: "${edge._storedInputsArray()}"`);
     if (!graph.animationShouldPlay) {
         return;
     }
-    const edge = new Edge(event.target.parentNode.parentNode.children[0]);
-    edge.head.animate(edge.input());
+    edge.dumpInputsToHead();
+    edge.head.setLineNo(edge.getLineNo());
+    console.log(`#### head lineNo = ${edge.head.getLineNo()}`);
+    edge.head.animate();
 }
 
-function stateAnimationEnded(event) {
+function stateAnimationBegin(event) {
+    // const state = new State(event.target);
+    // console.log(`${state.id()}: BEGIN state animation`);
+
+    graph.numberOfActiveStates++;
+    graph.anInputWasAccepted = false;
+}
+
+function stateAnimationEnd(event) {
     if (!graph.animationShouldPlay) {
         return;
     }
-    graph.activeStates--;
     const state = new State(event.target);
-    if (state.isGoalWithNoInput()) {
-        console.log('goal no input');
-        finishedInputLineAndAccept(true);
+    console.log(`${state.id()}: END state animation`);
+    if (state.getLineNo() !== graph.currentLineNo) {
+        console.log(`  lineNo != ${graph.currentLineNo}`);
         return;
     }
-    const newlyAnimatedEdges = state.sendInputToOutEdges();
-    graph.activeStates += newlyAnimatedEdges;
-    if (graph.activeStates === 0) {
+    console.log(`  Stored inputs: "${state._storedInputsArray()}"`);
+    console.log(`  lineNo = ${state.getLineNo()}`);
+    console.log(`  graphLineNo = ${graph.currentLineNo}`);
+    console.log(`  should play = ${graph.animationShouldPlay}`);
+
+    graph.numberOfActiveStates--;
+    let input;
+    while ((input = state.popInput())) {
+        if (input === ' ' && state.isGoal()) {
+            finishedInputLineAndAccept(true);
+            return;
+        }
+        for (const outEdge of state.outEdges()) {
+            if (outEdge.acceptsInput(input)) {
+                outEdge.setLineNo(state.getLineNo());
+                outEdge.consumeInputAndAnimate(input);
+                graph.anInputWasAccepted = true;
+            }
+        }
+    }
+    if (graph.numberOfActiveStates === 0 && !graph.anInputWasAccepted) {
         finishedInputLineAndAccept(false);
     }
+    state.clearStoredInputs();
 }
 
 // Graph Element Callbacks
 
 function onEdgeLabelMouseDown(event) {
-    console.log('edge label mouse down');
 }
 
 function onEdgeLabelDoubleClick(event) {
     event.target.style['user-select'] = 'all';
     event.target.style['-webkit-user-select'] = 'all';
     event.target.select();
-    console.log(event.target);
 };
 
 function onEdgeLabelFocusOut(event) {
@@ -246,7 +275,6 @@ function onEdgeLabelFocusOut(event) {
 }
 
 function onEdgeLabelInput(event) {
-    console.log('edge label on input');
     const labelElement = event.target;
     labelElement.setAttributeNS(null, 'value', labelElement.value);
     labelElement.setAttributeNS(null, 'size', labelElement.value.length);

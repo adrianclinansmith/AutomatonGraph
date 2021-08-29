@@ -44,6 +44,8 @@ class Edge {
         } else if (elementOrId.getAttribute('class') === 'edge-control') {
             this.element = elementOrId.parentNode.children[0];
             this.controlSelected = true;
+        } else if (elementOrId.classList.contains('edge-animate')) {
+            this.element = elementOrId.parentNode.parentNode.children[0];
         } else {
             this.element = elementOrId;
         }
@@ -59,21 +61,40 @@ class Edge {
 
     /* Instance */
 
-    animateOnValidInput(input) {
-        const edgeLabel = this._labelValue();
-        const thisEdgeHasNoLabel = edgeLabel.length === 0;
-        const inputIsAccepted = input.length > 0 && edgeLabel.includes(input[0]);
-        if (thisEdgeHasNoLabel) {
-            this._setDataInput(input);
-            this._animateMotionElement().beginElement();
+    getLineNo() {
+        return Number(this.element.getAttributeNS(null, 'data-lineno'));
+    }
+
+    setLineNo(lineNo) {
+        this.element.setAttributeNS(null, 'data-lineno', lineNo);
+    }
+
+    acceptsInput(input) {
+        if (this._isBlank()) {
             return true;
-        } else if (inputIsAccepted) {
-            this._setDataInput(input.slice(1));
-            this._animateMotionElement().beginElement();
-            return true;
-        } else {
-            return false;
         }
+        const labelValuesArray = this._labelValuesArray();
+        return labelValuesArray.includes(input[0]);
+    }
+
+    clearStoredInputs() {
+        this.element.setAttributeNS(null, 'data-input', '');
+    }
+
+    consumeInputAndAnimate(input) {
+        if (this._isBlank()) {
+            this._addInput(input);
+        } else {
+            this._addInput(input.slice(1));
+        }
+        this._animateMotionElement().beginElement();
+    }
+
+    dumpInputsToHead() {
+        for (const input of this._storedInputsArray()) {
+            this.head.addInput(input);
+        }
+        this.element.setAttributeNS(null, 'data-input', '');
     }
 
     deselect() {
@@ -92,10 +113,6 @@ class Edge {
 
     id() {
         return this.element.getAttributeNS(null, 'id');
-    }
-
-    input() {
-        return this.element.getAttributeNS(null, 'data-input');
     }
 
     moveControlTo(position) {
@@ -191,6 +208,17 @@ class Edge {
 
     /* Private Instance */
 
+    _addInput(input) {
+        input = input === '' ? ' ' : input;
+        const storedInputsArray = this._storedInputsArray();
+        if (storedInputsArray.includes(input)) {
+            return;
+        }
+        storedInputsArray.push(input);
+        const storedInputsString = Util.arrayToCsvString(storedInputsArray);
+        this.element.setAttributeNS(null, 'data-input', storedInputsString);
+    }
+
     _animateMotionElement() {
         return this._gElement().children[3].children[0];
     }
@@ -201,6 +229,28 @@ class Edge {
         const point = Util.midpoint(tailIntersect, headIntersect);
         const slope = -1 / Util.slopeBetween(this.head, this.tail);
         return { point, slope };
+    }
+
+    _calculatePointsForLoop() {
+        const start = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
+        const end = this.tail.pointOnPerimeter(-Math.PI / 4);
+        end.y -= 7;
+        const control = { x: this.tail.x, y: this.tail.y - 120 };
+        return { start, end, control };
+    }
+
+    _calculatePointsForRegularEdge() {
+        const axis = this._axisOfSymmetry();
+        let distance = this._getControlDistance();
+        const forward = this._getControlIsForward();
+        const downOrTrueLeft = Util.pointingDownOrTrueLeft(this.tail, this.head);
+        if ((forward && downOrTrueLeft) || !(forward || downOrTrueLeft)) {
+            distance *= -1;
+        }
+        const control = Util.pointAlongSlope(axis.point, axis.slope, distance);
+        const start = this.tail.intersectTowards(control);
+        const end = this.head.intersectTowards(control, 7);
+        return { start, end, control };
     }
 
     _controlElement() {
@@ -246,26 +296,9 @@ class Edge {
         return this.element.getAttributeNS(null, 'data-controlisforward');
     }
 
-    _calculatePointsForLoop() {
-        const start = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
-        const end = this.tail.pointOnPerimeter(-Math.PI / 4);
-        end.y -= 7;
-        const control = { x: this.tail.x, y: this.tail.y - 120 };
-        return { start, end, control };
-    }
-
-    _calculatePointsForRegularEdge() {
-        const axis = this._axisOfSymmetry();
-        let distance = this._getControlDistance();
-        const forward = this._getControlIsForward();
-        const downOrTrueLeft = Util.pointingDownOrTrueLeft(this.tail, this.head);
-        if ((forward && downOrTrueLeft) || !(forward || downOrTrueLeft)) {
-            distance *= -1;
-        }
-        const control = Util.pointAlongSlope(axis.point, axis.slope, distance);
-        const start = this.tail.intersectTowards(control);
-        const end = this.head.intersectTowards(control, 7);
-        return { start, end, control };
+    _isBlank() {
+        const labelValue = this._labelElement().value;
+        return Util.stringIsEmptyOrSpace(labelValue);
     }
 
     _isInitialEdge() {
@@ -280,8 +313,13 @@ class Edge {
         return this.tail && this.head && !this.tail.equals(this.head);
     }
 
-    _labelValue() {
-        return this._labelElement().value;
+    _labelElement() {
+        return this._foreignObjectElement().children[0];
+    }
+
+    _labelValuesArray() {
+        const labelString = this._labelElement().value.replace(/\s+/g, '');
+        return Util.csvStringToArray(labelString);
     }
 
     _positionControlElementAt(point) {
@@ -317,10 +355,6 @@ class Edge {
         this._positionLabelAt(vertex);
     }
 
-    _setDataInput(input) {
-        this.element.setAttributeNS(null, 'data-input', input);
-    }
-
     _storeControlDistance() {
         if (!this.head || !this.tail) {
             return;
@@ -353,8 +387,9 @@ class Edge {
         this.element.setAttributeNS(null, 'data-controlisforward', result);
     }
 
-    _labelElement() {
-        return this._foreignObjectElement().children[0];
+    _storedInputsArray() {
+        const dataInputs = this.element.getAttributeNS(null, 'data-input');
+        return Util.csvStringToArray(dataInputs);
     }
 
     _vertexPosition() {

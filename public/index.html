@@ -28,7 +28,7 @@
 				}
 
 				.edge-label {
-					background-color: pink;
+					background-color: transparent;
 					border: none;
 					cursor: default;
 					font-family: Monaco, monospace;
@@ -79,7 +79,7 @@
 			<svg id="template-container" pointer-events="none" visibility="hidden">
 				<!-- edge template  -->
 				<g class="edge-g" id="edge-g-template">
-					<path class="edge" data-controldistance data-controlisforward d data-head
+					<path class="edge" data-controldistance data-controlisforward d data-head data-lineno
 						data-input data-tail id="edge-template" marker-end="url(#arrowhead-red)"
 						style="stroke: red;">
 					</path>
@@ -92,19 +92,21 @@
 					<circle class="animation-circle" r="5px">
 						<animateMotion begin="indefinite" class="animate edge-animate" dur="2s"
 									   path onbegin="edgeAnimationBegin(event)" 
-									   onend="edgeAnimationEnded(event)" />
+									   onend="edgeAnimationEnd(event)" />
 					</circle>
 				</g>
 				<!-- state template  -->
 				<g class="state-g" id="state-g-template" transform>
-					<circle class="state" r="30px" data-inedges data-input data-outedges id style>
+					<circle class="state" r="30px" data-inedges data-input data-outedges id data-lineno style>
 						<animate begin="indefinite" class="animate state-animate" dur="1s" attributeType="css"
-							attributeName="fill" to="#faf9ba" onend="stateAnimationEnded(event)">
+							attributeName="fill" to="#faf9ba" onbegin="stateAnimationBegin(event)" 
+							onend="stateAnimationEnd(event)">
 						</animate>
 					</circle>
 					<circle class="state-goal-inner-circle" r="26px" style>
-						<animate begin="indefinite" class="animate state-inner-animate" dur="1s" attributeType="css"
-							attributeName="fill" to="#faf9ba" onend="stateAnimationEnded(event)">
+						<animate begin="indefinite" class="animate state-inner-animate" dur="1s" 
+							attributeType="css" attributeName="fill" to="#faf9ba" 
+							onbegin="stateAnimationBegin(event)" onend="stateAnimationEnd(event)">
 						</animate>
 					</circle>
 					<foreignObject class="state-foreign-object" height="100%"
@@ -131,8 +133,9 @@
 	</div>
 	<label id="resultLabel"></label>
 	<!-- buttons  -->
-	<button id="playPauseButton">play</button>
-	<button id="stopButton">stop</button>
+	<button id="playPauseButton">▶︎</button>
+	<button id="stopButton">◾️</button>
+	&nbsp
 	<button id="newStateButton">new state</button>
 	<button id="newEdgeButton">new edge</button>
 	<button id="downloadButton">download</button>
@@ -140,7 +143,8 @@
 	<br><br><br>
 	
 	<!-- User Input -->
-	<textarea class="inputArea" id="inputEditor" cols="77" rows="20"></textarea>
+	<textarea class="inputArea" id="inputEditor" spellcheck="false"
+	autocomplete="off" autocapitalize="off" cols="77" rows="20"></textarea>
 
 	
 	<!-- scripts  -->

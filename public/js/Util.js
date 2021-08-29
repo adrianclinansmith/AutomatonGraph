@@ -118,4 +118,38 @@ class Util {
     static slopeBetween(fromPoint, toPoint) {
         return (toPoint.y - fromPoint.y) / (toPoint.x - fromPoint.x);
     }
+
+    static stringIsEmptyOrSpace(string) {
+        return string.trim() === '';
+    }
+
+    /*
+    CSV String is a string of comma-separated values, i.e. "dog, cat, bird".
+    An empty string represents no value.
+    A string without any commas is a single value.
+    */
+
+    static arrayToCsvString(array) {
+        return array.join();
+    }
+
+    static csvStringToArray(csvString) {
+        if (csvString === '') {
+            return [];
+        }
+        return csvString.split(',');
+    }
+
+    static popFromCsvString(csvString) {
+        const array = this.csvStringToArray(csvString);
+        return array.shift();
+    }
+
+    static removeFirstFromCsvString(cvsString) {
+        const i = cvsString.indexOf(',');
+        if (i === -1) {
+            return '';
+        }
+        return cvsString.slice(i + 1);
+    }
 }

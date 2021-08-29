@@ -9,7 +9,7 @@ class Graph {
         this.temporaryEdge = null;
         this.newStateAngle = Math.PI / -2;
         this.animationShouldPlay = false;
-        this.activeStates = 0;
+        this.numberOfActiveStates = 0;
         this.inputs = [];
         this.currentLineNo = 0;
         this.acceptedAll = true;
@@ -35,6 +35,7 @@ class Graph {
     animateNextInput() {
         this.currentLineNo++;
         this.stopAnimation();
+        console.log('AFTER STOP');
         return this.startAnimation();
     }
 
@@ -95,18 +96,22 @@ class Graph {
         if (this.currentLineNo >= this.inputs.length) {
             return false;
         }
-        const currentInput = this.inputs[this.currentLineNo];
-        console.log('current input: ' + currentInput);
         this.animationShouldPlay = true;
-        this.activeStates = 0;
-        const initialEdgeArray = this._allInitialEdges();
-        for (const initialEdge of initialEdgeArray) {
-            const wasAccepted = initialEdge.animateOnValidInput(currentInput);
-            if (wasAccepted) {
-                this.activeStates++;
+        this.numberOfActiveStates = 0;
+        let numberAccempted = 0;
+        let initialInput = this.inputs[this.currentLineNo];
+        if (initialInput === '') {
+            initialInput = ' ';
+        }
+        for (const initialEdge of this._allInitialEdges()) {
+            if (initialEdge.acceptsInput(initialInput)) {
+                initialEdge.setLineNo(this.currentLineNo);
+                initialEdge.consumeInputAndAnimate(initialInput);
+                numberAccempted++;
             }
         }
-        return true;
+        console.log('AFTER START');
+        return numberAccempted;
     }
 
     startTemporaryEdge(element, position) {
@@ -123,6 +128,16 @@ class Graph {
 
     stopAnimation() {
         this.animationShouldPlay = false;
+        const stateElementArray = document.getElementsByClassName('state');
+        for (const stateElement of stateElementArray) {
+            const state = new State(stateElement);
+            state.clearStoredInputs();
+        }
+        const edgeElementArray = document.getElementsByClassName('edge');
+        for (const edgeElement of edgeElementArray) {
+            const edge = new Edge(edgeElement);
+            edge.clearStoredInputs();
+        }
         const animations = document.getElementsByClassName('animate');
         for (const animation of animations) {
             animation.endElement();
