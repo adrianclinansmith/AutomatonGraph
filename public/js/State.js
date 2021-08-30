@@ -42,14 +42,6 @@ class State {
 
     /* Instance */
 
-    getLineNo() {
-        return Number(this.element.getAttributeNS(null, 'data-lineno'));
-    }
-
-    setLineNo(lineNo) {
-        this.element.setAttributeNS(null, 'data-lineno', lineNo);
-    }
-
     addInEdge(edge) {
         let inEdgesString = this.element.getAttributeNS(null, 'data-inedges');
         inEdgesString += `${edge.id()} `;
@@ -87,6 +79,11 @@ class State {
 
     focusLabel() {
         this._textInputElement().focus();
+    }
+
+    hasNoInputs() {
+        const dataInputs = this.element.getAttributeNS(null, 'data-input');
+        return dataInputs === '';
     }
 
     id() {

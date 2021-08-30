@@ -33,8 +33,8 @@ function getMousePosition(event) {
 function finishedInputLineAndAccept(accepted) {
     console.log(`~~~${accepted ? 'ACCEPT' : 'REJECT'}~~~`);
     graph.acceptedAll = graph.acceptedAll && accepted;
-    const lineNo = graph.currentLineNo;
     const result = accepted ? ' ✓' : ' ❌';
+    const lineNo = graph.currentLineNo;
     inputEditor.value = Util.appendToLine(inputEditor.value, result, lineNo);
     const triggeredInitialEdges = graph.animateNextInput();
     if (triggeredInitialEdges === 0) {
@@ -203,40 +203,29 @@ function edgeAnimationBegin(event) {
 
 function edgeAnimationEnd(event) {
     const edge = new Edge(event.target);
-    console.log(`${edge.id()}: END edge animation`);
-    console.log(`  Stored inputs: "${edge._storedInputsArray()}"`);
-    if (!graph.animationShouldPlay) {
+    if (edge.hasNoInputs()) {
         return;
     }
+    console.log(`${edge.id()}: END edge animation`);
+    console.log(`  Stored inputs: "${edge._storedInputsArray()}"`);
     edge.dumpInputsToHead();
-    edge.head.setLineNo(edge.getLineNo());
-    console.log(`#### head lineNo = ${edge.head.getLineNo()}`);
     edge.head.animate();
 }
 
 function stateAnimationBegin(event) {
     // const state = new State(event.target);
     // console.log(`${state.id()}: BEGIN state animation`);
-
     graph.numberOfActiveStates++;
     graph.anInputWasAccepted = false;
 }
 
 function stateAnimationEnd(event) {
-    if (!graph.animationShouldPlay) {
-        return;
-    }
     const state = new State(event.target);
-    console.log(`${state.id()}: END state animation`);
-    if (state.getLineNo() !== graph.currentLineNo) {
-        console.log(`  lineNo != ${graph.currentLineNo}`);
+    if (state.hasNoInputs()) {
         return;
     }
+    console.log(`${state.id()}: END state animation`);
     console.log(`  Stored inputs: "${state._storedInputsArray()}"`);
-    console.log(`  lineNo = ${state.getLineNo()}`);
-    console.log(`  graphLineNo = ${graph.currentLineNo}`);
-    console.log(`  should play = ${graph.animationShouldPlay}`);
-
     graph.numberOfActiveStates--;
     let input;
     while ((input = state.popInput())) {
@@ -246,7 +235,6 @@ function stateAnimationEnd(event) {
         }
         for (const outEdge of state.outEdges()) {
             if (outEdge.acceptsInput(input)) {
-                outEdge.setLineNo(state.getLineNo());
                 outEdge.consumeInputAndAnimate(input);
                 graph.anInputWasAccepted = true;
             }
@@ -254,6 +242,7 @@ function stateAnimationEnd(event) {
     }
     if (graph.numberOfActiveStates === 0 && !graph.anInputWasAccepted) {
         finishedInputLineAndAccept(false);
+        return;
     }
     state.clearStoredInputs();
 }

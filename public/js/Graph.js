@@ -8,7 +8,6 @@ class Graph {
         this.selectedObject = null;
         this.temporaryEdge = null;
         this.newStateAngle = Math.PI / -2;
-        this.animationShouldPlay = false;
         this.numberOfActiveStates = 0;
         this.inputs = [];
         this.currentLineNo = 0;
@@ -35,7 +34,6 @@ class Graph {
     animateNextInput() {
         this.currentLineNo++;
         this.stopAnimation();
-        console.log('AFTER STOP');
         return this.startAnimation();
     }
 
@@ -96,7 +94,6 @@ class Graph {
         if (this.currentLineNo >= this.inputs.length) {
             return false;
         }
-        this.animationShouldPlay = true;
         this.numberOfActiveStates = 0;
         let numberAccempted = 0;
         let initialInput = this.inputs[this.currentLineNo];
@@ -105,12 +102,10 @@ class Graph {
         }
         for (const initialEdge of this._allInitialEdges()) {
             if (initialEdge.acceptsInput(initialInput)) {
-                initialEdge.setLineNo(this.currentLineNo);
                 initialEdge.consumeInputAndAnimate(initialInput);
                 numberAccempted++;
             }
         }
-        console.log('AFTER START');
         return numberAccempted;
     }
 
@@ -127,18 +122,17 @@ class Graph {
     }
 
     stopAnimation() {
-        this.animationShouldPlay = false;
-        const stateElementArray = document.getElementsByClassName('state');
+        const stateElementArray = this.svg.querySelectorAll('.state');
         for (const stateElement of stateElementArray) {
             const state = new State(stateElement);
             state.clearStoredInputs();
         }
-        const edgeElementArray = document.getElementsByClassName('edge');
+        const edgeElementArray = this.svg.querySelectorAll('.edge');
         for (const edgeElement of edgeElementArray) {
             const edge = new Edge(edgeElement);
             edge.clearStoredInputs();
         }
-        const animations = document.getElementsByClassName('animate');
+        const animations = this.svg.querySelectorAll('.animate');
         for (const animation of animations) {
             animation.endElement();
             // animation.pauseElement();

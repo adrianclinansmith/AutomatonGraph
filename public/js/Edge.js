@@ -61,14 +61,6 @@ class Edge {
 
     /* Instance */
 
-    getLineNo() {
-        return Number(this.element.getAttributeNS(null, 'data-lineno'));
-    }
-
-    setLineNo(lineNo) {
-        this.element.setAttributeNS(null, 'data-lineno', lineNo);
-    }
-
     acceptsInput(input) {
         if (this._isBlank()) {
             return true;
@@ -109,6 +101,11 @@ class Edge {
         labelElement.style['user-select'] = 'all';
         labelElement.style['-webkit-user-select'] = 'all';
         labelElement.select();
+    }
+
+    hasNoInputs() {
+        const dataInputs = this.element.getAttributeNS(null, 'data-input');
+        return dataInputs === '';
     }
 
     id() {
