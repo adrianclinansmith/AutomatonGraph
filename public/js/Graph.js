@@ -122,21 +122,10 @@ class Graph {
     }
 
     stopAnimation() {
-        const stateElementArray = this.svg.querySelectorAll('.state');
-        for (const stateElement of stateElementArray) {
-            const state = new State(stateElement);
-            state.clearStoredInputs();
-        }
-        const edgeElementArray = this.svg.querySelectorAll('.edge');
-        for (const edgeElement of edgeElementArray) {
-            const edge = new Edge(edgeElement);
-            edge.clearStoredInputs();
-        }
-        const animations = this.svg.querySelectorAll('.animate');
-        for (const animation of animations) {
-            animation.endElement();
-            // animation.pauseElement();
-        }
+        const allStatesAndEdges = [...this._allStates(), ...this._allEdges()];
+        allStatesAndEdges.forEach(object => object.clearStoredInputs());
+        const allAnimations = this.svg.querySelectorAll('.animate');
+        allAnimations.forEach(animation => animation.endElement());
     }
 
     temporaryEdgeHeadTo(element, position) {
@@ -159,16 +148,21 @@ class Graph {
 
     /* Private */
 
+    _allEdges() {
+        const selector = '.edge:not(#edge-template)';
+        const edgeElements = this.svg.querySelectorAll(selector);
+        return [...edgeElements].map(element => new Edge(element));
+    }
+
     _allInitialEdges() {
-        const initialEdgeElements = this.svg.querySelectorAll('.edge');
-        const initialEdgeObjects = [];
-        for (const element of initialEdgeElements) {
-            if (element.id !== 'edge-template' &&
-                !element.getAttribute('data-tail')) {
-                const object = new Edge(element);
-                initialEdgeObjects.push(object);
-            }
-        }
-        return initialEdgeObjects;
+        const selector = '.edge[data-tail=""]:not(#edge-template)';
+        const initialEdgeElements = this.svg.querySelectorAll(selector);
+        return [...initialEdgeElements].map(element => new Edge(element));
+    }
+
+    _allStates() {
+        const selector = '.state:not(#state-template)';
+        const stateElements = this.svg.querySelectorAll(selector);
+        return [...stateElements].map(element => new State(element));
     }
 }
