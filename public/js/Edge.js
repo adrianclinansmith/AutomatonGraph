@@ -61,25 +61,27 @@ class Edge {
 
     /* Instance */
 
-    acceptsInput(input) {
-        if (this._acceptsBlank()) {
-            return true;
-        }
-        return this._acceptsNonBlankInput(input);
+    animate() {
+        this._animateMotionElement().beginElement();
     }
 
     clearStoredInputs() {
         this.element.setAttributeNS(null, 'data-input', '');
     }
 
-    consumeInputAndAnimate(input) {
-        if (this._acceptsBlank()) {
-            this._addInput(input);
+    consumeInput(input) {
+        let acceptedValues = this._labelValuesArray();
+        if (acceptedValues.length === 0) {
+            acceptedValues = [''];
         }
-        if (this._acceptsNonBlankInput(input)) {
-            this._addInput(input.slice(1));
+        let didConsume = false;
+        for (const value of acceptedValues) {
+            if (input.startsWith(value)) {
+                this._addInput(input.slice(value.length));
+                didConsume = true;
+            }
         }
-        this._animateMotionElement().beginElement();
+        return didConsume;
     }
 
     dumpInputsToHead() {
@@ -207,12 +209,12 @@ class Edge {
 
     _addInput(input) {
         input = input === '' ? ' ' : input;
-        const storedInputsArray = this._storedInputsArray();
-        if (storedInputsArray.includes(input)) {
+        const storedInputs = this._storedInputsArray();
+        if (storedInputs.includes(input)) {
             return;
         }
-        storedInputsArray.push(input);
-        const storedInputsString = Util.arrayToCsvString(storedInputsArray);
+        storedInputs.push(input);
+        const storedInputsString = Util.arrayToCsvString(storedInputs);
         this.element.setAttributeNS(null, 'data-input', storedInputsString);
     }
 
@@ -291,19 +293,6 @@ class Edge {
 
     _getControlIsForward() {
         return this.element.getAttributeNS(null, 'data-controlisforward');
-    }
-
-    _acceptsBlank() {
-        const labelValue = Util.removeWhitespace(this._labelElement().value);
-        return Util.csvStringHasBlank(labelValue);
-    }
-
-    _acceptsNonBlankInput(input) {
-        if (input === ' ') {
-            return false;
-        }
-        const labelValuesArray = this._labelValuesArray();
-        return labelValuesArray.includes(input[0]);
     }
 
     _isInitialEdge() {

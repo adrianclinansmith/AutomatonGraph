@@ -234,8 +234,8 @@ function stateAnimationEnd(event) {
             return;
         }
         for (const outEdge of state.outEdges()) {
-            if (outEdge.acceptsInput(input)) {
-                outEdge.consumeInputAndAnimate(input);
+            if (outEdge.consumeInput(input)) {
+                outEdge.animate();
                 graph.anInputWasAccepted = true;
             }
         }

@@ -125,7 +125,7 @@ class State {
 
     popInput() {
         const dataInputs = this.element.getAttributeNS(null, 'data-input');
-        const firstInput = Util.popFromCsvString(dataInputs);
+        const firstInput = Util.csvStringFirst(dataInputs);
         const newDataInputs = Util.removeFirstFromCsvString(dataInputs);
         this.element.setAttributeNS(null, 'data-input', newDataInputs);
         return firstInput;

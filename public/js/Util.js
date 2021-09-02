@@ -149,7 +149,7 @@ class Util {
             csvString.endsWith(',') || csvString.includes(',,');
     }
 
-    static popFromCsvString(csvString) {
+    static csvStringFirst(csvString) {
         const array = this.csvStringToArray(csvString);
         return array.shift();
     }

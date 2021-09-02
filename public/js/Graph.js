@@ -101,8 +101,8 @@ class Graph {
             initialInput = ' ';
         }
         for (const initialEdge of this._allInitialEdges()) {
-            if (initialEdge.acceptsInput(initialInput)) {
-                initialEdge.consumeInputAndAnimate(initialInput);
+            if (initialEdge.consumeInput(initialInput)) {
+                initialEdge.animate();
                 numberAccempted++;
             }
         }
