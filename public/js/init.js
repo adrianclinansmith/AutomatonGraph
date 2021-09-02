@@ -242,9 +242,7 @@ function stateAnimationEnd(event) {
     }
     if (graph.numberOfActiveStates === 0 && !graph.anInputWasAccepted) {
         finishedInputLineAndAccept(false);
-        return;
     }
-    state.clearStoredInputs();
 }
 
 // Graph Element Callbacks

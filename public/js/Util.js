@@ -112,6 +112,10 @@ class Util {
         return { x: (d - c) / (a - b), y: a * (d - c) / (a - b) + c };
     }
 
+    static removeWhitespace(string) {
+        return string.replace(/\s+/g, '');
+    }
+
     /*
     Returns the slope between two points.
     */
@@ -138,6 +142,11 @@ class Util {
             return [];
         }
         return csvString.split(',');
+    }
+
+    static csvStringHasBlank(csvString) {
+        return csvString === '' || csvString.startsWith(',') ||
+            csvString.endsWith(',') || csvString.includes(',,');
     }
 
     static popFromCsvString(csvString) {

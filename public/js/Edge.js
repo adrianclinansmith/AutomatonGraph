@@ -62,11 +62,10 @@ class Edge {
     /* Instance */
 
     acceptsInput(input) {
-        if (this._isBlank()) {
+        if (this._acceptsBlank()) {
             return true;
         }
-        const labelValuesArray = this._labelValuesArray();
-        return labelValuesArray.includes(input[0]);
+        return this._acceptsNonBlankInput(input);
     }
 
     clearStoredInputs() {
@@ -74,9 +73,10 @@ class Edge {
     }
 
     consumeInputAndAnimate(input) {
-        if (this._isBlank()) {
+        if (this._acceptsBlank()) {
             this._addInput(input);
-        } else {
+        }
+        if (this._acceptsNonBlankInput(input)) {
             this._addInput(input.slice(1));
         }
         this._animateMotionElement().beginElement();
@@ -293,9 +293,17 @@ class Edge {
         return this.element.getAttributeNS(null, 'data-controlisforward');
     }
 
-    _isBlank() {
-        const labelValue = this._labelElement().value;
-        return Util.stringIsEmptyOrSpace(labelValue);
+    _acceptsBlank() {
+        const labelValue = Util.removeWhitespace(this._labelElement().value);
+        return Util.csvStringHasBlank(labelValue);
+    }
+
+    _acceptsNonBlankInput(input) {
+        if (input === ' ') {
+            return false;
+        }
+        const labelValuesArray = this._labelValuesArray();
+        return labelValuesArray.includes(input[0]);
     }
 
     _isInitialEdge() {
@@ -315,8 +323,8 @@ class Edge {
     }
 
     _labelValuesArray() {
-        const labelString = this._labelElement().value.replace(/\s+/g, '');
-        return Util.csvStringToArray(labelString);
+        const labelValue = Util.removeWhitespace(this._labelElement().value);
+        return Util.csvStringToArray(labelValue);
     }
 
     _positionControlElementAt(point) {
