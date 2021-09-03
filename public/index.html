@@ -21,6 +21,10 @@
 					stroke-width: 2px;
 				}
 
+				.edge-control {
+					opacity: 0;
+				}
+
 				.edge-foreign-object {
 					text-align: left;
 					background-color: transparent;
@@ -79,8 +83,8 @@
 			<svg id="template-container" pointer-events="none" visibility="hidden">
 				<!-- edge template  -->
 				<g class="edge-g" id="edge-g-template">
-					<path class="edge" data-controldistance data-controlisforward d data-head
-						data-input data-tail id="edge-template" marker-end="url(#arrowhead-red)"
+					<path class="edge" d data-head data-input data-tail 
+						id="edge-template" marker-end="url(#arrowhead-red)"
 						style="stroke: red;">
 					</path>
 					<foreignObject class="edge-foreign-object" height="100%" width="100%"

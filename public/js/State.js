@@ -38,6 +38,7 @@ class State {
         this.x = centerPosition.x;
         this.y = centerPosition.y;
         this.positionOffset = { x: 0, y: 0 };
+        this.controlStatuses = [];
     }
 
     /* Instance */
@@ -105,7 +106,11 @@ class State {
         this.y = position.y + this.positionOffset.y;
         const translate = `translate(${this.x}, ${this.y})`;
         this._gElement().setAttributeNS(null, 'transform', translate);
-        this._allEdges().forEach(edge => { edge.resetForMovedState(); });
+        let i = 0;
+        for (const edge of this._allEdges()) {
+            const { isForward, distance } = this.controlStatuses[i++];
+            edge.resetForMovedState(isForward, distance);
+        }
     }
 
     outEdges() {
@@ -143,6 +148,12 @@ class State {
         }
     }
 
+    select(withPositionOffset) {
+        this.setColor('red');
+        this.setPositionOffset(withPositionOffset);
+        this._calculatecontrolStatuses();
+    }
+
     setColor(color) {
         this.element.style.stroke = color;
         this._innerCircleElement().style.stroke = color;
@@ -159,10 +170,10 @@ class State {
     }
 
     setPositionOffset(fromPoint) {
-        const positionOffset = {};
-        positionOffset.x = this.x - fromPoint.x;
-        positionOffset.y = this.y - fromPoint.y;
-        this.positionOffset = positionOffset;
+        const offset = {};
+        offset.x = this.x - fromPoint.x;
+        offset.y = this.y - fromPoint.y;
+        this.positionOffset = offset;
     }
 
     toggleGoal() {
@@ -184,6 +195,16 @@ class State {
         return this.element.children[0];
     }
 
+    _calculatecontrolStatuses() {
+        this.controlStatuses = [];
+        for (const edge of this._allEdges()) {
+            const controlStatus = {};
+            controlStatus.isForward = edge.calculateControlIsForward();
+            controlStatus.distance = edge.calculateControlDistance();
+            this.controlStatuses.push(controlStatus);
+        }
+    }
+
     _centerPosition() {
         const trans = this._gElement().getAttributeNS(null, 'transform');
         const x = trans.substring(trans.indexOf('(') + 1, trans.indexOf(','));
@@ -200,7 +221,8 @@ class State {
         const edgeIds = this.element.getAttributeNS(null, edgeDataString);
         for (const id of edgeIds.split(' ')) {
             if (id) {
-                edges.push(new Edge(id));
+                const edgeElement = document.getElementById(id);
+                edges.push(new Edge(edgeElement));
             }
         }
         return edges;

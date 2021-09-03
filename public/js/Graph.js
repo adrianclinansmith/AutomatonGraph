@@ -69,8 +69,7 @@ class Graph {
         const type = element.getAttribute('class');
         if (type === 'state') {
             this.selectedObject = new State(element);
-            this.selectedObject.setColor('red');
-            this.selectedObject.setPositionOffset(atPosition);
+            this.selectedObject.select(atPosition);
         } else if (type === 'edge' || type === 'edge-control') {
             this.selectedObject = new Edge(element);
             this.selectedObject.select();
@@ -92,7 +91,7 @@ class Graph {
 
     startAnimation() {
         if (this.currentLineNo >= this.inputs.length) {
-            return false;
+            return -1;
         }
         this.numberOfActiveStates = 0;
         let numberAccempted = 0;

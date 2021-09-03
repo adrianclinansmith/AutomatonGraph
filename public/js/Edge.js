@@ -65,6 +65,34 @@ class Edge {
         this._animateMotionElement().beginElement();
     }
 
+    calculateControlDistance() {
+        if (!this.head || !this.tail) {
+            return;
+        }
+        const mid = this.head.pointBetween(this.tail);
+        const axisOfSymmetry = this._axisOfSymmetry();
+        const midOnAxis = Util.pointOnLineClosestTo(mid, axisOfSymmetry);
+        const controlPoint = this._dPoints().controlPoint;
+        return Util.distanceBetween(midOnAxis, controlPoint);
+    }
+
+    calculateControlIsForward() {
+        if (!this.head || !this.tail) {
+            return;
+        }
+        const basePoint = this._axisOfSymmetry().point;
+        const controlPoint = this._dPoints().controlPoint;
+        if (this.head.y < this.tail.y) {
+            return controlPoint.x >= basePoint.x;
+        } else if (this.head.y === this.tail.y && this.head.x > this.tail.x) {
+            return controlPoint.y >= basePoint.y;
+        } else if (this.head.y === this.tail.y && this.head.x < this.tail.x) {
+            return controlPoint.y < basePoint.y;
+        } else {
+            return controlPoint.x <= basePoint.x;
+        }
+    }
+
     clearStoredInputs() {
         this.element.setAttributeNS(null, 'data-input', '');
     }
@@ -96,6 +124,7 @@ class Edge {
         const labelElement = this._labelElement();
         labelElement.style['user-select'] = 'none';
         labelElement.style['-webkit-user-select'] = 'none';
+        this._controlElement().style.opacity = '0';
     }
 
     focusLabel() {
@@ -131,15 +160,13 @@ class Edge {
         const startPoint = this.tail.intersectTowards(controlPoint);
         const endPoint = this.head.intersectTowards(controlPoint, 7);
         this._setDAndPositionElements(startPoint, endPoint, controlPoint);
-        this._storeControlDistance();
-        this._storeControlIsForward();
     }
 
     remove() {
         this._gElement().remove();
     }
 
-    resetForMovedState() {
+    resetForMovedState(isForward, distance) {
         let newD = {};
         if (this._isInitialEdge()) {
             const last = this._dPoints();
@@ -151,7 +178,7 @@ class Edge {
         } else if (this._isLoop()) {
             newD = this._calculatePointsForLoop();
         } else {
-            newD = this._calculatePointsForRegularEdge();
+            newD = this._calculatePointsForRegularEdge(isForward, distance);
         }
         this._setDAndPositionElements(newD.start, newD.end, newD.control);
     }
@@ -180,7 +207,7 @@ class Edge {
         } else if (this._isLoop()) {
             newD = this._calculatePointsForLoop();
         } else if (this._isRegularEdge()) {
-            newD = this._calculatePointsForRegularEdge();
+            newD = this._calculatePointsForRegularEdge(true, 0);
         } else if (this.tail) {
             newD.start = this.tail.intersectTowards(toPlace);
             newD.end = toPlace;
@@ -203,6 +230,7 @@ class Edge {
 
     select() {
         this.setColor('red');
+        this._controlElement().style.opacity = '1';
     }
 
     /* Private Instance */
@@ -238,10 +266,8 @@ class Edge {
         return { start, end, control };
     }
 
-    _calculatePointsForRegularEdge() {
+    _calculatePointsForRegularEdge(forward, distance) {
         const axis = this._axisOfSymmetry();
-        let distance = this._getControlDistance();
-        const forward = this._getControlIsForward();
         const downOrTrueLeft = Util.pointingDownOrTrueLeft(this.tail, this.head);
         if ((forward && downOrTrueLeft) || !(forward || downOrTrueLeft)) {
             distance *= -1;
@@ -284,15 +310,6 @@ class Edge {
 
     _gElement() {
         return this.element.parentNode;
-    }
-
-    _getControlDistance() {
-        const attribute = 'data-controldistance';
-        return Number(this.element.getAttributeNS(null, attribute)) || 0;
-    }
-
-    _getControlIsForward() {
-        return this.element.getAttributeNS(null, 'data-controlisforward');
     }
 
     _isInitialEdge() {
@@ -347,38 +364,6 @@ class Edge {
         const vertex = this._vertexPosition();
         this._positionControlElementAt(vertex);
         this._positionLabelAt(vertex);
-    }
-
-    _storeControlDistance() {
-        if (!this.head || !this.tail) {
-            return;
-        }
-        const mid = this.head.pointBetween(this.tail);
-        const axisOfSymmetry = this._axisOfSymmetry();
-        const midOnAxis = Util.pointOnLineClosestTo(mid, axisOfSymmetry);
-        const controlPoint = this._dPoints().controlPoint;
-        const distance = Util.distanceBetween(midOnAxis, controlPoint);
-        this.element.setAttributeNS(null, 'data-controldistance', distance);
-    }
-
-    _storeControlIsForward() {
-        if (!this.head && !this.tail) {
-            return;
-        }
-        const basePoint = this._axisOfSymmetry().point;
-        const controlPoint = this._dPoints().controlPoint;
-        let controlIsForward;
-        if (this.head.y < this.tail.y) {
-            controlIsForward = controlPoint.x >= basePoint.x;
-        } else if (this.head.y === this.tail.y && this.head.x > this.tail.x) {
-            controlIsForward = controlPoint.y >= basePoint.y;
-        } else if (this.head.y === this.tail.y && this.head.x < this.tail.x) {
-            controlIsForward = controlPoint.y < basePoint.y;
-        } else {
-            controlIsForward = controlPoint.x <= basePoint.x;
-        }
-        const result = controlIsForward ? 'true' : '';
-        this.element.setAttributeNS(null, 'data-controlisforward', result);
     }
 
     _storedInputsArray() {

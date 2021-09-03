@@ -39,7 +39,7 @@ function finishedInputLineAndAccept(accepted) {
     const triggeredInitialEdges = graph.animateNextInput();
     if (triggeredInitialEdges === 0) {
         finishedInputLineAndAccept(false);
-    } else if (triggeredInitialEdges === false) {
+    } else if (triggeredInitialEdges < 0) {
         resultLabel.style.color = graph.acceptedAll ? 'green' : 'red';
         resultLabel.innerHTML = graph.acceptedAll ? 'accepted' : 'rejected';
     }
@@ -254,7 +254,7 @@ function onEdgeLabelDoubleClick(event) {
     event.target.style['user-select'] = 'all';
     event.target.style['-webkit-user-select'] = 'all';
     event.target.select();
-};
+}
 
 function onEdgeLabelFocusOut(event) {
     event.target.style['user-select'] = 'none';
@@ -270,7 +270,7 @@ function onEdgeLabelInput(event) {
     } else {
         labelElement.style.pointerEvents = 'none';
     }
-};
+}
 
 function onStateLabelInput(event) {
     const labelElement = event.target;
@@ -282,4 +282,4 @@ function onStateLabelInput(event) {
         textOverflow = labelElement.scrollWidth > labelElement.clientWidth;
         fontSize -= 1;
     }
-};
+}
