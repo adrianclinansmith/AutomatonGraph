@@ -87,6 +87,8 @@ function initGraph(addDefaultElements) {
 // mouse event handlers
 
 function mousedown(event) {
+    console.log('mousedown:');
+    console.log(event.target);
     mouseIsDown = true;
     const mousePosition = getMousePosition(event);
     const selectedObject = graph.select(event.target, mousePosition);
@@ -105,6 +107,7 @@ function mousemove(event) {
     if (newEdgeButton.isPressed) {
         graph.temporaryEdgeHeadTo(event.target, mousePosition);
     } else {
+        console.log('mousemove');
         graph.moveSelectedTo(mousePosition);
     }
 }
@@ -126,10 +129,11 @@ function mouseleave(event) {
 }
 
 function dblclick(event) {
-    if (event.target.getAttribute('class') === 'edge-label' &&
-       event.target.value.length > 0) {
-        event.target.focus();
-    } else if (graph.selectedObject instanceof State) {
+    // if (event.target.getAttribute('class') === 'edge-label' &&
+    //    event.target.value.length > 0) {
+    //     event.target.focus();
+    // } else
+    if (graph.selectedObject instanceof State) {
         graph.selectedObject.focusLabel();
     }
 }
@@ -248,15 +252,18 @@ function stateAnimationEnd(event) {
 // Graph Element Callbacks
 
 function onEdgeLabelMouseDown(event) {
+    console.log('edge label mouse down');
 }
 
 function onEdgeLabelDoubleClick(event) {
+    console.log('edge label double click');
     event.target.style['user-select'] = 'all';
     event.target.style['-webkit-user-select'] = 'all';
     event.target.select();
 }
 
 function onEdgeLabelFocusOut(event) {
+    console.log('edge label focus out');
     event.target.style['user-select'] = 'none';
     event.target.style['-webkit-user-select'] = 'none';
 }

@@ -37,11 +37,10 @@ class Edge {
     /* Constructor */
 
     constructor(elementOrId) {
-        if (typeof elementOrId === 'string' || elementOrId instanceof String) {
-            this.element = document.getElementById(elementOrId);
-        } else if (elementOrId.getAttribute('class') === 'edge-g') {
+        const className = elementOrId.getAttribute('class');
+        if (className === 'edge-g') {
             this.element = elementOrId.children[0];
-        } else if (elementOrId.getAttribute('class') === 'edge-control') {
+        } else if (className === 'edge-control') {
             this.element = elementOrId.parentNode.children[0];
             this.controlSelected = true;
         } else if (elementOrId.classList.contains('edge-animate')) {

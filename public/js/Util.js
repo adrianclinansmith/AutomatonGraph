@@ -128,6 +128,38 @@ class Util {
     }
 
     /*
+    A qbezier is a quadratic bezier curve which takes a t value and outputs an
+    (x, y) point, given three control points p0, p1, and p2.
+    */
+
+    /*
+    Returns the coefficients a,b,c for the bezier curve B(t) = at^2 + bt + c,
+    given the three control points.
+    */
+    static qbezierCoefficients(p0, p1, p2) {
+        const x = {};
+        x.a = p0.x - 2 * p1.x + p2.x;
+        x.b = 2 * (p1.x - p0.x);
+        x.c = p0.x;
+        const y = {};
+        y.a = p0.y - 2 * p1.y + p2.y;
+        y.b = 2 * (p1.y - p0.y);
+        y.c = p0.y;
+        return { x, y };
+    }
+
+    /*
+    Retruns the (x,y) point on a bezier curve given the three control points
+    and t value.
+    */
+    static qbezierPoint(p0, p1, p2, t) {
+        const co = this.qbezierCoefficients(p0, p1, p2);
+        const x = co.x.a * t ** 2 + co.x.b * t + co.x.c;
+        const y = co.y.a * t ** 2 + co.y.b * t + co.y.c;
+        return { x, y };
+    }
+
+    /*
     CSV String is a string of comma-separated values, i.e. "dog, cat, bird".
     An empty string represents no value.
     A string without any commas is a single value.

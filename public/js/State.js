@@ -23,9 +23,7 @@ class State {
     /* Constructor */
 
     constructor(elementOrId) {
-        if (typeof elementOrId === 'string' || elementOrId instanceof String) {
-            this.element = document.getElementById(elementOrId);
-        } else if (elementOrId.classList.contains('state-g')) {
+        if (elementOrId.classList.contains('state-g')) {
             this.element = elementOrId.children[0];
         } else if (elementOrId.classList.contains('state-animate')) {
             this.element = elementOrId.parentNode;
