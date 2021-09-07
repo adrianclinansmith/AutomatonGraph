@@ -123,6 +123,7 @@ class Graph {
         }
         this.svg.appendChild(edgegElement);
         this.temporaryEdge = new Edge(edgegElement);
+        this.temporaryEdge.setLabelText('a');
         return this.temporaryEdge;
     }
 

@@ -76,9 +76,9 @@ function initGraph(addDefaultElements) {
         newGraph.temporaryEdgeHeadTo(s0.element, null);
         newGraph.setOrDeleteTemporaryEdge();
         const conectEdge = newGraph.startTemporaryEdge(s0.element, null);
+        conectEdge.setLabelText('a,b');
         newGraph.temporaryEdgeHeadTo(s1.element, null);
         newGraph.setOrDeleteTemporaryEdge();
-        conectEdge.setLabel('a,b');
         newGraph.deselect();
     }
     return newGraph;
@@ -270,12 +270,13 @@ function onEdgeLabelFocusOut(event) {
 function onEdgeLabelInput(event) {
     const labelElement = event.target;
     labelElement.setAttributeNS(null, 'value', labelElement.value);
-    labelElement.setAttributeNS(null, 'size', labelElement.value.length);
+    labelElement.setAttributeNS(null, 'size', labelElement.value.length || 1);
     if (labelElement.value.length > 0) {
         labelElement.style.pointerEvents = 'auto';
     } else {
         labelElement.style.pointerEvents = 'none';
     }
+    (new Edge(labelElement)).setLabelPosition();
 }
 
 function onStateLabelInput(event) {

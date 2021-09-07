@@ -70,7 +70,7 @@ class Util {
         return { point: point1, slope: this.slopeBetween(point1, point2) };
     }
 
-    static mapToRange(number, lowerbound, upperbound) {
+    static stayInInterval(number, lowerbound, upperbound) {
         if (number < lowerbound) {
             return lowerbound;
         } else if (number > upperbound) {
@@ -201,6 +201,13 @@ class Util {
         const x = co.ax * t ** 2 + co.bx * t + co.cx;
         const y = co.ay * t ** 2 + co.by * t + co.cy;
         return { x, y };
+    }
+
+    static qbezierSlope(p0, p1, p2, t) {
+        const co = this.qbezierCoefficients(p0, p1, p2);
+        const dx = 2 * co.ax * t + co.bx;
+        const dy = 2 * co.ay * t + co.by;
+        return dy / dx;
     }
 
     /*

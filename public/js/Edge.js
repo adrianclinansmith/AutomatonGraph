@@ -166,16 +166,14 @@ class Edge {
     }
 
     moveLabelTo(position) {
-        const { startPoint, controlPoint, endPoint } = this._dPoints();
-        position.x += this.labelOffset.x;
-        position.y += this.labelOffset.y;
-        const t = Util.fractionAlongLineSegment(position, startPoint, endPoint);
+        const d = this._dPoints();
+        // position.x += this.labelOffset.x;
+        // position.y += this.labelOffset.y;
+        const t = Util.fractionAlongLineSegment(position, d.startPoint, d.endPoint);
         if (t < 0 || t > 1) {
             return;
         }
-        const newPos = Util.qbezierPoint(startPoint, controlPoint, endPoint, t);
-        this._positionLabelAt(newPos);
-        console.log(`t = ${t}, newPos: ${Util.pointAsString(newPos)}`);
+        this.setLabelPosition(t);
     }
 
     // moveLabelTo0(position) {
@@ -185,7 +183,7 @@ class Edge {
     //     const a = co.ay - m * co.ax;
     //     const b = co.by - m * co.bx;
     //     const c = co.cy - m * co.cx + m * position.x - position.y;
-    //     const t = Util.roots(a, b, c).filter(x => Util.isNumber(x)).map(x => Util.mapToRange(x, 0, 1));
+    //     const t = Util.roots(a, b, c).filter(x => Util.isNumber(x)).map(x => Util.stayInInterval(x, 0, 1));
     //     let newPos;
     //     if (t.length === 2) {
     //         const pt1 = Util.qbezierPoint(startPoint, controlPoint, endPoint, t[0]);
@@ -268,7 +266,7 @@ class Edge {
         this._setDAndPositionElements(newD.start, newD.end, newD.control);
     }
 
-    setLabel(textString) {
+    setLabelText(textString) {
         const labelElement = this._labelElement();
         labelElement.setAttributeNS(null, 'value', textString);
         const event = new Event('input', {
@@ -276,6 +274,19 @@ class Edge {
             cancelable: true
         });
         labelElement.dispatchEvent(event);
+    }
+
+    setLabelPosition(t) {
+        if (t === undefined) {
+            t = Number(this.element.getAttributeNS(null, 'data-labelt'));
+        }
+        const position = this._pointOnCurve(t);
+        const anchor = this._calculateLabelAnchor(t);
+        const fo = this._foreignObjectElement();
+        fo.setAttributeNS(null, 'x', position.x - anchor);
+        fo.setAttributeNS(null, 'y', position.y);
+        this.element.setAttributeNS(null, 'data-labelt', t);
+        console.log(`anchor: ${anchor}`);
     }
 
     /* Private Instance */
@@ -380,6 +391,14 @@ class Edge {
         return { x, y };
     }
 
+    // _labelt(t) {
+    //     return Number(this.element.getAttributeNS(null, 'data-labelt'));
+    // }
+
+    // _setLabelt(t) {
+    //     this.element.setAttributeNS(null, 'data-labelt', t);
+    // }
+
     _labelValuesArray() {
         const labelValue = Util.removeWhitespace(this._labelElement().value);
         return Util.csvStringToArray(labelValue);
@@ -391,10 +410,21 @@ class Edge {
         controlElement.setAttributeNS(null, 'cy', point.y);
     }
 
-    _positionLabelAt(point) {
-        const fo = this._foreignObjectElement();
-        fo.setAttributeNS(null, 'x', point.x);
-        fo.setAttributeNS(null, 'y', point.y);
+    _pointOnCurve(t) {
+        const { startPoint, controlPoint, endPoint } = this._dPoints();
+        return Util.qbezierPoint(startPoint, controlPoint, endPoint, t);
+    }
+
+    _calculateLabelAnchor(t) {
+        const { startPoint, controlPoint, endPoint } = this._dPoints();
+        let m = Util.qbezierSlope(startPoint, controlPoint, endPoint, t);
+        console.log(`m = ${m}`);
+        if (isNaN(m)) {
+            m = Infinity;
+        }
+        const labelWidth = this._labelElement().clientWidth;
+        const anchor = labelWidth / 2 + labelWidth * m;
+        return Util.stayInInterval(anchor, 0, labelWidth);
     }
 
     _setD(startPoint, endPoint, controlPoint) {
@@ -415,7 +445,7 @@ class Edge {
         this._setD(startPoint, endPoint, controlPoint);
         const vertex = this._vertexPosition();
         this._positionControlElementAt(vertex);
-        this._positionLabelAt(vertex);
+        this.setLabelPosition();
     }
 
     _storedInputsArray() {
