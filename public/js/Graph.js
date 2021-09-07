@@ -58,9 +58,15 @@ class Graph {
     moveSelectedTo(position) {
         if (this.selectedObject instanceof State) {
             this.selectedObject.moveTo(position);
-        } else if (this.selectedObject instanceof Edge &&
-                   this.selectedObject.controlSelected) {
+            return;
+        }
+        if (!(this.selectedObject instanceof Edge)) {
+            return;
+        }
+        if (this.selectedObject.controlSelected) {
             this.selectedObject.moveControlTo(position);
+        } else if (this.selectedObject.labelSelected) {
+            this.selectedObject.moveLabelTo(position);
         }
     }
 
@@ -70,9 +76,9 @@ class Graph {
         if (type === 'state') {
             this.selectedObject = new State(element);
             this.selectedObject.select(atPosition);
-        } else if (type === 'edge' || type === 'edge-control') {
+        } else if (type.startsWith('edge')) {
             this.selectedObject = new Edge(element);
-            this.selectedObject.select();
+            this.selectedObject.select(atPosition);
         }
         return this.selectedObject;
     }
@@ -116,8 +122,8 @@ class Graph {
             edgegElement = Edge.createElementAt(position);
         }
         this.svg.appendChild(edgegElement);
-        this.temporaryEdge = new Edge(edgegElement.children[0]);
-        return new Edge(edgegElement);
+        this.temporaryEdge = new Edge(edgegElement);
+        return this.temporaryEdge;
     }
 
     stopAnimation() {

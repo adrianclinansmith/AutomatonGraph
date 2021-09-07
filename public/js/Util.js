@@ -22,11 +22,32 @@ class Util {
         return lines.join('\n');
     }
 
+    static closestPoint(fromPoint, toPoint1, toPoint2) {
+        const distance1 = this.distanceBetween(fromPoint, toPoint1);
+        const distance2 = this.distanceBetween(fromPoint, toPoint2);
+        if (distance2 < distance1) {
+            return toPoint2;
+        }
+        return toPoint1;
+    }
+
     /*
     Returns the distance between two points.
     */
     static distanceBetween(fromPoint, toPoint) {
         return Math.hypot(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y);
+    }
+
+    static fractionAlongLineSegment(point, segmentStart, segmentEnd) {
+        const line = this.lineFromPoints(segmentStart, segmentEnd);
+        const pointOnLine = this.projectPointOntoLine(point, line);
+        const pointToStart = this.distanceBetween(pointOnLine, segmentStart);
+        const pointToEnd = this.distanceBetween(pointOnLine, segmentEnd);
+        const segmentLength = this.distanceBetween(segmentStart, segmentEnd);
+        if (pointToEnd > pointToStart && pointToEnd > segmentLength) {
+            return -pointToStart / segmentLength;
+        }
+        return pointToStart / segmentLength;
     }
 
     /*
@@ -39,6 +60,23 @@ class Util {
         }
         const m = this.slopeBetween(fromPoint, toPoint);
         return this.pointAlongSlope(fromPoint, m, distance);
+    }
+
+    static isNumber(x) {
+        return typeof x === 'number' && !isNaN(x);
+    }
+
+    static lineFromPoints(point1, point2) {
+        return { point: point1, slope: this.slopeBetween(point1, point2) };
+    }
+
+    static mapToRange(number, lowerbound, upperbound) {
+        if (number < lowerbound) {
+            return lowerbound;
+        } else if (number > upperbound) {
+            return upperbound;
+        }
+        return number;
     }
 
     /*
@@ -99,7 +137,7 @@ class Util {
     Returns a point on line closest to givenPoint.
     line must consist of a point and a slope.
     */
-    static pointOnLineClosestTo(givenPoint, line) {
+    static projectPointOntoLine(givenPoint, line) {
         if (!Number.isFinite(line.slope)) {
             return { x: line.point.x, y: givenPoint.y };
         } else if (line.slope === 0) {
@@ -114,6 +152,14 @@ class Util {
 
     static removeWhitespace(string) {
         return string.replace(/\s+/g, '');
+    }
+
+    static roots(a, b, c) {
+        if (a === 0) {
+            return [-c / b, undefined];
+        }
+        const discriminant = Math.sqrt(b ** 2 - 4 * a * c);
+        return [(-b + discriminant) / (2 * a), (-b - discriminant) / (2 * a)];
     }
 
     /*
@@ -137,25 +183,23 @@ class Util {
     given the three control points.
     */
     static qbezierCoefficients(p0, p1, p2) {
-        const x = {};
-        x.a = p0.x - 2 * p1.x + p2.x;
-        x.b = 2 * (p1.x - p0.x);
-        x.c = p0.x;
-        const y = {};
-        y.a = p0.y - 2 * p1.y + p2.y;
-        y.b = 2 * (p1.y - p0.y);
-        y.c = p0.y;
-        return { x, y };
+        const ax = p0.x - 2 * p1.x + p2.x;
+        const bx = 2 * (p1.x - p0.x);
+        const cx = p0.x;
+        const ay = p0.y - 2 * p1.y + p2.y;
+        const by = 2 * (p1.y - p0.y);
+        const cy = p0.y;
+        return { ax, bx, cx, ay, by, cy };
     }
 
     /*
-    Retruns the (x,y) point on a bezier curve given the three control points
-    and t value.
+    Retruns the (x,y) point on a quadratic bezier curve given the three control
+    points and t value.
     */
     static qbezierPoint(p0, p1, p2, t) {
         const co = this.qbezierCoefficients(p0, p1, p2);
-        const x = co.x.a * t ** 2 + co.x.b * t + co.x.c;
-        const y = co.y.a * t ** 2 + co.y.b * t + co.y.c;
+        const x = co.ax * t ** 2 + co.bx * t + co.cx;
+        const y = co.ay * t ** 2 + co.by * t + co.cy;
         return { x, y };
     }
 

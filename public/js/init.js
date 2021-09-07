@@ -107,7 +107,6 @@ function mousemove(event) {
     if (newEdgeButton.isPressed) {
         graph.temporaryEdgeHeadTo(event.target, mousePosition);
     } else {
-        console.log('mousemove');
         graph.moveSelectedTo(mousePosition);
     }
 }
@@ -252,7 +251,7 @@ function stateAnimationEnd(event) {
 // Graph Element Callbacks
 
 function onEdgeLabelMouseDown(event) {
-    console.log('edge label mouse down');
+    // console.log('edge label mouse down');
 }
 
 function onEdgeLabelDoubleClick(event) {

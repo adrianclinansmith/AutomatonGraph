@@ -36,17 +36,21 @@ class Edge {
 
     /* Constructor */
 
-    constructor(elementOrId) {
-        const className = elementOrId.getAttribute('class');
+    constructor(element) {
+        const className = element.getAttribute('class');
         if (className === 'edge-g') {
-            this.element = elementOrId.children[0];
+            this.element = element.children[0];
         } else if (className === 'edge-control') {
-            this.element = elementOrId.parentNode.children[0];
+            this.element = element.parentNode.children[0];
             this.controlSelected = true;
-        } else if (elementOrId.classList.contains('edge-animate')) {
-            this.element = elementOrId.parentNode.parentNode.children[0];
+        } else if (element.classList.contains('edge-animate')) {
+            this.element = element.parentNode.parentNode.children[0];
+        } else if (className === 'edge-label') {
+            this.element = element.parentNode.parentNode.children[0];
+            this.labelSelected = true;
+            this.labelOffset = { x: 0, y: 0 };
         } else {
-            this.element = elementOrId;
+            this.element = element;
         }
         const tailId = this.element.getAttributeNS(null, 'data-tail');
         const headId = this.element.getAttributeNS(null, 'data-head');
@@ -70,7 +74,7 @@ class Edge {
         }
         const mid = this.head.pointBetween(this.tail);
         const axisOfSymmetry = this._axisOfSymmetry();
-        const midOnAxis = Util.pointOnLineClosestTo(mid, axisOfSymmetry);
+        const midOnAxis = Util.projectPointOntoLine(mid, axisOfSymmetry);
         const controlPoint = this._dPoints().controlPoint;
         return Util.distanceBetween(midOnAxis, controlPoint);
     }
@@ -151,7 +155,7 @@ class Edge {
             return;
         }
         const axisOfSymmetry = this._axisOfSymmetry();
-        const vertex = Util.pointOnLineClosestTo(position, axisOfSymmetry);
+        const vertex = Util.projectPointOntoLine(position, axisOfSymmetry);
         const d = this._dPoints();
         const base = Util.midpoint(d.startPoint, d.endPoint);
         const distance = Util.distanceBetween(base, vertex);
@@ -160,6 +164,43 @@ class Edge {
         const endPoint = this.head.intersectTowards(controlPoint, 7);
         this._setDAndPositionElements(startPoint, endPoint, controlPoint);
     }
+
+    moveLabelTo(position) {
+        const { startPoint, controlPoint, endPoint } = this._dPoints();
+        position.x += this.labelOffset.x;
+        position.y += this.labelOffset.y;
+        const t = Util.fractionAlongLineSegment(position, startPoint, endPoint);
+        if (t < 0 || t > 1) {
+            return;
+        }
+        const newPos = Util.qbezierPoint(startPoint, controlPoint, endPoint, t);
+        this._positionLabelAt(newPos);
+        console.log(`t = ${t}, newPos: ${Util.pointAsString(newPos)}`);
+    }
+
+    // moveLabelTo0(position) {
+    //     const { startPoint, controlPoint, endPoint } = this._dPoints();
+    //     const co = Util.qbezierCoefficients(startPoint, controlPoint, endPoint);
+    //     const m = this.labelSelectSlope;
+    //     const a = co.ay - m * co.ax;
+    //     const b = co.by - m * co.bx;
+    //     const c = co.cy - m * co.cx + m * position.x - position.y;
+    //     const t = Util.roots(a, b, c).filter(x => Util.isNumber(x)).map(x => Util.mapToRange(x, 0, 1));
+    //     let newPos;
+    //     if (t.length === 2) {
+    //         const pt1 = Util.qbezierPoint(startPoint, controlPoint, endPoint, t[0]);
+    //         const pt2 = Util.qbezierPoint(startPoint, controlPoint, endPoint, t[1]);
+    //         newPos = Util.closestPoint(position, pt1, pt2);
+    //     } else if (t.length === 1) {
+    //         newPos = Util.qbezierPoint(startPoint, controlPoint, endPoint, t[0]);
+    //     } else {
+    //         console.log(`NO VALID NUMBER t = ${t}`);
+    //         return;
+    //     }
+    //     this._positionLabelAt(newPos);
+    //     console.log(`t = ${t}, newPos:`);
+    //     console.log(newPos);
+    // }
 
     remove() {
         this._gElement().remove();
@@ -180,6 +221,16 @@ class Edge {
             newD = this._calculatePointsForRegularEdge(isForward, distance);
         }
         this._setDAndPositionElements(newD.start, newD.end, newD.control);
+    }
+
+    select(atPosition) {
+        this.setColor('red');
+        this._controlElement().style.opacity = '1';
+        if (this.labelOffset) {
+            const labelPoint = this._labelPosition();
+            this.labelOffset.x = labelPoint.x - atPosition.x;
+            this.labelOffset.y = labelPoint.y - atPosition.y;
+        }
     }
 
     setColor(color) {
@@ -225,11 +276,6 @@ class Edge {
             cancelable: true
         });
         labelElement.dispatchEvent(event);
-    }
-
-    select() {
-        this.setColor('red');
-        this._controlElement().style.opacity = '1';
     }
 
     /* Private Instance */
@@ -325,6 +371,13 @@ class Edge {
 
     _labelElement() {
         return this._foreignObjectElement().children[0];
+    }
+
+    _labelPosition() {
+        const fo = this._foreignObjectElement();
+        const x = fo.getAttributeNS(null, 'x');
+        const y = fo.getAttributeNS(null, 'y');
+        return { x, y };
     }
 
     _labelValuesArray() {
