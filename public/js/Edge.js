@@ -167,8 +167,8 @@ class Edge {
 
     moveLabelTo(position) {
         const d = this._dPoints();
-        // position.x += this.labelOffset.x;
-        // position.y += this.labelOffset.y;
+        position.x -= this.labelOffset.x;
+        position.y -= this.labelOffset.y;
         const t = Util.fractionAlongLineSegment(position, d.startPoint, d.endPoint);
         if (t < 0 || t > 1) {
             return;
@@ -226,8 +226,12 @@ class Edge {
         this._controlElement().style.opacity = '1';
         if (this.labelOffset) {
             const labelPoint = this._labelPosition();
-            this.labelOffset.x = labelPoint.x - atPosition.x;
-            this.labelOffset.y = labelPoint.y - atPosition.y;
+            const anchor = this._calculateLabelAnchor();
+            const labelElement = this._labelElement();
+            console.log(`anchor = ${anchor}, ${labelPoint.x}, ${atPosition.x}`);
+            this.labelOffset.x = atPosition.x - labelPoint.x - anchor;
+            this.labelOffset.y = atPosition.y - labelPoint.y;
+            console.log(`label offset = ${this.labelOffset.x}`);
         }
     }
 
@@ -286,7 +290,6 @@ class Edge {
         fo.setAttributeNS(null, 'x', position.x - anchor);
         fo.setAttributeNS(null, 'y', position.y);
         this.element.setAttributeNS(null, 'data-labelt', t);
-        console.log(`anchor: ${anchor}`);
     }
 
     /* Private Instance */
@@ -416,13 +419,16 @@ class Edge {
     }
 
     _calculateLabelAnchor(t) {
-        const { startPoint, controlPoint, endPoint } = this._dPoints();
-        let m = Util.qbezierSlope(startPoint, controlPoint, endPoint, t);
-        console.log(`m = ${m}`);
-        if (isNaN(m)) {
-            m = Infinity;
-        }
         const labelWidth = this._labelElement().clientWidth;
+        // return labelWidth / 2;
+        if (t === undefined) {
+            t = Number(this.element.getAttributeNS(null, 'data-labelt'));
+        }
+        const { startPoint, controlPoint, endPoint } = this._dPoints();
+        const m = Util.qbezierSlope(startPoint, controlPoint, endPoint, t);
+        if (isNaN(m)) {
+            console.log('~~~IS NAN~~~');
+        }
         const anchor = labelWidth / 2 + labelWidth * m;
         return Util.stayInInterval(anchor, 0, labelWidth);
     }

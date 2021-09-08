@@ -89,6 +89,7 @@ class Graph {
             this.selectedObject = this.temporaryEdge;
             this.selectedObject.tail?.addOutEdge(this.selectedObject);
             this.selectedObject.head.addInEdge(this.selectedObject);
+            this.selectedObject.setLabelText('');
         } else {
             this.temporaryEdge?.remove();
         }
@@ -123,7 +124,6 @@ class Graph {
         }
         this.svg.appendChild(edgegElement);
         this.temporaryEdge = new Edge(edgegElement);
-        this.temporaryEdge.setLabelText('a');
         return this.temporaryEdge;
     }
 

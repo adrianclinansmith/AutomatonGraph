@@ -76,9 +76,9 @@ function initGraph(addDefaultElements) {
         newGraph.temporaryEdgeHeadTo(s0.element, null);
         newGraph.setOrDeleteTemporaryEdge();
         const conectEdge = newGraph.startTemporaryEdge(s0.element, null);
-        conectEdge.setLabelText('a,b');
         newGraph.temporaryEdgeHeadTo(s1.element, null);
         newGraph.setOrDeleteTemporaryEdge();
+        conectEdge.setLabelText('a,b');
         newGraph.deselect();
     }
     return newGraph;
