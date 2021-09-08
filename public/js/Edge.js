@@ -167,7 +167,9 @@ class Edge {
 
     moveLabelTo(position) {
         const d = this._dPoints();
-        position.x -= this.labelOffset.x;
+        const anchor = this._calculateLabelAnchor();
+        console.log(`anchor: ${anchor}, width = ${this._labelElement().clientWidth}`);
+        position.x -= this.labelOffset.x - anchor;
         position.y -= this.labelOffset.y;
         const t = Util.fractionAlongLineSegment(position, d.startPoint, d.endPoint);
         if (t < 0 || t > 1) {
@@ -175,30 +177,6 @@ class Edge {
         }
         this.setLabelPosition(t);
     }
-
-    // moveLabelTo0(position) {
-    //     const { startPoint, controlPoint, endPoint } = this._dPoints();
-    //     const co = Util.qbezierCoefficients(startPoint, controlPoint, endPoint);
-    //     const m = this.labelSelectSlope;
-    //     const a = co.ay - m * co.ax;
-    //     const b = co.by - m * co.bx;
-    //     const c = co.cy - m * co.cx + m * position.x - position.y;
-    //     const t = Util.roots(a, b, c).filter(x => Util.isNumber(x)).map(x => Util.stayInInterval(x, 0, 1));
-    //     let newPos;
-    //     if (t.length === 2) {
-    //         const pt1 = Util.qbezierPoint(startPoint, controlPoint, endPoint, t[0]);
-    //         const pt2 = Util.qbezierPoint(startPoint, controlPoint, endPoint, t[1]);
-    //         newPos = Util.closestPoint(position, pt1, pt2);
-    //     } else if (t.length === 1) {
-    //         newPos = Util.qbezierPoint(startPoint, controlPoint, endPoint, t[0]);
-    //     } else {
-    //         console.log(`NO VALID NUMBER t = ${t}`);
-    //         return;
-    //     }
-    //     this._positionLabelAt(newPos);
-    //     console.log(`t = ${t}, newPos:`);
-    //     console.log(newPos);
-    // }
 
     remove() {
         this._gElement().remove();
@@ -226,12 +204,8 @@ class Edge {
         this._controlElement().style.opacity = '1';
         if (this.labelOffset) {
             const labelPoint = this._labelPosition();
-            const anchor = this._calculateLabelAnchor();
-            const labelElement = this._labelElement();
-            console.log(`anchor = ${anchor}, ${labelPoint.x}, ${atPosition.x}`);
-            this.labelOffset.x = atPosition.x - labelPoint.x - anchor;
+            this.labelOffset.x = atPosition.x - labelPoint.x;
             this.labelOffset.y = atPosition.y - labelPoint.y;
-            console.log(`label offset = ${this.labelOffset.x}`);
         }
     }
 
@@ -420,7 +394,6 @@ class Edge {
 
     _calculateLabelAnchor(t) {
         const labelWidth = this._labelElement().clientWidth;
-        // return labelWidth / 2;
         if (t === undefined) {
             t = Number(this.element.getAttributeNS(null, 'data-labelt'));
         }
