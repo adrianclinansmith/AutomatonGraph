@@ -172,10 +172,9 @@ class Edge {
         position.x -= this.labelOffset.x - anchor;
         position.y -= this.labelOffset.y;
         const t = Util.fractionAlongLineSegment(position, d.startPoint, d.endPoint);
-        if (t < 0 || t > 1) {
-            return;
+        if (t >= 0 && t <= 1) {
+            this.setLabelPosition(t);
         }
-        this.setLabelPosition(t);
     }
 
     remove() {
