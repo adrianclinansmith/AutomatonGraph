@@ -69,8 +69,8 @@ function initGraph(addDefaultElements) {
     if (addDefaultElements === true) {
         const s0 = newGraph.addNewState({ x: 400, y: 250 });
         const s1 = newGraph.addNewState({ x: 600, y: 250 });
-        s0.setLabel('s0');
-        s1.setLabel('s1');
+        s0.setLabelText('s0');
+        s1.setLabelText('s1');
         s1.toggleGoal();
         newGraph.startTemporaryEdge(null, { x: 400, y: 150 });
         newGraph.temporaryEdgeHeadTo(s0.element, null);
@@ -276,7 +276,7 @@ function onEdgeLabelInput(event) {
     } else {
         labelElement.style.pointerEvents = 'none';
     }
-    (new Edge(labelElement)).setLabelPosition();
+    (new Edge(labelElement)).moveLabelTo();
 }
 
 function onStateLabelInput(event) {

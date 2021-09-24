@@ -38,7 +38,7 @@ class Util {
         return Math.hypot(toPoint.x - fromPoint.x, toPoint.y - fromPoint.y);
     }
 
-    static fractionAlongLineSegment(point, segmentStart, segmentEnd) {
+    static lineSegmentFraction(point, segmentStart, segmentEnd) {
         const line = this.lineFromPoints(segmentStart, segmentEnd);
         const pointOnLine = this.projectPointOntoLine(point, line);
         const pointToStart = this.distanceBetween(pointOnLine, segmentStart);

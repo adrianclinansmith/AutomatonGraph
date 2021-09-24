@@ -166,14 +166,35 @@ class Edge {
     }
 
     moveLabelTo(position) {
+        if (position === undefined) {
+            this._setLabelAt();
+            return;
+        }
         const d = this._dPoints();
         const anchor = this._calculateLabelAnchor();
-        console.log(`anchor: ${anchor}, width = ${this._labelElement().clientWidth}`);
+        // console.log(`anchor: ${anchor}, width = ${this._labelElement().clientWidth}`);
         position.x -= this.labelOffset.x - anchor;
         position.y -= this.labelOffset.y;
-        const t = Util.fractionAlongLineSegment(position, d.startPoint, d.endPoint);
+        // const t = Util.lineSegmentFraction(position, d.startPoint, d.endPoint);
+        // const t0 = Number(this.element.getAttributeNS(null, 'data-labelt'));
+        let t = Infinity;
+        let dist = Infinity;
+        const step = 0.1;
+        for (let i = 0; i < 1 / step; i++) {
+            const n = i * step;
+            const p0 = Util.qbezierPoint(d.startPoint, d.controlPoint, d.endPoint, n);
+            const p1 = Util.qbezierPoint(d.startPoint, d.controlPoint, d.endPoint, n + step);
+            const t1 = Util.lineSegmentFraction(position, p0, p1) * step + n;
+            const possiblePoint = this._pointOnCurve(t1);
+            const newDist = Util.distanceBetween(position, possiblePoint);
+            if (newDist < dist) {
+                t = t1;
+                dist = newDist;
+            }
+        }
+        console.log(`t = ${t}`);
         if (t >= 0 && t <= 1) {
-            this.setLabelPosition(t);
+            this._setLabelAt(t);
         }
     }
 
@@ -251,18 +272,6 @@ class Edge {
             cancelable: true
         });
         labelElement.dispatchEvent(event);
-    }
-
-    setLabelPosition(t) {
-        if (t === undefined) {
-            t = Number(this.element.getAttributeNS(null, 'data-labelt'));
-        }
-        const position = this._pointOnCurve(t);
-        const anchor = this._calculateLabelAnchor(t);
-        const fo = this._foreignObjectElement();
-        fo.setAttributeNS(null, 'x', position.x - anchor);
-        fo.setAttributeNS(null, 'y', position.y);
-        this.element.setAttributeNS(null, 'data-labelt', t);
     }
 
     /* Private Instance */
@@ -367,14 +376,6 @@ class Edge {
         return { x, y };
     }
 
-    // _labelt(t) {
-    //     return Number(this.element.getAttributeNS(null, 'data-labelt'));
-    // }
-
-    // _setLabelt(t) {
-    //     this.element.setAttributeNS(null, 'data-labelt', t);
-    // }
-
     _labelValuesArray() {
         const labelValue = Util.removeWhitespace(this._labelElement().value);
         return Util.csvStringToArray(labelValue);
@@ -392,15 +393,12 @@ class Edge {
     }
 
     _calculateLabelAnchor(t) {
-        const labelWidth = this._labelElement().clientWidth;
         if (t === undefined) {
             t = Number(this.element.getAttributeNS(null, 'data-labelt'));
         }
         const { startPoint, controlPoint, endPoint } = this._dPoints();
         const m = Util.qbezierSlope(startPoint, controlPoint, endPoint, t);
-        if (isNaN(m)) {
-            console.log('~~~IS NAN~~~');
-        }
+        const labelWidth = this._labelElement().clientWidth;
         const anchor = labelWidth / 2 + labelWidth * m;
         return Util.stayInInterval(anchor, 0, labelWidth);
     }
@@ -423,7 +421,19 @@ class Edge {
         this._setD(startPoint, endPoint, controlPoint);
         const vertex = this._vertexPosition();
         this._positionControlElementAt(vertex);
-        this.setLabelPosition();
+        this._setLabelAt();
+    }
+
+    _setLabelAt(t) {
+        if (t === undefined) {
+            t = Number(this.element.getAttributeNS(null, 'data-labelt'));
+        }
+        const position = this._pointOnCurve(t);
+        const anchor = this._calculateLabelAnchor(t);
+        const fo = this._foreignObjectElement();
+        fo.setAttributeNS(null, 'x', position.x - anchor);
+        fo.setAttributeNS(null, 'y', position.y);
+        this.element.setAttributeNS(null, 'data-labelt', t);
     }
 
     _storedInputsArray() {

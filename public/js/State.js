@@ -157,7 +157,7 @@ class State {
         this._innerCircleElement().style.stroke = color;
     }
 
-    setLabel(textString) {
+    setLabelText(textString) {
         const textInputElement = this._textInputElement();
         textInputElement.setAttributeNS(null, 'value', textString);
         const event = new Event('input', {
