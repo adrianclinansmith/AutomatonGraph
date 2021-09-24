@@ -173,42 +173,61 @@ class Util {
         return string.trim() === '';
     }
 
-    /*
-    A qbezier is a quadratic bezier curve which takes a t value and outputs an
-    (x, y) point, given three control points p0, p1, and p2.
-    */
+    // /*
+    // A qbezier is a quadratic bezier curve which takes a t value and outputs an
+    // (x, y) point, given three control points p0, p1, and p2.
+    // */
 
-    /*
-    Returns the coefficients a,b,c for the bezier curve B(t) = at^2 + bt + c,
-    given the three control points.
-    */
-    static qbezierCoefficients(p0, p1, p2) {
-        const ax = p0.x - 2 * p1.x + p2.x;
-        const bx = 2 * (p1.x - p0.x);
-        const cx = p0.x;
-        const ay = p0.y - 2 * p1.y + p2.y;
-        const by = 2 * (p1.y - p0.y);
-        const cy = p0.y;
-        return { ax, bx, cx, ay, by, cy };
-    }
+    // static qbezierClosestTo(p0, p1, p2, point) {
+    //     let t;
+    //     let shortestDistance = Infinity;
+    //     const step = 0.2;
+    //     for (let i = 0; i < 1 / step; i++) {
+    //         const n = i * step;
+    //         const start = this.qbezierPoint(p0, p1, p2, n);
+    //         const end = this.qbezierPoint(p0, p1, p2, n + step);
+    //         const ti = this.lineSegmentFraction(point, start, end) * step + n;
+    //         const curvePointi = this.qbezierPoint(p0, p1, p2, t);
+    //         const distancei = this.distanceBetween(point, curvePointi);
+    //         if (distancei < shortestDistance) {
+    //             shortestDistance = distancei;
+    //             t = ti;
+    //         }
+    //     }
+    //     return t;
+    // }
 
-    /*
-    Retruns the (x,y) point on a quadratic bezier curve given the three control
-    points and t value.
-    */
-    static qbezierPoint(p0, p1, p2, t) {
-        const co = this.qbezierCoefficients(p0, p1, p2);
-        const x = co.ax * t ** 2 + co.bx * t + co.cx;
-        const y = co.ay * t ** 2 + co.by * t + co.cy;
-        return { x, y };
-    }
+    // /*
+    // Returns the coefficients a,b,c for the bezier curve B(t) = at^2 + bt + c,
+    // given the three control points.
+    // */
+    // static qbezierCoefficients(p0, p1, p2) {
+    //     const ax = p0.x - 2 * p1.x + p2.x;
+    //     const bx = 2 * (p1.x - p0.x);
+    //     const cx = p0.x;
+    //     const ay = p0.y - 2 * p1.y + p2.y;
+    //     const by = 2 * (p1.y - p0.y);
+    //     const cy = p0.y;
+    //     return { ax, bx, cx, ay, by, cy };
+    // }
 
-    static qbezierSlope(p0, p1, p2, t) {
-        const co = this.qbezierCoefficients(p0, p1, p2);
-        const dx = 2 * co.ax * t + co.bx;
-        const dy = 2 * co.ay * t + co.by;
-        return dy / dx;
-    }
+    // /*
+    // Retruns the (x,y) point on a quadratic bezier curve given the three control
+    // points and t value.
+    // */
+    // static qbezierPoint(p0, p1, p2, t) {
+    //     const co = this.qbezierCoefficients(p0, p1, p2);
+    //     const x = co.ax * t ** 2 + co.bx * t + co.cx;
+    //     const y = co.ay * t ** 2 + co.by * t + co.cy;
+    //     return { x, y };
+    // }
+
+    // static qbezierSlope(p0, p1, p2, t) {
+    //     const co = this.qbezierCoefficients(p0, p1, p2);
+    //     const dx = 2 * co.ax * t + co.bx;
+    //     const dy = 2 * co.ay * t + co.by;
+    //     return dy / dx;
+    // }
 
     /*
     CSV String is a string of comma-separated values, i.e. "dog, cat, bird".

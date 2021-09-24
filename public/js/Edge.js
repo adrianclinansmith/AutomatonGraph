@@ -1,5 +1,5 @@
 /* global onEdgeLabelInput onEdgeLabelFocusOut onEdgeLabelDoubleClick
-onEdgeLabelMouseDown State Util */
+onEdgeLabelMouseDown Qbezier State Util */
 // eslint-disable-next-line no-unused-vars
 class Edge {
     /* Static */
@@ -170,28 +170,10 @@ class Edge {
             this._setLabelAt();
             return;
         }
-        const d = this._dPoints();
         const anchor = this._calculateLabelAnchor();
-        // console.log(`anchor: ${anchor}, width = ${this._labelElement().clientWidth}`);
         position.x -= this.labelOffset.x - anchor;
         position.y -= this.labelOffset.y;
-        // const t = Util.lineSegmentFraction(position, d.startPoint, d.endPoint);
-        // const t0 = Number(this.element.getAttributeNS(null, 'data-labelt'));
-        let t = Infinity;
-        let dist = Infinity;
-        const step = 0.1;
-        for (let i = 0; i < 1 / step; i++) {
-            const n = i * step;
-            const p0 = Util.qbezierPoint(d.startPoint, d.controlPoint, d.endPoint, n);
-            const p1 = Util.qbezierPoint(d.startPoint, d.controlPoint, d.endPoint, n + step);
-            const t1 = Util.lineSegmentFraction(position, p0, p1) * step + n;
-            const possiblePoint = this._pointOnCurve(t1);
-            const newDist = Util.distanceBetween(position, possiblePoint);
-            if (newDist < dist) {
-                t = t1;
-                dist = newDist;
-            }
-        }
+        const t = this._bezier().tClosestTo(position);
         console.log(`t = ${t}`);
         if (t >= 0 && t <= 1) {
             this._setLabelAt(t);
@@ -299,6 +281,21 @@ class Edge {
         return { point, slope };
     }
 
+    _bezier() {
+        const d = this._dPoints();
+        return new Qbezier(d.startPoint, d.controlPoint, d.endPoint);
+    }
+
+    _calculateLabelAnchor(t) {
+        if (t === undefined) {
+            t = Number(this.element.getAttributeNS(null, 'data-labelt'));
+        }
+        const m = this._bezier().slopeAt(t);
+        const labelWidth = this._labelElement().clientWidth;
+        const anchor = labelWidth / 2 + labelWidth * m;
+        return Util.stayInInterval(anchor, 0, labelWidth);
+    }
+
     _calculatePointsForLoop() {
         const start = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
         const end = this.tail.pointOnPerimeter(-Math.PI / 4);
@@ -324,25 +321,9 @@ class Edge {
     }
 
     _dPoints() {
-        // tail to head: <path d="M 100,250 Q 250,100 400,250" />
-        // Initial edge: <path d="M 100,250 l 400,250" />
-        const dParts = this.element.getAttributeNS(null, 'd').split(' ');
-        const startString = dParts[1].split(',');
-        const controlString = dParts[3].split(',');
-        const endString = dParts[4].split(',');
-        const startPoint = {
-            x: parseFloat(startString[0]),
-            y: parseFloat(startString[1])
-        };
-        const controlPoint = {
-            x: parseFloat(controlString[0]),
-            y: parseFloat(controlString[1])
-        };
-        const endPoint = {
-            x: parseFloat(endString[0]),
-            y: parseFloat(endString[1])
-        };
-        return { startPoint, controlPoint, endPoint };
+        const dString = this.element.getAttributeNS(null, 'd');
+        const bezier = Qbezier.fromSvgPathString(dString);
+        return { startPoint: bezier.p0, controlPoint: bezier.p1, endPoint: bezier.p2 };
     }
 
     _foreignObjectElement() {
@@ -387,38 +368,11 @@ class Edge {
         controlElement.setAttributeNS(null, 'cy', point.y);
     }
 
-    _pointOnCurve(t) {
-        const { startPoint, controlPoint, endPoint } = this._dPoints();
-        return Util.qbezierPoint(startPoint, controlPoint, endPoint, t);
-    }
-
-    _calculateLabelAnchor(t) {
-        if (t === undefined) {
-            t = Number(this.element.getAttributeNS(null, 'data-labelt'));
-        }
-        const { startPoint, controlPoint, endPoint } = this._dPoints();
-        const m = Util.qbezierSlope(startPoint, controlPoint, endPoint, t);
-        const labelWidth = this._labelElement().clientWidth;
-        const anchor = labelWidth / 2 + labelWidth * m;
-        return Util.stayInInterval(anchor, 0, labelWidth);
-    }
-
-    _setD(startPoint, endPoint, controlPoint) {
-        if (controlPoint === undefined) {
-            controlPoint = {};
-            controlPoint.x = (startPoint.x + endPoint.x) / 2;
-            controlPoint.y = (startPoint.y + endPoint.y) / 2;
-        }
-        const tailString = `M ${startPoint.x},${startPoint.y}`;
-        const controlString = ` Q ${controlPoint.x},${controlPoint.y}`;
-        const headString = ` ${endPoint.x},${endPoint.y}`;
-        const dString = tailString + controlString + headString;
+    _setDAndPositionElements(startPoint, endPoint, controlPoint) {
+        const bezier = new Qbezier(startPoint, controlPoint, endPoint);
+        const dString = bezier.svgPathString();
         this.element.setAttributeNS(null, 'd', dString);
         this._animateMotionElement().setAttributeNS(null, 'path', dString);
-    }
-
-    _setDAndPositionElements(startPoint, endPoint, controlPoint) {
-        this._setD(startPoint, endPoint, controlPoint);
         const vertex = this._vertexPosition();
         this._positionControlElementAt(vertex);
         this._setLabelAt();
@@ -428,7 +382,7 @@ class Edge {
         if (t === undefined) {
             t = Number(this.element.getAttributeNS(null, 'data-labelt'));
         }
-        const position = this._pointOnCurve(t);
+        const position = this._bezier().pointAt(t);
         const anchor = this._calculateLabelAnchor(t);
         const fo = this._foreignObjectElement();
         fo.setAttributeNS(null, 'x', position.x - anchor);
