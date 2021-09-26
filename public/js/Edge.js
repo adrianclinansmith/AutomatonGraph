@@ -68,23 +68,22 @@ class Edge {
         this._animateMotionElement().beginElement();
     }
 
-    calculateControlDistance() {
+    calculateP1Height() {
         if (!this.head || !this.tail) {
             return;
         }
         const mid = this.head.pointBetween(this.tail);
         const axisOfSymmetry = this._axisOfSymmetry();
         const midOnAxis = Util.projectPointOntoLine(mid, axisOfSymmetry);
-        const controlPoint = this._dPoints().controlPoint;
-        return Util.distanceBetween(midOnAxis, controlPoint);
+        return Util.distanceBetween(midOnAxis, this._bezier().p1);
     }
 
-    calculateControlIsForward() {
+    calculateP1IsForward() {
         if (!this.head || !this.tail) {
             return;
         }
         const basePoint = this._axisOfSymmetry().point;
-        const controlPoint = this._dPoints().controlPoint;
+        const controlPoint = this._bezier().p1;
         if (this.head.y < this.tail.y) {
             return controlPoint.x >= basePoint.x;
         } else if (this.head.y === this.tail.y && this.head.x > this.tail.x) {
@@ -138,31 +137,30 @@ class Edge {
     }
 
     hasNoInputs() {
-        const dataInputs = this.element.getAttributeNS(null, 'data-input');
-        return dataInputs === '';
+        return this.element.getAttributeNS(null, 'data-input') === '';
     }
 
     id() {
         return this.element.getAttributeNS(null, 'id');
     }
 
-    moveControlTo(position) {
+    moveControlTo(point) {
         if (this._isInitialEdge()) {
-            const endpoint = this.head.intersectTowards(position, 7);
-            this._setDAndPositionElements(position, endpoint);
+            const p02 = this.head.intersectTowards(point, 7);
+            this._setDAndPositionElements(point, undefined, p02);
             return;
         } else if (this._isLoop()) {
             return;
         }
         const axisOfSymmetry = this._axisOfSymmetry();
-        const vertex = Util.projectPointOntoLine(position, axisOfSymmetry);
-        const d = this._dPoints();
-        const base = Util.midpoint(d.startPoint, d.endPoint);
+        const vertex = Util.projectPointOntoLine(point, axisOfSymmetry);
+        const bezier = this._bezier();
+        const base = Util.midpoint(bezier.p0, bezier.p2);
         const distance = Util.distanceBetween(base, vertex);
-        const controlPoint = Util.goFromPointToPoint(vertex, base, -distance);
-        const startPoint = this.tail.intersectTowards(controlPoint);
-        const endPoint = this.head.intersectTowards(controlPoint, 7);
-        this._setDAndPositionElements(startPoint, endPoint, controlPoint);
+        const p1 = Util.goFromPointToPoint(vertex, base, -distance);
+        const p0 = this.tail.intersectTowards(p1);
+        const p2 = this.head.intersectTowards(p1, 7);
+        this._setDAndPositionElements(p0, p1, p2);
     }
 
     moveLabelTo(position) {
@@ -187,18 +185,18 @@ class Edge {
     resetForMovedState(isForward, distance) {
         let newD = {};
         if (this._isInitialEdge()) {
-            const last = this._dPoints();
+            const oldBezier = this._bezier();
             const offset = {};
-            offset.x = last.startPoint.x - last.endPoint.x + this.head.x;
-            offset.y = last.startPoint.y - last.endPoint.y + this.head.y;
-            newD.start = Util.goFromPointToPoint(offset, this.head, -37);
-            newD.end = Util.goFromPointToPoint(this.head, newD.start, 37);
+            offset.x = oldBezier.p0.x - oldBezier.p2.x + this.head.x;
+            offset.y = oldBezier.p0.y - oldBezier.p2.y + this.head.y;
+            newD.p0 = Util.goFromPointToPoint(offset, this.head, -37);
+            newD.p2 = Util.goFromPointToPoint(this.head, newD.p0, 37);
         } else if (this._isLoop()) {
             newD = this._calculatePointsForLoop();
         } else {
             newD = this._calculatePointsForRegularEdge(isForward, distance);
         }
-        this._setDAndPositionElements(newD.start, newD.end, newD.control);
+        this._setDAndPositionElements(newD.p0, newD.p1, newD.p2);
     }
 
     select(atPosition) {
@@ -230,20 +228,20 @@ class Edge {
         }
         let newD = {};
         if (this._isInitialEdge()) {
-            newD.start = this._dPoints().startPoint;
-            newD.end = this.head.intersectTowards(newD.start, 7);
+            newD.p0 = this._bezier().p0;
+            newD.p2 = this.head.intersectTowards(newD.p0, 7);
         } else if (this._isLoop()) {
             newD = this._calculatePointsForLoop();
         } else if (this._isRegularEdge()) {
             newD = this._calculatePointsForRegularEdge(true, 0);
         } else if (this.tail) {
-            newD.start = this.tail.intersectTowards(toPlace);
-            newD.end = toPlace;
+            newD.p0 = this.tail.intersectTowards(toPlace);
+            newD.p2 = toPlace;
         } else {
-            newD.start = this._dPoints().startPoint;
-            newD.end = toPlace;
+            newD.p0 = this._bezier().p0;
+            newD.p2 = toPlace;
         }
-        this._setDAndPositionElements(newD.start, newD.end, newD.control);
+        this._setDAndPositionElements(newD.p0, newD.p1, newD.p2);
     }
 
     setLabelText(textString) {
@@ -282,8 +280,8 @@ class Edge {
     }
 
     _bezier() {
-        const d = this._dPoints();
-        return new Qbezier(d.startPoint, d.controlPoint, d.endPoint);
+        const d = this.element.getAttributeNS(null, 'd');
+        return Qbezier.fromSvgPathString(d);
     }
 
     _calculateLabelAnchor(t) {
@@ -297,11 +295,11 @@ class Edge {
     }
 
     _calculatePointsForLoop() {
-        const start = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
-        const end = this.tail.pointOnPerimeter(-Math.PI / 4);
-        end.y -= 7;
-        const control = { x: this.tail.x, y: this.tail.y - 120 };
-        return { start, end, control };
+        const p0 = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
+        const p2 = this.tail.pointOnPerimeter(-Math.PI / 4);
+        p2.y -= 7;
+        const p1 = { x: this.tail.x, y: this.tail.y - 120 };
+        return { p0, p1, p2 };
     }
 
     _calculatePointsForRegularEdge(forward, distance) {
@@ -310,20 +308,14 @@ class Edge {
         if ((forward && downOrTrueLeft) || !(forward || downOrTrueLeft)) {
             distance *= -1;
         }
-        const control = Util.pointAlongSlope(axis.point, axis.slope, distance);
-        const start = this.tail.intersectTowards(control);
-        const end = this.head.intersectTowards(control, 7);
-        return { start, end, control };
+        const p1 = Util.pointAlongSlope(axis.point, axis.slope, distance);
+        const p0 = this.tail.intersectTowards(p1);
+        const p2 = this.head.intersectTowards(p1, 7);
+        return { p0, p1, p2 };
     }
 
     _controlElement() {
         return this._gElement().children[2];
-    }
-
-    _dPoints() {
-        const dString = this.element.getAttributeNS(null, 'd');
-        const bezier = Qbezier.fromSvgPathString(dString);
-        return { startPoint: bezier.p0, controlPoint: bezier.p1, endPoint: bezier.p2 };
     }
 
     _foreignObjectElement() {
@@ -368,8 +360,8 @@ class Edge {
         controlElement.setAttributeNS(null, 'cy', point.y);
     }
 
-    _setDAndPositionElements(startPoint, endPoint, controlPoint) {
-        const bezier = new Qbezier(startPoint, controlPoint, endPoint);
+    _setDAndPositionElements(p0, p1, p2) {
+        const bezier = new Qbezier(p0, p1, p2);
         const dString = bezier.svgPathString();
         this.element.setAttributeNS(null, 'd', dString);
         this._animateMotionElement().setAttributeNS(null, 'path', dString);
@@ -396,11 +388,11 @@ class Edge {
     }
 
     _vertexPosition() {
+        const bezier = this._bezier();
         if (this._isInitialEdge()) {
-            return this._dPoints().startPoint;
+            return bezier.p0;
         }
-        const d = this._dPoints();
-        const basePoint = Util.midpoint(d.startPoint, d.endPoint);
-        return Util.midpoint(basePoint, d.controlPoint);
+        const basePoint = Util.midpoint(bezier.p0, bezier.p2);
+        return Util.midpoint(basePoint, bezier.p1);
     }
 }

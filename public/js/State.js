@@ -36,7 +36,7 @@ class State {
         this.x = centerPosition.x;
         this.y = centerPosition.y;
         this.positionOffset = { x: 0, y: 0 };
-        this.controlStatuses = [];
+        this.edgeP1Statuses = [];
     }
 
     /* Instance */
@@ -106,8 +106,8 @@ class State {
         this._gElement().setAttributeNS(null, 'transform', translate);
         let i = 0;
         for (const edge of this._allEdges()) {
-            const { isForward, distance } = this.controlStatuses[i++];
-            edge.resetForMovedState(isForward, distance);
+            const status = this.edgeP1Statuses[i++];
+            edge.resetForMovedState(status.p1IsForward, status.p1Height);
         }
     }
 
@@ -149,7 +149,7 @@ class State {
     select(withPositionOffset) {
         this.setColor('red');
         this.setPositionOffset(withPositionOffset);
-        this._calculatecontrolStatuses();
+        this._calculateEdgeP1Statuses();
     }
 
     setColor(color) {
@@ -193,13 +193,13 @@ class State {
         return this.element.children[0];
     }
 
-    _calculatecontrolStatuses() {
-        this.controlStatuses = [];
+    _calculateEdgeP1Statuses() {
+        this.edgeP1Statuses = [];
         for (const edge of this._allEdges()) {
-            const controlStatus = {};
-            controlStatus.isForward = edge.calculateControlIsForward();
-            controlStatus.distance = edge.calculateControlDistance();
-            this.controlStatuses.push(controlStatus);
+            const p1Status = {};
+            p1Status.p1IsForward = edge.calculateP1IsForward();
+            p1Status.p1Height = edge.calculateP1Height();
+            this.edgeP1Statuses.push(p1Status);
         }
     }
 
