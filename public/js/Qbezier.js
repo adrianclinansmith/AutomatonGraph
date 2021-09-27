@@ -81,6 +81,18 @@ class Qbezier {
     }
 
     /*
+    Returns true if the slope at t is <1 and the given point is to the right of
+    B(t),  or if the slope is >1 and the point is above B(t). False otherwise.
+    */
+    pointIsRightOrAboveAt(t, point) {
+        const pointOnCurve = this.pointAt(t);
+        const m = this.slopeAt(t);
+        const isRight = Math.abs(m) > 1 && point.x > pointOnCurve.x;
+        const isAbove = Math.abs(m) < 1 && point.y < pointOnCurve.y;
+        return isRight || isAbove;
+    }
+
+    /*
     Retruns the slope at the given t value.
     */
     slopeAt(t) {

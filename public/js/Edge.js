@@ -163,18 +163,22 @@ class Edge {
         this._setDAndPositionElements(p0, p1, p2);
     }
 
-    moveLabelTo(position) {
-        if (position === undefined) {
-            this._setLabelAt();
+    moveLabelTo(point) {
+        let t = Number(this.element.getAttributeNS(null, 'data-labelt'));
+        if (point === undefined) {
+            this._setLabelAt(t);
             return;
         }
-        const anchor = this._calculateLabelAnchor();
-        position.x -= this.labelOffset.x - anchor;
-        position.y -= this.labelOffset.y;
-        const t = this._bezier().tClosestTo(position);
-        console.log(`t = ${t}`);
+        const b = this._bezier();
+        const doBottomAnchor = this._bezier().pointIsRightOrAboveAt(t, point);
+        console.log(`m = ${b.slopeAt(t)}, pt.x = ${point.x}, curve.x = ${b.pointAt(t).x}, ${doBottomAnchor}`);
+        const anchor = this._calculateLabelAnchor(t, doBottomAnchor);
+        point.x -= this.labelOffset.x - anchor.x;
+        point.y -= this.labelOffset.y - anchor.y;
+        t = this._bezier().tClosestTo(point);
+        // console.log(`t = ${t}, m = ${this._bezier().slopeAt(t)}`);
         if (t >= 0 && t <= 1) {
-            this._setLabelAt(t);
+            this._setLabelAt(t, doBottomAnchor);
         }
     }
 
@@ -284,14 +288,21 @@ class Edge {
         return Qbezier.fromSvgPathString(d);
     }
 
-    _calculateLabelAnchor(t) {
-        if (t === undefined) {
-            t = Number(this.element.getAttributeNS(null, 'data-labelt'));
-        }
+    _calculateLabelAnchor(t, applyBottomAnchor) {
         const m = this._bezier().slopeAt(t);
         const labelWidth = this._labelElement().clientWidth;
-        const anchor = labelWidth / 2 + labelWidth * m;
-        return Util.stayInInterval(anchor, 0, labelWidth);
+        const labelHeight = this._labelElement().clientHeight;
+        let x = Util.stayInInterval(labelWidth * (0.5 + m), 0, labelWidth);
+        let y = Util.stayInInterval(Math.abs(m), 0, labelHeight);
+        // let y = Util.stayInInterval(labelHeight * m, 0, labelHeight);
+        if ((applyBottomAnchor && m >= -1) || (!applyBottomAnchor && m < -1)) {
+            x = labelWidth - x;
+            y = labelHeight - y;
+        }
+        // else if (applyBottomAnchor) {
+        //     y = labelHeight;
+        // }
+        return { x, y };
     }
 
     _calculatePointsForLoop() {
@@ -367,18 +378,16 @@ class Edge {
         this._animateMotionElement().setAttributeNS(null, 'path', dString);
         const vertex = this._vertexPosition();
         this._positionControlElementAt(vertex);
-        this._setLabelAt();
+        const t = Number(this.element.getAttributeNS(null, 'data-labelt'));
+        this._setLabelAt(t);
     }
 
-    _setLabelAt(t) {
-        if (t === undefined) {
-            t = Number(this.element.getAttributeNS(null, 'data-labelt'));
-        }
+    _setLabelAt(t, applyBottomAnchor) {
         const position = this._bezier().pointAt(t);
-        const anchor = this._calculateLabelAnchor(t);
+        const anchor = this._calculateLabelAnchor(t, applyBottomAnchor);
         const fo = this._foreignObjectElement();
-        fo.setAttributeNS(null, 'x', position.x - anchor);
-        fo.setAttributeNS(null, 'y', position.y);
+        fo.setAttributeNS(null, 'x', position.x - anchor.x);
+        fo.setAttributeNS(null, 'y', position.y - anchor.y);
         this.element.setAttributeNS(null, 'data-labelt', t);
     }
 
