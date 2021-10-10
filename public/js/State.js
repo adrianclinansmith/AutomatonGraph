@@ -90,8 +90,7 @@ class State {
     }
 
     intersectTowards(point, spacing) {
-        let radius = this.radius();
-        radius += spacing || 0;
+        const radius = this.radius() + (spacing || 0);
         return Util.goFromPointToPoint(this, point, radius);
     }
 

@@ -153,13 +153,16 @@ class Edge {
             return;
         }
         const axisOfSymmetry = this._axisOfSymmetry();
-        const vertex = Util.projectPointOntoLine(point, axisOfSymmetry);
+        const newVertex = Util.projectPointOntoLine(point, axisOfSymmetry);
         const bezier = this._bezier();
         const base = Util.midpoint(bezier.p0, bezier.p2);
-        const distance = Util.distanceBetween(base, vertex);
-        const p1 = Util.goFromPointToPoint(vertex, base, -distance);
-        const p0 = this.tail.intersectTowards(p1);
-        const p2 = this.head.intersectTowards(p1, 7);
+        const newHeight = Util.distanceBetween(base, newVertex);
+        let p1;
+        if (newHeight > 7) {
+            p1 = Util.goFromPointToPoint(newVertex, base, -newHeight);
+        }
+        const p0 = this.tail.intersectTowards(p1 || this.head);
+        const p2 = this.head.intersectTowards(p1 || this.tail, 7);
         this._setDAndPositionElements(p0, p1, p2);
     }
 
@@ -169,16 +172,16 @@ class Edge {
             this._setLabelAt(t);
             return;
         }
-        const b = this._bezier();
-        const doBottomAnchor = this._bezier().pointIsRightOrAboveAt(t, point);
-        console.log(`m = ${b.slopeAt(t)}, pt.x = ${point.x}, curve.x = ${b.pointAt(t).x}, ${doBottomAnchor}`);
-        const anchor = this._calculateLabelAnchor(t, doBottomAnchor);
+        const applyBottomAnchor = this._bezier().pointIsDownOrBelowAt(t, point);
+        const anchor = this._calculateLabelAnchor(t, applyBottomAnchor);
         point.x -= this.labelOffset.x - anchor.x;
         point.y -= this.labelOffset.y - anchor.y;
         t = this._bezier().tClosestTo(point);
-        // console.log(`t = ${t}, m = ${this._bezier().slopeAt(t)}`);
-        if (t >= 0 && t <= 1) {
-            this._setLabelAt(t, doBottomAnchor);
+        console.log(`t = ${t}`);
+        if (this._isLoop() && t > 0.3 && t < 0.65) {
+            this._setLabelAt(0.51, applyBottomAnchor);
+        } else if (t >= 0 && t <= 1) {
+            this._setLabelAt(t, applyBottomAnchor);
         }
     }
 
@@ -205,7 +208,9 @@ class Edge {
 
     select(atPosition) {
         this.setColor('red');
-        this._controlElement().style.opacity = '1';
+        if (!this._isLoop()) {
+            this._controlElement().style.opacity = '1';
+        }
         if (this.labelOffset) {
             const labelPoint = this._labelPosition();
             this.labelOffset.x = atPosition.x - labelPoint.x;
@@ -292,16 +297,12 @@ class Edge {
         const m = this._bezier().slopeAt(t);
         const labelWidth = this._labelElement().clientWidth;
         const labelHeight = this._labelElement().clientHeight;
-        let x = Util.stayInInterval(labelWidth * (0.5 + m), 0, labelWidth);
-        let y = Util.stayInInterval(Math.abs(m), 0, labelHeight);
-        // let y = Util.stayInInterval(labelHeight * m, 0, labelHeight);
-        if ((applyBottomAnchor && m >= -1) || (!applyBottomAnchor && m < -1)) {
+        let x = labelWidth - Util.within(labelWidth * (0.5 + m), 0, labelWidth);
+        let y = labelHeight - Util.within(Math.abs(m), 0, labelHeight);
+        if (!this._isLoop() && applyBottomAnchor === (m >= -1)) {
             x = labelWidth - x;
             y = labelHeight - y;
         }
-        // else if (applyBottomAnchor) {
-        //     y = labelHeight;
-        // }
         return { x, y };
     }
 

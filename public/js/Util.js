@@ -70,7 +70,7 @@ class Util {
         return { point: point1, slope: this.slopeBetween(point1, point2) };
     }
 
-    static stayInInterval(number, lowerbound, upperbound) {
+    static within(number, lowerbound, upperbound) {
         if (number < lowerbound) {
             return lowerbound;
         } else if (number > upperbound) {
