@@ -1,37 +1,12 @@
-/* global Edge onStateLabelInput Util */
+/* global Edge GraphMaker Util */
 // eslint-disable-next-line no-unused-vars
 class State {
-    /* Static */
+    // ************************************************************************
+    // Constructor
+    // ************************************************************************
 
-    static createElementAt(position) {
-        const template = document.getElementById('state-g-template');
-        const gElement = template.cloneNode(true);
-        const circleElement = gElement.children[0];
-        const labelElement = gElement.children[2].children[0];
-        gElement.setAttributeNS(null, 'id', '');
-        const translate = `translate(${position.x}, ${position.y})`;
-        gElement.setAttributeNS(null, 'transform', translate);
-        let i = 0;
-        while (document.getElementById(`s${i}`)) {
-            i += 1;
-        }
-        circleElement.setAttributeNS(null, 'id', `s${i}`);
-        labelElement.oninput = onStateLabelInput;
-        return gElement;
-    }
-
-    /* Constructor */
-
-    constructor(elementOrId) {
-        if (elementOrId.classList.contains('state-g')) {
-            this.element = elementOrId.children[0];
-        } else if (elementOrId.classList.contains('state-animate')) {
-            this.element = elementOrId.parentNode;
-        } else if (elementOrId.classList.contains('state-inner-animate')) {
-            this.element = elementOrId.parentNode.parentNode.children[0];
-        } else {
-            this.element = elementOrId;
-        }
+    constructor(element) {
+        this.element = GraphMaker.baseStateElementFor(element);
         const centerPosition = this._centerPosition();
         this.x = centerPosition.x;
         this.y = centerPosition.y;
@@ -39,7 +14,9 @@ class State {
         this.edgeP1Statuses = [];
     }
 
-    /* Instance */
+    // ************************************************************************
+    // Public Methods
+    // ************************************************************************
 
     addInEdge(edge) {
         let inEdgesString = this.element.getAttributeNS(null, 'data-inedges');
@@ -70,6 +47,14 @@ class State {
 
     clearStoredInputs() {
         this.element.setAttributeNS(null, 'data-input', '');
+    }
+
+    calculateLoopEdgePoints() {
+        const p0 = this.pointOnPerimeter(-3 * Math.PI / 4);
+        const p2 = this.pointOnPerimeter(-Math.PI / 4);
+        p2.y -= 7;
+        const p1 = { x: this.x, y: this.y - 120 };
+        return { p0, p1, p2 };
     }
 
     equals(otherState) {
@@ -181,7 +166,9 @@ class State {
         }
     }
 
-    /* Private Instance */
+    // ************************************************************************
+    // Private Methods
+    // ************************************************************************
 
     _allEdges() {
         const edges = this._edges('data-inedges');

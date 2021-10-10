@@ -1,4 +1,4 @@
-/* global State Edge */
+/* global GraphMaker State Edge */
 
 // eslint-disable-next-line no-unused-vars
 class Graph {
@@ -26,7 +26,7 @@ class Graph {
             this.newStateAngle = Math.PI / -2;
         }
         centerPosition = centerPosition || { x, y };
-        const stategElement = State.createElementAt(centerPosition);
+        const stategElement = GraphMaker.newStateElementAt(centerPosition);
         this.svg.appendChild(stategElement);
         return new State(stategElement);
     }
@@ -118,9 +118,9 @@ class Graph {
     startTemporaryEdge(element, position) {
         let edgegElement;
         if (element?.getAttribute('class') === 'state') {
-            edgegElement = Edge.createElementAt(new State(element));
+            edgegElement = GraphMaker.newEdgeElementAt(new State(element));
         } else {
-            edgegElement = Edge.createElementAt(position);
+            edgegElement = GraphMaker.newEdgeElementAt(position);
         }
         this.svg.appendChild(edgegElement);
         this.temporaryEdge = new Edge(edgegElement);

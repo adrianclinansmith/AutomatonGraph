@@ -1,57 +1,16 @@
-/* global onEdgeLabelInput onEdgeLabelFocusOut onEdgeLabelDoubleClick
-onEdgeLabelMouseDown Qbezier State Util */
+/* global GraphMaker Qbezier State Util */
 // eslint-disable-next-line no-unused-vars
 class Edge {
-    /* Static */
-
-    static createElementAt(place) {
-        const template = document.getElementById('edge-g-template');
-        const gElement = template.cloneNode(true);
-        const edgeElement = gElement.children[0];
-        const foreignObjectElement = gElement.children[1];
-        const labelElement = foreignObjectElement.children[0];
-        const animateMotionElement = gElement.children[3].children[0];
-        gElement.setAttributeNS(null, 'id', '');
-        let i = 0;
-        while (document.getElementById(`e${i}`)) {
-            i += 1;
-        }
-        edgeElement.setAttributeNS(null, 'id', `e${i}`);
-        if (place instanceof State) {
-            edgeElement.setAttributeNS(null, 'data-tail', place.id());
-            edgeElement.setAttributeNS(null, 'data-head', place.id());
-        }
-        const { x, y } = place;
-        const dString = `M ${x},${y} Q ${x},${y} ${x},${y}`;
-        edgeElement.setAttributeNS(null, 'd', dString);
-        animateMotionElement.setAttributeNS(null, 'path', dString);
-        foreignObjectElement.setAttributeNS(null, 'x', x);
-        foreignObjectElement.setAttributeNS(null, 'y', y);
-        labelElement.oninput = onEdgeLabelInput;
-        labelElement.ondblclick = onEdgeLabelDoubleClick;
-        labelElement.onfocusout = onEdgeLabelFocusOut;
-        labelElement.onmousedown = onEdgeLabelMouseDown;
-        return gElement;
-    }
-
-    /* Constructor */
+    // ************************************************************************
+    // Constructor
+    // ************************************************************************
 
     constructor(element) {
-        const className = element.getAttribute('class');
-        if (className === 'edge-g') {
-            this.element = element.children[0];
-        } else if (className === 'edge-control') {
-            this.element = element.parentNode.children[0];
-            this.controlSelected = true;
-        } else if (element.classList.contains('edge-animate')) {
-            this.element = element.parentNode.parentNode.children[0];
-        } else if (className === 'edge-label') {
-            this.element = element.parentNode.parentNode.children[0];
-            this.labelSelected = true;
-            this.labelOffset = { x: 0, y: 0 };
-        } else {
-            this.element = element;
-        }
+        this.element = GraphMaker.baseEdgeElementFor(element);
+        const selectedClass = element.getAttribute('class');
+        this.labelSelected = (selectedClass === 'edge-label');
+        this.controlSelected = (selectedClass === 'edge-control');
+        this.labelOffset = { x: 0, y: 0 };
         const tailId = this.element.getAttributeNS(null, 'data-tail');
         const headId = this.element.getAttributeNS(null, 'data-head');
         if (tailId) {
@@ -62,7 +21,9 @@ class Edge {
         }
     }
 
-    /* Instance */
+    // ************************************************************************
+    // Public methods
+    // ************************************************************************
 
     animate() {
         this._animateMotionElement().beginElement();
@@ -199,7 +160,7 @@ class Edge {
             newD.p0 = Util.goFromPointToPoint(offset, this.head, -37);
             newD.p2 = Util.goFromPointToPoint(this.head, newD.p0, 37);
         } else if (this._isLoop()) {
-            newD = this._calculatePointsForLoop();
+            newD = this.tail.calculateLoopEdgePoints();
         } else {
             newD = this._calculatePointsForRegularEdge(isForward, distance);
         }
@@ -240,7 +201,7 @@ class Edge {
             newD.p0 = this._bezier().p0;
             newD.p2 = this.head.intersectTowards(newD.p0, 7);
         } else if (this._isLoop()) {
-            newD = this._calculatePointsForLoop();
+            newD = this.tail.calculateLoopEdgePoints();
         } else if (this._isRegularEdge()) {
             newD = this._calculatePointsForRegularEdge(true, 0);
         } else if (this.tail) {
@@ -263,7 +224,9 @@ class Edge {
         labelElement.dispatchEvent(event);
     }
 
-    /* Private Instance */
+    // ************************************************************************
+    // Private Methods
+    // ************************************************************************
 
     _addInput(input) {
         input = input === '' ? ' ' : input;
@@ -304,14 +267,6 @@ class Edge {
             y = labelHeight - y;
         }
         return { x, y };
-    }
-
-    _calculatePointsForLoop() {
-        const p0 = this.tail.pointOnPerimeter(-3 * Math.PI / 4);
-        const p2 = this.tail.pointOnPerimeter(-Math.PI / 4);
-        p2.y -= 7;
-        const p1 = { x: this.tail.x, y: this.tail.y - 120 };
-        return { p0, p1, p2 };
     }
 
     _calculatePointsForRegularEdge(forward, distance) {
