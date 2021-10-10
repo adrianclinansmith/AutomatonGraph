@@ -113,13 +113,15 @@ class Edge {
         } else if (this._isLoop()) {
             return;
         }
-        const axisOfSymmetry = this._axisOfSymmetry();
-        const newVertex = Util.projectPointOntoLine(point, axisOfSymmetry);
         const bezier = this._bezier();
         const base = Util.midpoint(bezier.p0, bezier.p2);
+        const axisOfSymmetry = this._axisOfSymmetry();
+        const newVertex = Util.projectPointOntoLine(point, axisOfSymmetry);
         const newHeight = Util.distanceBetween(base, newVertex);
+        const oldHeight = Util.distanceBetween(base, bezier.p1);
         let p1;
-        if (newHeight > 7) {
+        if ((newHeight > oldHeight && newHeight > 8) ||
+            (newHeight < oldHeight && newHeight > 2)) {
             p1 = Util.goFromPointToPoint(newVertex, base, -newHeight);
         }
         const p0 = this.tail.intersectTowards(p1 || this.head);
@@ -138,10 +140,10 @@ class Edge {
         point.x -= this.labelOffset.x - anchor.x;
         point.y -= this.labelOffset.y - anchor.y;
         t = this._bezier().tClosestTo(point);
-        console.log(`t = ${t}`);
+        t = Util.within(t, 0, 1);
         if (this._isLoop() && t > 0.3 && t < 0.65) {
-            this._setLabelAt(0.51, applyBottomAnchor);
-        } else if (t >= 0 && t <= 1) {
+            this._setLabelAt(0.5, applyBottomAnchor);
+        } else {
             this._setLabelAt(t, applyBottomAnchor);
         }
     }
@@ -262,6 +264,9 @@ class Edge {
         const labelHeight = this._labelElement().clientHeight;
         let x = labelWidth - Util.within(labelWidth * (0.5 + m), 0, labelWidth);
         let y = labelHeight - Util.within(Math.abs(m), 0, labelHeight);
+        if (Math.abs(m) > 20) {
+            y = labelHeight / 2;
+        }
         if (!this._isLoop() && applyBottomAnchor === (m >= -1)) {
             x = labelWidth - x;
             y = labelHeight - y;
