@@ -136,13 +136,14 @@ class Edge {
             return;
         }
         const applyBottomAnchor = this._bezier().pointIsDownOrBelowAt(t, point);
+        console.log(`h t: ${this._bezier().horizontalT()}`);
         const anchor = this._calculateLabelAnchor(t, applyBottomAnchor);
         point.x -= this.labelOffset.x - anchor.x;
         point.y -= this.labelOffset.y - anchor.y;
         t = this._bezier().tClosestTo(point);
         t = Util.within(t, 0, 1);
-        if (this._isLoop() && t > 0.3 && t < 0.65) {
-            this._setLabelAt(0.5, applyBottomAnchor);
+        if (this._isLoop() && t > 0.3 && t < 0.730) {
+            this._setLabelAt(0.515, applyBottomAnchor);
         } else {
             this._setLabelAt(t, applyBottomAnchor);
         }

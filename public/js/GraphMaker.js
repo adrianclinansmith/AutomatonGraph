@@ -28,6 +28,10 @@ class GraphMaker {
             return element.parentNode;
         } else if (classList.contains('state-inner-animate')) {
             return element.parentNode.parentNode.children[0];
+        } else if (classList.contains('state-label')) {
+            return element.parentNode.parentNode.children[0];
+        } else if (classList.contains('state-foreign-object')) {
+            return element.parentNode.children[0];
         } else {
             return element;
         }

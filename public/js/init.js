@@ -1,4 +1,4 @@
-/* global Edge Graph State Util */
+/* global Edge Graph GraphMaker State Util */
 /* eslint-disable no-unused-vars */
 
 // global data
@@ -216,14 +216,15 @@ function edgeAnimationEnd(event) {
 }
 
 function stateAnimationBegin(event) {
-    // const state = new State(event.target);
-    // console.log(`${state.id()}: BEGIN state animation`);
     graph.numberOfActiveStates++;
     graph.anInputWasAccepted = false;
+    const state = new State(event.target);
+    state.setLabelText(state.inputString(), 'orange', true);
 }
 
 function stateAnimationEnd(event) {
     const state = new State(event.target);
+    state.setLabelText(state.labelValue());
     if (state.hasNoInputs()) {
         return;
     }
@@ -280,8 +281,14 @@ function onEdgeLabelInput(event) {
 }
 
 function onStateLabelInput(event) {
+    console.log('on state label input');
     const labelElement = event.target;
-    labelElement.setAttributeNS(null, 'value', labelElement.value);
+    const value = labelElement.value;
+    labelElement.setAttributeNS(null, 'value', value);
+    if (!event.dontStoreValue) {
+        const stateElement = GraphMaker.baseStateElementFor(labelElement);
+        stateElement.setAttributeNS(null, 'data-labelvalue', value);
+    }
     let textOverflow = true;
     let fontSize = 25;
     while (textOverflow && fontSize > 1) {

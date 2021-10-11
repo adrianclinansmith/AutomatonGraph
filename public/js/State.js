@@ -74,6 +74,10 @@ class State {
         return this.element.getAttributeNS(null, 'id');
     }
 
+    inputString() {
+        return this.element.getAttributeNS(null, 'data-input');
+    }
+
     intersectTowards(point, spacing) {
         const radius = this.radius() + (spacing || 0);
         return Util.goFromPointToPoint(this, point, radius);
@@ -81,6 +85,10 @@ class State {
 
     isGoal() {
         return this._innerCircleElement().style.visibility !== '';
+    }
+
+    labelValue() {
+        return this.element.getAttributeNS(null, 'data-labelvalue');
     }
 
     moveTo(position) {
@@ -141,13 +149,15 @@ class State {
         this._innerCircleElement().style.stroke = color;
     }
 
-    setLabelText(textString) {
+    setLabelText(textString, textColor = '', dontStoreValue = false) {
         const textInputElement = this._textInputElement();
         textInputElement.setAttributeNS(null, 'value', textString);
+        textInputElement.style.color = textColor;
         const event = new Event('input', {
             bubbles: true,
             cancelable: true
         });
+        event.dontStoreValue = dontStoreValue;
         textInputElement.dispatchEvent(event);
     }
 

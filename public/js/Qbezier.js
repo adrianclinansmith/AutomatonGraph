@@ -71,6 +71,15 @@ class Qbezier {
     }
 
     /*
+    Returns the t value where the curve is horizontal, meaning the derivative
+    with respect to y is zero.
+    */
+    horizontalT() {
+        const co = this.coefficients();
+        return -co.by / (2 * co.ay);
+    }
+
+    /*
     Retruns the (x,y) point at the given t value.
     */
     pointAt(t) {

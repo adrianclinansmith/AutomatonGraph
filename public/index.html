@@ -65,14 +65,15 @@
 				}
 				
 				.state-label {
-					line-height: 40px; /* √(2) x (radius=30) = 42.43 */
-					width: 40px;
-					text-align: center;
-					pointer-events: none;
-					font-size: 25px;
-					font-family: Monaco, monospace;
 					background-color: transparent;
 					border: none;
+					color: black;
+					font-family: Monaco, monospace;
+					font-size: 25px;
+					line-height: 40px; /* √(2) x (radius=30) = 42.43 */
+					pointer-events: none;
+					text-align: center;
+					width: 40px;
 				}
 
 				.stop {
@@ -85,7 +86,7 @@
 			<svg id="template-container" pointer-events="none" visibility="hidden">
 				<!-- edge template  -->
 				<g class="edge-g" id="edge-g-template">
-					<path class="edge" d data-head data-input data-tail data-labelt="0.5" 
+					<path class="edge" d data-head data-input data-tail data-labelt="0.515" 
 						id="edge-template" marker-end="url(#arrowhead-red)"
 						style="stroke: red;">
 					</path>
@@ -103,7 +104,8 @@
 				</g>
 				<!-- state template  -->
 				<g class="state-g" id="state-g-template" transform>
-					<circle class="state" r="30px" data-inedges data-input data-outedges id="state-template" style>
+					<circle class="state" r="30px" data-inedges data-input data-outedges data-labelvalue=""
+					        id="state-template" style>
 						<animate begin="indefinite" class="animate state-animate" dur="1s" attributeType="css"
 							attributeName="fill" to="#faf9ba" onbegin="stateAnimationBegin(event)" 
 							onend="stateAnimationEnd(event)">
