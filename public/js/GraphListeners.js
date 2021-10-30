@@ -103,7 +103,7 @@ function endStateAnimate(event) {
     let input;
     while ((input = state.popInput())) {
         if (input === ' ' && state.isGoal()) {
-            finishedInputLineAndAccept(true);
+            page.finishedInputLineAndAccept(true);
             return;
         }
         for (const outEdge of state.outEdges()) {
@@ -114,7 +114,7 @@ function endStateAnimate(event) {
         }
     }
     if (graph.numberOfActiveStates === 0 && !graph.anInputWasAccepted) {
-        finishedInputLineAndAccept(false);
+        page.finishedInputLineAndAccept(false);
     }
 }
 

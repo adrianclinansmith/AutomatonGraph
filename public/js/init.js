@@ -18,24 +18,23 @@ let graph = initGraph(true);
 
 // functions
 
-function clearInputScore() {
+page.clearInputScore = function() {
     page.inputEditor.value = page.inputEditor.value.replace(/( ✓)|( ❌)/g, '');
-}
+};
 
-function finishedInputLineAndAccept(accepted) {
-    console.log(`~~~${accepted ? 'ACCEPT' : 'REJECT'}~~~`);
+page.finishedInputLineAndAccept = function(accepted) {
     graph.acceptedAll = graph.acceptedAll && accepted;
     const result = accepted ? ' ✓' : ' ❌';
     const lineNo = graph.currentLineNo;
     page.inputEditor.value = Util.appendToLine(page.inputEditor.value, result, lineNo);
     const triggeredInitialEdges = graph.animateNextInput();
     if (triggeredInitialEdges === 0) {
-        finishedInputLineAndAccept(false);
+        page.finishedInputLineAndAccept(false);
     } else if (triggeredInitialEdges < 0) {
         page.resultLabel.style.color = graph.acceptedAll ? 'green' : 'red';
         page.resultLabel.innerHTML = graph.acceptedAll ? 'accepted' : 'rejected';
     }
-}
+};
 
 function initGraph(addDefaultElements) {
     const svg = document.getElementById('svg');
@@ -97,16 +96,15 @@ page.newStateButton.addEventListener('click', () => {
 });
 
 page.playPauseButton.addEventListener('click', () => {
-    console.log('\n\n\npressed play:\n\n\n');
     document.getElementById('resultLabel').innerHTML = '';
-    clearInputScore();
+    page.clearInputScore();
     const inputString = page.inputEditor.value.replace(/[ ]+/g, '');
     graph.inputs = inputString.split('\n');
     graph.currentLineNo = 0;
     graph.acceptedAll = true;
     const numberInitiallyAccepted = graph.startAnimation();
     if (numberInitiallyAccepted === 0) {
-        finishedInputLineAndAccept(false);
+        page.finishedInputLineAndAccept(false);
     }
 });
 
@@ -131,5 +129,5 @@ page.uploadButton.addEventListener('change', () => {
 // ************************************************************************
 
 page.inputEditor.addEventListener('focus', () => {
-    clearInputScore();
+    page.clearInputScore();
 });
