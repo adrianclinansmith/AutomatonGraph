@@ -2,7 +2,10 @@
 
 // eslint-disable-next-line no-unused-vars
 class Graph {
-    /* Constructor */
+    // ************************************************************************
+    // Constructor
+    // ************************************************************************
+
     constructor(svg) {
         this.svg = svg;
         this.selectedObject = null;
@@ -12,9 +15,12 @@ class Graph {
         this.inputs = [];
         this.currentLineNo = 0;
         this.acceptedAll = true;
+        this.mouseIsDown = false;
     }
 
-    /* Instance */
+    // ************************************************************************
+    // Instance
+    // ************************************************************************
 
     addNewState(centerPosition) {
         const x = this.width() / 2 + 30 * Math.cos(this.newStateAngle);
@@ -49,6 +55,14 @@ class Graph {
             this.selectedObject?.setColor('');
         }
         this.selectedObject = null;
+    }
+
+    getMousePosition(mouseEvent) {
+        const CTM = self.svg.getScreenCTM();
+        return {
+            x: (mouseEvent.clientX - CTM.e) / CTM.a,
+            y: (mouseEvent.clientY - CTM.f) / CTM.d
+        };
     }
 
     height() {
@@ -152,7 +166,9 @@ class Graph {
         return new Blob([xmlString], { type: imageType });
     }
 
-    /* Private */
+    // ************************************************************************
+    // Private
+    // ************************************************************************
 
     _allEdges() {
         const selector = '.edge:not(#edge-template)';

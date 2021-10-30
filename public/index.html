@@ -95,11 +95,10 @@
 						<input xmlns="http://www.w3.org/1999/xhtml" class="edge-label" spellcheck="false"
 						type="text" size="0" />
 					</foreignObject>
-					<circle class="edge-control" r="5px" cx cy></circle>
+					<circle class="edge-control" r="5px" cx cy>
+					</circle>
 					<circle class="animation-circle" r="5px">
-						<animateMotion begin="indefinite" class="animate edge-animate" dur="2s"
-									   path onbegin="edgeAnimationBegin(event)" 
-									   onend="edgeAnimationEnd(event)" />
+						<animateMotion begin="indefinite" class="animate edge-animate" dur="2s" path />
 					</circle>
 				</g>
 				<!-- state template  -->
@@ -107,14 +106,12 @@
 					<circle class="state" r="30px" data-inedges data-input data-outedges data-labelvalue=""
 					        id="state-template" style>
 						<animate begin="indefinite" class="animate state-animate" dur="1s" attributeType="css"
-							attributeName="fill" to="#faf9ba" onbegin="stateAnimationBegin(event)" 
-							onend="stateAnimationEnd(event)">
+							attributeName="fill" to="#faf9ba">
 						</animate>
 					</circle>
 					<circle class="state-goal-inner-circle" r="26px" style>
 						<animate begin="indefinite" class="animate state-inner-animate" dur="1s" 
-							attributeType="css" attributeName="fill" to="#faf9ba" 
-							onbegin="stateAnimationBegin(event)" onend="stateAnimationEnd(event)">
+							attributeType="css" attributeName="fill" to="#faf9ba">
 						</animate>
 					</circle>
 					<foreignObject class="state-foreign-object" height="100%"
@@ -163,6 +160,7 @@
 	<script src="./js/Edge.js"></script>
 	<script src="./js/State.js"></script>
 	<script src="./js/Graph.js"></script> 
+	<script src="./js/GraphListeners.js"></script> 
 	<script src="./js/init.js"></script> 
 	<!-- <script src="./js/initExample.js"></script>  -->
 </body>

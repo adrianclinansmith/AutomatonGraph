@@ -1,10 +1,10 @@
-/* global State onEdgeLabelInput onEdgeLabelDoubleClick onEdgeLabelFocusOut
-          onEdgeLabelMouseDown onStateLabelInput */
+/* global State inputEdgeLabel dblclickState focusoutEdgeLabel inputStateLabel */
 // eslint-disable-next-line no-unused-vars
 class GraphMaker {
     // ************************************************************************
-    // Public
+    // Get base element
     // ************************************************************************
+
     static baseEdgeElementFor(element) {
         const className = element.getAttribute('class');
         if (className === 'edge-g') {
@@ -37,12 +37,15 @@ class GraphMaker {
         }
     }
 
+    // ************************************************************************
+    // Create new element
+    // ************************************************************************
+
     static newEdgeElementAt(place) {
         const edgeTemplate = document.getElementById('edge-g-template');
         const gElement = edgeTemplate.cloneNode(true);
         const edgeElement = gElement.children[0];
         const foreignObjectElement = gElement.children[1];
-        const labelElement = foreignObjectElement.children[0];
         const animateMotionElement = gElement.children[3].children[0];
         gElement.setAttributeNS(null, 'id', '');
         let i = 0;
@@ -64,10 +67,7 @@ class GraphMaker {
         animateMotionElement.setAttributeNS(null, 'path', dString);
         foreignObjectElement.setAttributeNS(null, 'x', place.x);
         foreignObjectElement.setAttributeNS(null, 'y', place.y);
-        labelElement.oninput = onEdgeLabelInput;
-        labelElement.ondblclick = onEdgeLabelDoubleClick;
-        labelElement.onfocusout = onEdgeLabelFocusOut;
-        labelElement.onmousedown = onEdgeLabelMouseDown;
+        this.setEdgeEventListeners(edgeElement);
         return gElement;
     }
 
@@ -75,7 +75,6 @@ class GraphMaker {
         const stateTemplate = document.getElementById('state-g-template');
         const gElement = stateTemplate.cloneNode(true);
         const circleElement = gElement.children[0];
-        const labelElement = gElement.children[2].children[0];
         gElement.setAttributeNS(null, 'id', '');
         const translate = `translate(${position.x}, ${position.y})`;
         gElement.setAttributeNS(null, 'transform', translate);
@@ -84,7 +83,34 @@ class GraphMaker {
             i += 1;
         }
         circleElement.setAttributeNS(null, 'id', `s${i}`);
-        labelElement.oninput = onStateLabelInput;
+        this.setStateEventListeners(circleElement);
         return gElement;
+    }
+
+    // ************************************************************************
+    // Set Event Listeners
+    // ************************************************************************
+
+    static setEdgeEventListeners(edgeElement) {
+        const labelElement = edgeElement.parentNode.children[1].children[0];
+        labelElement.oninput = inputEdgeLabel;
+        labelElement.onfocusout = focusoutEdgeLabel;
+        // Set this way because of WebKit
+        const animateElement = edgeElement.parentNode.children[3].children[0];
+        animateElement.setAttributeNS(null, 'onbegin', 'beginEdgeAnimate(event)');
+        animateElement.setAttributeNS(null, 'onend', 'endEdgeAnimate(event)');
+    }
+
+    static setStateEventListeners(stateElement) {
+        stateElement.ondblclick = dblclickState;
+        const gElement = stateElement.parentNode;
+        const labelElement = gElement.children[2].children[0];
+        labelElement.oninput = inputStateLabel;
+        const innerAnimateElement = gElement.children[1].children[0];
+        innerAnimateElement.setAttributeNS(null, 'onbegin', 'beginStateAnimate(event)');
+        innerAnimateElement.setAttributeNS(null, 'onend', 'endStateAnimate(event)');
+        const outerAnimateElement = gElement.children[0].children[0];
+        outerAnimateElement.setAttributeNS(null, 'onbegin', 'beginStateAnimate(event)');
+        outerAnimateElement.setAttributeNS(null, 'onend', 'endStateAnimate(event)');
     }
 }
