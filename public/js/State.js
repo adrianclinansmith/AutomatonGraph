@@ -26,9 +26,11 @@ class State {
 
     addInput(input) {
         const storedInputsArray = this._storedInputsArray();
-        storedInputsArray.push(input);
-        const storedInputsString = Util.arrayToCsvString(storedInputsArray);
-        this.element.setAttributeNS(null, 'data-input', storedInputsString);
+        if (!storedInputsArray.includes(input)) {
+            storedInputsArray.push(input);
+            const csvString = Util.arrayToCsvString(storedInputsArray);
+            this.element.setAttributeNS(null, 'data-input', csvString);
+        }
     }
 
     addOutEdge(edge) {
@@ -152,6 +154,7 @@ class State {
     setLabelText(textString, textColor = '', dontStoreValue = false) {
         const textInputElement = this._textInputElement();
         textInputElement.setAttributeNS(null, 'value', textString);
+        textInputElement.value = textString;
         textInputElement.style.color = textColor;
         const event = new Event('input', {
             bubbles: true,

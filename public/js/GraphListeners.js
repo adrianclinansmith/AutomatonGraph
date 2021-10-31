@@ -88,6 +88,7 @@ function beginStateAnimate(event) {
     graph.numberOfActiveStates++;
     graph.anInputWasAccepted = false;
     const state = new State(event.target);
+    console.log('state inputString: ' + state.inputString());
     state.setLabelText(state.inputString(), 'orange', true);
 }
 

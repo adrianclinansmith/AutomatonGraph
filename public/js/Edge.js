@@ -233,13 +233,12 @@ class Edge {
 
     _addInput(input) {
         input = input === '' ? ' ' : input;
-        const storedInputs = this._storedInputsArray();
-        if (storedInputs.includes(input)) {
-            return;
+        const storedInputsArray = this._storedInputsArray();
+        if (!storedInputsArray.includes(input)) {
+            storedInputsArray.push(input);
+            const csvString = Util.arrayToCsvString(storedInputsArray);
+            this.element.setAttributeNS(null, 'data-input', csvString);
         }
-        storedInputs.push(input);
-        const storedInputsString = Util.arrayToCsvString(storedInputs);
-        this.element.setAttributeNS(null, 'data-input', storedInputsString);
     }
 
     _animateMotionElement() {
