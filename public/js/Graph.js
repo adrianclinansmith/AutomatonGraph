@@ -11,7 +11,8 @@ class Graph {
         this.selectedObject = null;
         this.temporaryEdge = null;
         this.newStateAngle = Math.PI / -2;
-        this.numberOfActiveStates = 0;
+        this.stateAnimateArray = [];
+        this.edgeAnimateArray = [];
         this.inputs = [];
         this.currentLineNo = 0;
         this.acceptedAll = true;
@@ -35,6 +36,36 @@ class Graph {
         const stategElement = GraphMaker.newStateElementAt(centerPosition);
         this.svg.appendChild(stategElement);
         return new State(stategElement);
+    }
+
+    addToAnimateArray(stateOrEdge) {
+        let animateArray = this.edgeAnimateArray;
+        if (stateOrEdge instanceof State) {
+            animateArray = this.stateAnimateArray;
+        }
+        if (!animateArray.find(obj => obj.equals(stateOrEdge))) {
+            animateArray.push(stateOrEdge);
+        }
+    }
+
+    removeFromAnimateArray(stateOrEdge) {
+        if (stateOrEdge instanceof State) {
+            let newArray = this.stateAnimateArray;
+            newArray = newArray.filter(obj => !obj.equals(stateOrEdge));
+            this.stateAnimateArray = newArray;
+        } else {
+            let newArray = this.edgeAnimateArray;
+            newArray = newArray.filter(obj => !obj.equals(stateOrEdge));
+            this.edgeAnimateArray = newArray;
+        }
+    }
+
+    animateEdges() {
+        this.edgeAnimateArray.forEach(edge => edge.animate());
+    }
+
+    animateStates() {
+        this.stateAnimateArray.forEach(state => state.animate());
     }
 
     animateNextInput() {
@@ -114,19 +145,17 @@ class Graph {
         if (this.currentLineNo >= this.inputs.length) {
             return -1;
         }
-        this.numberOfActiveStates = 0;
-        let numberAccempted = 0;
         let initialInput = this.inputs[this.currentLineNo];
         if (initialInput === '') {
             initialInput = ' ';
         }
         for (const initialEdge of this._allInitialEdges()) {
             if (initialEdge.consumeInput(initialInput)) {
-                initialEdge.animate();
-                numberAccempted++;
+                this.addToAnimateArray(initialEdge);
             }
         }
-        return numberAccempted;
+        this.animateEdges();
+        return this.edgeAnimateArray.length;
     }
 
     startTemporaryEdge(element, position) {

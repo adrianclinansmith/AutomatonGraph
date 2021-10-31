@@ -53,14 +53,17 @@ function beginEdgeAnimate(event) {
 }
 
 function endEdgeAnimate(event) {
+    console.log('edge animation end');
     const edge = new Edge(event.target);
+    graph.removeFromAnimateArray(edge);
     if (edge.hasNoInputs()) {
         return;
     }
-    console.log(`${edge.id()}: END edge animation`);
-    console.log(`  Stored inputs: "${edge._storedInputsArray()}"`);
     edge.dumpInputsToHead();
-    edge.head.animate();
+    graph.addToAnimateArray(edge.head);
+    if (graph.edgeAnimateArray.length === 0) {
+        graph.animateStates();
+    }
 }
 
 function focusoutEdgeLabel(event) {
@@ -85,22 +88,17 @@ function inputEdgeLabel(event) {
 // ************************************************************************
 
 function beginStateAnimate(event) {
-    graph.numberOfActiveStates++;
-    graph.anInputWasAccepted = false;
     const state = new State(event.target);
-    console.log('state inputString: ' + state.inputString());
     state.setLabelText(state.inputString(), 'orange', true);
 }
 
 function endStateAnimate(event) {
     const state = new State(event.target);
     state.setLabelText(state.labelValue());
+    graph.removeFromAnimateArray(state);
     if (state.hasNoInputs()) {
         return;
     }
-    console.log(`${state.id()}: END state animation`);
-    console.log(`  Stored inputs: "${state._storedInputsArray()}"`);
-    graph.numberOfActiveStates--;
     let input;
     while ((input = state.popInput())) {
         if (input === ' ' && state.isGoal()) {
@@ -109,13 +107,16 @@ function endStateAnimate(event) {
         }
         for (const outEdge of state.outEdges()) {
             if (outEdge.consumeInput(input)) {
-                outEdge.animate();
-                graph.anInputWasAccepted = true;
+                graph.addToAnimateArray(outEdge);
             }
         }
     }
-    if (graph.numberOfActiveStates === 0 && !graph.anInputWasAccepted) {
+    const numberOfStatesToAnimate = graph.stateAnimateArray.length;
+    const numberOfEdgesToAnimate = graph.edgeAnimateArray.length;
+    if (numberOfStatesToAnimate === 0 && numberOfEdgesToAnimate === 0) {
         page.finishedInputLineAndAccept(false);
+    } else if (numberOfStatesToAnimate === 0) {
+        graph.animateEdges();
     }
 }
 

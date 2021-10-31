@@ -90,6 +90,10 @@ class Edge {
         this._controlElement().style.opacity = '0';
     }
 
+    equals(otherEdge) {
+        return otherEdge instanceof Edge && otherEdge.id() === this.id();
+    }
+
     focusLabel() {
         const labelElement = this._labelElement();
         labelElement.style['user-select'] = 'all';
