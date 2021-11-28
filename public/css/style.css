@@ -1,26 +1,36 @@
 body {
     background: #333;
     color: #fff;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-anchor: none;
     position: relative;
     text-align: center;
     -webkit-user-select: none;
     user-select: none;
+    scroll-margin-top: 0;
+}
+
+#buttonsDiv {
+    text-align: left;
+    padding-left: 7.5%;
 }
 
 input:focus, select:focus {
     outline: none;
 }
 
-.inputArea {
+button {
+    border: black;
+} 
+
+#inputEditor {
     border: none;
     font-family: Monaco, monospace;
     font-size: 20px;
     height: 500px;
     resize: none;
-}
-
-#inputEditor {
-    width: 1000px;
+    width: 1200px;
 }
 
 #resultLabel {

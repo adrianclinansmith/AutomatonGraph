@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- src: https://svgwg.org/specs/ -->
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
@@ -11,7 +12,7 @@
 	<!-- graph container -->
 	<div id="svgDiv">
 		<!-- svg graph -->
-		<svg xmlns="http://www.w3.org/2000/svg" class='svg-graph' height="500" width="1000" 
+		<svg xmlns="http://www.w3.org/2000/svg" class='svg-graph' height="500" width="1200" 
 			 style="background-color:white;" id="svg">
 			 <!-- graph style  -->
 			<style>
@@ -137,19 +138,21 @@
 			  <!-- graph elements (to be populated) -->
 		</svg>
 	</div>
-	<label id="resultLabel"></label>
 	<!-- buttons  -->
-	<button id="playPauseButton">▶︎</button>
-	<button id="stopButton">◾️</button>
-	&nbsp
-	<button id="newStateButton">new state</button>
-	<button id="newEdgeButton">new edge</button>
-	<button id="downloadButton">download</button>
-	<input type="file" name="upload" id="uploadButton">
-	<br><br><br>
+	<div id="buttonsDiv">
+		<button id="playPauseButton">▶︎</button>
+		<button id="stopButton">◾️</button>
+		&nbsp
+		<button id="newStateButton">new state</button>
+		<button id="newEdgeButton">new edge</button>
+		<button id="downloadButton">download</button>
+		<input type="file" name="upload" id="uploadButton">
+		<label id="resultLabel"></label>
+	</div>
+	<br><br>
 	
 	<!-- User Input -->
-	<textarea class="inputArea" id="inputEditor" spellcheck="false"
+	<textarea id="inputEditor" spellcheck="false" placeholder="Type input here..."
 	autocomplete="off" autocapitalize="off" cols="77" rows="20"></textarea>
 
 	

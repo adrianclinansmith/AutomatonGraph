@@ -134,6 +134,28 @@ class State {
         return Number(rString);
     }
 
+    remove() {
+        for (const edge of this._edges('data-inedges')) {
+            edge.remove();
+        }
+        for (const edge of this._edges('data-outedges')) {
+            edge.remove();
+        }
+        this._gElement().remove();
+    }
+
+    removeInEdge(edge) {
+        const string = this.element.getAttributeNS(null, 'data-inedges');
+        const newString = string.replace(`${edge.id()} `, '');
+        this.element.setAttributeNS(null, 'data-inedges', newString);
+    }
+
+    removeOutEdge(edge) {
+        const string = this.element.getAttributeNS(null, 'data-outedges');
+        const newString = string.replace(`${edge.id()} `, '');
+        this.element.setAttributeNS(null, 'data-outedges', newString);
+    }
+
     run() {
         for (const outEdge of this._edges('data-outedges')) {
             outEdge.animate();

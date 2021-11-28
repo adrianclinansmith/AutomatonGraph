@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* global Edge graph GraphMaker page State */
 
+// svg specs: https://svgwg.org/specs/animations/
+
 // ************************************************************************
 // Graph Event Listeners
 // ************************************************************************
@@ -33,7 +35,7 @@ function mouseupGraph(event) {
     if (page.newEdgeButton.isPressed) {
         graph.setOrDeleteTemporaryEdge();
     }
-    if (graph.selectedObject instanceof Edge) {
+    if (graph.selectedObject) {
         graph.selectedObject.focusLabel();
     }
 }
@@ -72,6 +74,7 @@ function focusoutEdgeLabel(event) {
 }
 
 function inputEdgeLabel(event) {
+    console.log('input edge label');
     const labelElement = event.target;
     labelElement.setAttributeNS(null, 'value', labelElement.value);
     labelElement.setAttributeNS(null, 'size', labelElement.value.length || 1);
@@ -122,10 +125,11 @@ function endStateAnimate(event) {
 
 function dblclickState(event) {
     const state = new State(event.target);
-    state.focusLabel();
+    state.toggleGoal();
 }
 
 function inputStateLabel(event) {
+    console.log('input state label');
     const labelElement = event.target;
     const value = labelElement.value;
     labelElement.setAttributeNS(null, 'value', value);

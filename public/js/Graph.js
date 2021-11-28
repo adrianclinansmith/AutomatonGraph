@@ -171,6 +171,7 @@ class Graph {
     }
 
     stopAnimation() {
+        this.svg.unpauseAnimations();
         const allStatesAndEdges = [...this._allStates(), ...this._allEdges()];
         allStatesAndEdges.forEach(object => object.clearStoredInputs());
         const allAnimations = this.svg.querySelectorAll('.animate');

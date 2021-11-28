@@ -18,6 +18,14 @@ let graph = initGraph(true);
 
 // functions
 
+document.addEventListener('keydown', event => {
+    const pressedDelete = event.code === 'Backspace';
+    if (pressedDelete && graph.selectedObject?.labelValue() === '') {
+        graph.selectedObject.remove();
+        graph.selectedObject = null;
+    }
+});
+
 page.clearInputScore = function() {
     page.inputEditor.value = page.inputEditor.value.replace(/( ✓)|( ❌)/g, '');
 };
@@ -31,6 +39,7 @@ page.finishedInputLineAndAccept = function(accepted) {
     if (triggeredInitialEdges === 0) {
         page.finishedInputLineAndAccept(false);
     } else if (triggeredInitialEdges < 0) {
+        page.playPauseButton.innerHTML = '▶︎';
         page.resultLabel.style.color = graph.acceptedAll ? 'green' : 'red';
         page.resultLabel.innerHTML = graph.acceptedAll ? 'accepted' : 'rejected';
     }
@@ -96,6 +105,16 @@ page.newStateButton.addEventListener('click', () => {
 });
 
 page.playPauseButton.addEventListener('click', () => {
+    if (graph.svg.animationsPaused()) {
+        graph.svg.unpauseAnimations();
+        page.playPauseButton.innerHTML = '‖';
+        return;
+    } else if (page.playPauseButton.innerHTML === '‖') {
+        graph.svg.pauseAnimations();
+        page.playPauseButton.innerHTML = '▶︎';
+        return;
+    }
+    page.playPauseButton.innerHTML = '‖';
     document.getElementById('resultLabel').innerHTML = '';
     page.clearInputScore();
     const inputString = page.inputEditor.value.replace(/[ ]+/g, '');
@@ -109,6 +128,7 @@ page.playPauseButton.addEventListener('click', () => {
 });
 
 page.stopButton.addEventListener('click', () => {
+    page.playPauseButton.innerHTML = '▶︎';
     graph.stopAnimation();
 });
 

@@ -109,6 +109,10 @@ class Edge {
         return this.element.getAttributeNS(null, 'id');
     }
 
+    labelValue() {
+        return this._labelElement().value;
+    }
+
     moveControlTo(point) {
         if (this._isInitialEdge()) {
             const p02 = this.head.intersectTowards(point, 7);
@@ -154,6 +158,10 @@ class Edge {
     }
 
     remove() {
+        this.head?.removeInEdge(this);
+        if (!this._isInitialEdge()) {
+            this.tail?.removeOutEdge(this);
+        }
         this._gElement().remove();
     }
 
@@ -264,6 +272,9 @@ class Edge {
 
     _calculateLabelAnchor(t, applyBottomAnchor) {
         const m = this._bezier().slopeAt(t);
+        if (isNaN(m)) {
+            return { x: 0, y: 0 };
+        }
         const labelWidth = this._labelElement().clientWidth;
         const labelHeight = this._labelElement().clientHeight;
         let x = labelWidth - Util.within(labelWidth * (0.5 + m), 0, labelWidth);
