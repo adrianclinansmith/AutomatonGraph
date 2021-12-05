@@ -254,7 +254,8 @@ class Edge {
     }
 
     _animateMotionElement() {
-        return this._gElement().children[3].children[0];
+        const gElement = this._gElement();
+        return gElement.getElementsByClassName('edge-animate')[0];
     }
 
     _axisOfSymmetry() {
@@ -302,11 +303,13 @@ class Edge {
     }
 
     _controlElement() {
-        return this._gElement().children[2];
+        const gElement = this._gElement();
+        return gElement.getElementsByClassName('edge-control')[0];
     }
 
     _foreignObjectElement() {
-        return this._gElement().children[1];
+        const gElement = this._gElement();
+        return gElement.getElementsByClassName('edge-foreign-object')[0];
     }
 
     _gElement() {
@@ -326,7 +329,8 @@ class Edge {
     }
 
     _labelElement() {
-        return this._foreignObjectElement().children[0];
+        const gElement = this._gElement();
+        return gElement.getElementsByClassName('edge-label')[0];
     }
 
     _labelPosition() {

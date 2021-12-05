@@ -21,6 +21,7 @@ let graph = initGraph(true);
 document.addEventListener('keydown', event => {
     const pressedDelete = event.code === 'Backspace';
     if (pressedDelete && graph.selectedObject?.labelValue() === '') {
+        graph.removeFromAnimateArray(graph.selectedObject);
         graph.selectedObject.remove();
         graph.selectedObject = null;
     }
@@ -94,9 +95,11 @@ page.downloadButton.addEventListener('click', () => {
 page.newEdgeButton.addEventListener('click', () => {
     page.newEdgeButton.isPressed = !page.newEdgeButton.isPressed;
     if (page.newEdgeButton.isPressed) {
-        page.newEdgeButton.style.borderStyle = 'inset';
+        page.newEdgeButton.style.color = 'grey';
+        page.newEdgeButton.style.borderColor = 'grey';
     } else {
-        page.newEdgeButton.style.borderStyle = '';
+        page.newEdgeButton.style.color = '';
+        page.newEdgeButton.style.borderColor = '';
     }
 });
 

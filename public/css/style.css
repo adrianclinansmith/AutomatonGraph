@@ -21,8 +21,22 @@ input:focus, select:focus {
 }
 
 button {
-    border: black;
+    background-color: #333;
+    border: 0px;
+    border-top: 2px solid white;
+    border-bottom: 2px solid white;
+    color: white;
 } 
+
+button:hover { 
+    border-color: lightblue;
+    color: lightblue;
+}
+
+button:active {
+    border-color: grey;
+    color: grey;
+}
 
 #inputEditor {
     border: none;

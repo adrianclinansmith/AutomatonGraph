@@ -211,7 +211,8 @@ class State {
     }
 
     _animateElement() {
-        return this.element.children[0];
+        const gElement = this._gElement();
+        return gElement.getElementsByClassName('state-animate')[0];
     }
 
     _calculateEdgeP1Statuses() {
@@ -248,11 +249,13 @@ class State {
     }
 
     _innerAnimateElement() {
-        return this._innerCircleElement().children[0];
+        const gElement = this._gElement();
+        return gElement.getElementsByClassName('state-inner-animate')[0];
     }
 
     _innerCircleElement() {
-        return this._gElement().children[1];
+        const gElement = this._gElement();
+        return gElement.getElementsByClassName('state-goal-inner-circle')[0];
     }
 
     _storedInputsArray() {
@@ -261,6 +264,7 @@ class State {
     }
 
     _textInputElement() {
-        return this._gElement().children[2].children[0];
+        const gElement = this._gElement();
+        return gElement.getElementsByClassName('state-label')[0];
     }
 }
