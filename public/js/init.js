@@ -93,6 +93,7 @@ function initGraph(addDefaultElements) {
 // ************************************************************************
 
 page.downloadButton.addEventListener('click', () => {
+    graph.deselect();
     const downloadLink = document.createElement('a');
     downloadLink.href = URL.createObjectURL(graph.xmlBlob());
     downloadLink.download = 'mygraph.svg';
@@ -117,6 +118,7 @@ page.newStateButton.addEventListener('click', () => {
 });
 
 page.playPauseButton.addEventListener('click', () => {
+    graph.deselect();
     if (graph.svg.animationsPaused()) {
         graph.svg.unpauseAnimations();
         page.playPauseButton.innerHTML = '‖';
