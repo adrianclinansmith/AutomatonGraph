@@ -21,11 +21,15 @@ let graph;
 // ************************************************************************
 
 window.onload = function() {
-    console.log('page loaded');
     if (navigator.userAgent.indexOf('Firefox') !== -1) {
         console.log('firefox');
     } else if (navigator.userAgent.indexOf('Chrome') !== -1) {
-        console.log('chrome');
+        const stateGTemplate = document.getElementById('state-g-template');
+        const foTemplate = stateGTemplate.children[2];
+        const x = `${parseInt(foTemplate.getAttributeNS(null, 'x')) - 1}`;
+        const y = `${parseInt(foTemplate.getAttributeNS(null, 'y')) + 2}`;
+        foTemplate.setAttributeNS(null, 'x', x);
+        foTemplate.setAttributeNS(null, 'y', y);
     }
     graph = initGraph();
     const midx = graph.svg.clientWidth / 2;

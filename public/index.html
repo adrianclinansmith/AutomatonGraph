@@ -14,7 +14,7 @@
 		<svg xmlns="http://www.w3.org/2000/svg" class='svg-graph' height="500" width="1200" 
 			 style="background-color:white;" id="svg">
 			 <!-- graph style  -->
-			<style>
+			<style id="graph-style">
 				.edge {
 					fill: none;
 					stroke: black;
@@ -139,18 +139,23 @@
 	</div>
 	<!-- buttons  -->
 	<div id="buttonsDiv">
-		<button id="playPauseButton">▶</button>
-		<button id="stopButton">▣</button>
-		<button id="newStateButton">new state</button>
-		<button id="newEdgeButton">new edge</button>
-		<button id="downloadButton">download</button>
-		<input type="file" name="upload" id="uploadButton">
+		<button id="playPauseButton" class="button">▶</button>
+		<button id="stopButton" class="button">▣</button>
+		<button id="newStateButton" class="button">new state</button>
+		<button id="newEdgeButton" class="button">new edge</button>
+		<button id="downloadButton" class="button">download</button>
+		<button for="uploadButton" class="button">
+			upload
+			<input type="file" name="upload" id="uploadButton">
+		</label>
 	</div>
 	<br><br>
 	<label id="resultLabel"></label>
 	<br>
 	<!-- User Input -->
 	<textarea id="inputEditor" spellcheck="false" placeholder="Type input here...
+
+Each line of input will run consecutively.
 
 Draw edge: press the 'new edge' button then click and drag.
 Edge label: click edge and start typing.
