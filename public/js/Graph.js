@@ -35,7 +35,9 @@ class Graph {
         centerPosition = centerPosition || { x, y };
         const stategElement = GraphMaker.newStateElementAt(centerPosition);
         this.svg.appendChild(stategElement);
-        return new State(stategElement);
+        const state = new State(stategElement);
+        state.setLabelText(state.id());
+        return state;
     }
 
     addToAnimateArray(stateOrEdge) {

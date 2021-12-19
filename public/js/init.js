@@ -14,7 +14,11 @@ page.uploadButton = document.getElementById('uploadButton');
 page.inputEditor = document.getElementById('inputEditor');
 page.resultLabel = document.getElementById('resultLabel');
 
-let graph = initGraph(true);
+let graph;
+
+// ************************************************************************
+// Page Load
+// ************************************************************************
 
 window.onload = function() {
     console.log('page loaded');
@@ -23,9 +27,25 @@ window.onload = function() {
     } else if (navigator.userAgent.indexOf('Chrome') !== -1) {
         console.log('chrome');
     }
+    graph = initGraph();
+    const midx = graph.svg.clientWidth / 2;
+    const midy = graph.svg.clientHeight / 2;
+    const s0 = graph.addNewState({ x: midx - 100, y: midy });
+    const s1 = graph.addNewState({ x: midx + 100, y: midy });
+    s1.toggleGoal();
+    graph.startTemporaryEdge(null, { x: s0.x, y: midy - 100 });
+    graph.temporaryEdgeHeadTo(s0.element, null);
+    graph.setOrDeleteTemporaryEdge();
+    const conectEdge = graph.startTemporaryEdge(s0.element, null);
+    graph.temporaryEdgeHeadTo(s1.element, null);
+    graph.setOrDeleteTemporaryEdge();
+    conectEdge.setLabelText('a,b');
+    graph.deselect();
 };
 
-// functions
+// ************************************************************************
+// Functions
+// ************************************************************************
 
 document.addEventListener('keydown', event => {
     const pressedDelete = event.code === 'Backspace';
@@ -55,7 +75,7 @@ page.finishedInputLineAndAccept = function(accepted) {
     }
 };
 
-function initGraph(addDefaultElements) {
+function initGraph() {
     const svg = document.getElementById('svg');
     svg.addEventListener('mousedown', mousedownGraph);
     svg.addEventListener('mousemove', mousemoveGraph);
@@ -69,23 +89,7 @@ function initGraph(addDefaultElements) {
     for (const edgeElement of edgeElements) {
         GraphMaker.setEdgeEventListeners(edgeElement);
     }
-    const newGraph = new Graph(svg);
-    if (addDefaultElements) {
-        const s0 = newGraph.addNewState({ x: 400, y: 250 });
-        const s1 = newGraph.addNewState({ x: 600, y: 250 });
-        s0.setLabelText('s0');
-        s1.setLabelText('s1');
-        s1.toggleGoal();
-        newGraph.startTemporaryEdge(null, { x: 400, y: 150 });
-        newGraph.temporaryEdgeHeadTo(s0.element, null);
-        newGraph.setOrDeleteTemporaryEdge();
-        const conectEdge = newGraph.startTemporaryEdge(s0.element, null);
-        newGraph.temporaryEdgeHeadTo(s1.element, null);
-        newGraph.setOrDeleteTemporaryEdge();
-        conectEdge.setLabelText('a,b');
-        newGraph.deselect();
-    }
-    return newGraph;
+    return new Graph(svg);
 }
 
 // ************************************************************************
