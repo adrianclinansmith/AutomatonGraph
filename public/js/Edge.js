@@ -137,6 +137,27 @@ class Edge {
         this._setDAndPositionElements(p0, p1, p2);
     }
 
+    // moveLabelTo(point) {
+    //     if (point === undefined) {
+    //         this._setLabelAt(0.51);
+    //         return;
+    //     }
+    //     const foElement = this._foreignObjectElement();
+    //     point.x -= this.labelOffset.x;
+    //     point.y -= this.labelOffset.y;
+    //     const t = this._bezier().tClosestTo(point);
+    //     const pointOnCurve = this._bezier().pointAt(t);
+    //     const m = this._bezier().slopeAt(t);
+    //     console.log(`m: ${m}`);
+    //     if (m < 0) {
+    //         pointOnCurve.x += this._labelElement().clientWidth;
+    //     }
+    //     pointOnCurve.y -= this._labelElement().clientHeight;
+    //     foElement.setAttributeNS(null, 'x', pointOnCurve.x);
+    //     foElement.setAttributeNS(null, 'y', pointOnCurve.y);
+    //     this.element.setAttributeNS(null, 'data-labelt', t);
+    // }
+
     moveLabelTo(point) {
         let t = Number(this.element.getAttributeNS(null, 'data-labelt'));
         if (point === undefined) {
@@ -150,11 +171,12 @@ class Edge {
         point.y -= this.labelOffset.y - anchor.y;
         t = this._bezier().tClosestTo(point);
         t = Util.within(t, 0, 1);
-        if (this._isLoop() && t > 0.3 && t < 0.730) {
-            this._setLabelAt(0.515, applyBottomAnchor);
-        } else {
-            this._setLabelAt(t, applyBottomAnchor);
+        const heightToBase = this._bezier().heightToBaseRatio();
+        console.log(`ratio: ${heightToBase}`);
+        if (heightToBase > 1 && t > 0.3 && t < 0.730) {
+            t = 0.515;
         }
+        this._setLabelAt(t, applyBottomAnchor);
     }
 
     remove() {

@@ -70,6 +70,14 @@ class Qbezier {
         return { p0: this.p0, p1: this.p1, p2: this.p2 };
     }
 
+    heightToBaseRatio() {
+        const { p0, p1, p2 } = this.controlPoints();
+        const basePoint = Util.midpoint(p0, p2);
+        const height = Util.distanceBetween(basePoint, p1);
+        const base = Util.distanceBetween(p0, p2);
+        return height / base;
+    }
+
     /*
     Returns the t value where the curve is horizontal, meaning the derivative
     with respect to y is zero.

@@ -9,6 +9,8 @@
 
 function mousedownGraph(event) {
     graph.mouseIsDown = true;
+    event.preventDefault();
+    document.activeElement.blur();
     const mousePosition = graph.getMousePosition(event);
     const selectedObject = graph.select(event.target, mousePosition);
     if (event.altKey && selectedObject instanceof State) {

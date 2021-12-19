@@ -5,10 +5,9 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="./css/style.css">
-	<title>DFA</title>
+	<title>SVG Graph</title>
 </head>
 <body>
-	<h1>DFA</h1>
 	<!-- graph container -->
 	<div id="svgDiv">
 		<!-- svg graph -->
@@ -140,21 +139,24 @@
 	</div>
 	<!-- buttons  -->
 	<div id="buttonsDiv">
-		<button id="playPauseButton">▶︎</button>
-		<button id="stopButton">◽️</button>
+		<button id="playPauseButton">▶</button>
+		<button id="stopButton">▣</button>
 		<button id="newStateButton">new state</button>
 		<button id="newEdgeButton">new edge</button>
 		<button id="downloadButton">download</button>
 		<input type="file" name="upload" id="uploadButton">
-		<label id="resultLabel"></label>
 	</div>
 	<br><br>
-	
+	<label id="resultLabel"></label>
+	<br>
 	<!-- User Input -->
-	<textarea id="inputEditor" spellcheck="false" placeholder="Type input here..."
-	autocomplete="off" autocapitalize="off" cols="77" rows="20"></textarea>
+	<textarea id="inputEditor" spellcheck="false" placeholder="Type input here...
 
-	
+Draw edge: press the 'new edge' button then click and drag.
+Edge label: click edge and start typing.
+Goal state: double click a state. 
+"
+	autocomplete="off" autocapitalize="off" cols="77" rows="20"></textarea>
 	<!-- scripts  -->
 	<script src="./js/Util.js"></script>
 	<script src="./js/Qbezier.js"></script>

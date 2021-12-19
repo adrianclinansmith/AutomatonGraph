@@ -16,6 +16,15 @@ page.resultLabel = document.getElementById('resultLabel');
 
 let graph = initGraph(true);
 
+window.onload = function() {
+    console.log('page loaded');
+    if (navigator.userAgent.indexOf('Firefox') !== -1) {
+        console.log('firefox');
+    } else if (navigator.userAgent.indexOf('Chrome') !== -1) {
+        console.log('chrome');
+    }
+};
+
 // functions
 
 document.addEventListener('keydown', event => {
