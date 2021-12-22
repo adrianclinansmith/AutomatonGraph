@@ -25,6 +25,10 @@
 					opacity: 0;
 				}
 
+				.edge-label-controller {
+					opacity: 0;
+				}
+
 				.edge-foreign-object {
 					text-align: left;
 					background-color: transparent;
@@ -100,6 +104,7 @@
 					<circle class="animation-circle" r="5px">
 						<animateMotion begin="indefinite" class="animate edge-animate" dur="2s" path />
 					</circle>
+					<circle class="edge-label-controller" r="5px" cx cy></circle>
 				</g>
 				<!-- state template  -->
 				<g class="state-g" id="state-g-template" transform>
@@ -155,11 +160,12 @@
 	<!-- User Input -->
 	<textarea id="inputEditor" spellcheck="false" placeholder="Type input here...
 
-Each line of input will run consecutively.
+ Each line of input will run consecutively.
 
-Draw edge: press the 'new edge' button then click and drag.
-Edge label: click edge and start typing.
-Goal state: double click a state. 
+ Draw edge: press the 'new edge' button then click and drag.
+ Edge label: click edge and start typing.
+ Goal state: double click a state. 
+ Delete edge/state: delete all the text first then press delete. 
 "
 	autocomplete="off" autocapitalize="off" cols="77" rows="20"></textarea>
 	<!-- scripts  -->

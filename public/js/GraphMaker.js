@@ -15,8 +15,12 @@ class GraphMaker {
             return element.parentNode.parentNode.children[0];
         } else if (className === 'edge-label') {
             return element.parentNode.parentNode.children[0];
-        } else {
+        } else if (className === 'edge-label-controller') {
+            return element.parentNode.children[0];
+        } else if (className === 'edge') {
             return element;
+        } else {
+            return undefined;
         }
     }
 

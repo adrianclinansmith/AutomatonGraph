@@ -12,6 +12,7 @@ function mousedownGraph(event) {
     event.preventDefault();
     document.activeElement.blur();
     const mousePosition = graph.getMousePosition(event);
+    console.log(`mousedown: ${mousePosition.x},${mousePosition.y}`);
     const selectedObject = graph.select(event.target, mousePosition);
     if (event.altKey && selectedObject instanceof State) {
         selectedObject.toggleGoal();

@@ -114,6 +114,7 @@ class Graph {
             this.selectedObject.moveControlTo(position);
         } else if (this.selectedObject.labelSelected) {
             this.selectedObject.moveLabelTo(position);
+            console.log('label selected');
         }
     }
 

@@ -8,7 +8,8 @@ class Edge {
     constructor(element) {
         this.element = GraphMaker.baseEdgeElementFor(element);
         const selectedClass = element.getAttribute('class');
-        this.labelSelected = (selectedClass === 'edge-label');
+        // this.labelSelected = (selectedClass === 'edge-label');
+        this.labelSelected = (selectedClass === 'edge-label-controller');
         this.controlSelected = (selectedClass === 'edge-control');
         this.labelOffset = { x: 0, y: 0 };
         const tailId = this.element.getAttributeNS(null, 'data-tail');
@@ -88,6 +89,7 @@ class Edge {
         labelElement.style['user-select'] = 'none';
         labelElement.style['-webkit-user-select'] = 'none';
         this._controlElement().style.opacity = '0';
+        this._labelControllerElement().style.opacity = '0';
     }
 
     equals(otherEdge) {
@@ -137,46 +139,25 @@ class Edge {
         this._setDAndPositionElements(p0, p1, p2);
     }
 
-    // moveLabelTo(point) {
-    //     if (point === undefined) {
-    //         this._setLabelAt(0.51);
-    //         return;
-    //     }
-    //     const foElement = this._foreignObjectElement();
-    //     point.x -= this.labelOffset.x;
-    //     point.y -= this.labelOffset.y;
-    //     const t = this._bezier().tClosestTo(point);
-    //     const pointOnCurve = this._bezier().pointAt(t);
-    //     const m = this._bezier().slopeAt(t);
-    //     console.log(`m: ${m}`);
-    //     if (m < 0) {
-    //         pointOnCurve.x += this._labelElement().clientWidth;
-    //     }
-    //     pointOnCurve.y -= this._labelElement().clientHeight;
-    //     foElement.setAttributeNS(null, 'x', pointOnCurve.x);
-    //     foElement.setAttributeNS(null, 'y', pointOnCurve.y);
-    //     this.element.setAttributeNS(null, 'data-labelt', t);
-    // }
-
     moveLabelTo(point) {
-        let t = Number(this.element.getAttributeNS(null, 'data-labelt'));
-        if (point === undefined) {
-            this._setLabelAt(t);
-            return;
+        let t;
+        let anchorToBottom;
+        const bezier = this._bezier();
+        if (!point) {
+            t = Number(this.element.getAttributeNS(null, 'data-labelt'));
+        } else {
+            t = Util.within(bezier.tClosestTo(point), 0, 1);
+            anchorToBottom = bezier.pointIsDownOrBelowAt(t, point);
         }
-        const applyBottomAnchor = this._bezier().pointIsDownOrBelowAt(t, point);
-        console.log(`h t: ${this._bezier().horizontalT()}`);
-        const anchor = this._calculateLabelAnchor(t, applyBottomAnchor);
-        point.x -= this.labelOffset.x - anchor.x;
-        point.y -= this.labelOffset.y - anchor.y;
-        t = this._bezier().tClosestTo(point);
-        t = Util.within(t, 0, 1);
-        const heightToBase = this._bezier().heightToBaseRatio();
-        console.log(`ratio: ${heightToBase}`);
-        if (heightToBase > 1 && t > 0.3 && t < 0.730) {
-            t = 0.515;
-        }
-        this._setLabelAt(t, applyBottomAnchor);
+        const position = bezier.pointAt(t);
+        const anchor = this._calculateLabelAnchor(t, anchorToBottom);
+        const fo = this._foreignObjectElement();
+        fo.setAttributeNS(null, 'x', position.x - anchor.x);
+        fo.setAttributeNS(null, 'y', position.y - anchor.y);
+        const labelControllerElement = this._labelControllerElement();
+        labelControllerElement.setAttributeNS(null, 'cx', position.x);
+        labelControllerElement.setAttributeNS(null, 'cy', position.y);
+        this.element.setAttributeNS(null, 'data-labelt', t);
     }
 
     remove() {
@@ -206,6 +187,7 @@ class Edge {
 
     select(atPosition) {
         this.setColor('red');
+        this._labelControllerElement().style.opacity = '1';
         if (!this._isLoop()) {
             this._controlElement().style.opacity = '1';
         }
@@ -221,8 +203,10 @@ class Edge {
         const controlElement = this._controlElement();
         controlElement.style.stroke = color;
         controlElement.style.fill = color;
+        const labelControllerElement = this._labelControllerElement();
+        labelControllerElement.style.fill = color;
         const arrowUrl = 'url(#arrowhead' + (color ? `-${color})` : ')');
-        this.element.setAttributeNS(null, 'marker-end', arrowUrl);
+        this.element.setAttributeNS(null, 'marker-end', arrowUrl)
     }
 
     setHead(toPlace) {
@@ -355,6 +339,11 @@ class Edge {
         return gElement.getElementsByClassName('edge-label')[0];
     }
 
+    _labelControllerElement() {
+        const gElement = this._gElement();
+        return gElement.getElementsByClassName('edge-label-controller')[0];
+    }
+
     _labelPosition() {
         const fo = this._foreignObjectElement();
         const x = fo.getAttributeNS(null, 'x');
@@ -380,17 +369,7 @@ class Edge {
         this._animateMotionElement().setAttributeNS(null, 'path', dString);
         const vertex = this._vertexPosition();
         this._positionControlElementAt(vertex);
-        const t = Number(this.element.getAttributeNS(null, 'data-labelt'));
-        this._setLabelAt(t);
-    }
-
-    _setLabelAt(t, applyBottomAnchor) {
-        const position = this._bezier().pointAt(t);
-        const anchor = this._calculateLabelAnchor(t, applyBottomAnchor);
-        const fo = this._foreignObjectElement();
-        fo.setAttributeNS(null, 'x', position.x - anchor.x);
-        fo.setAttributeNS(null, 'y', position.y - anchor.y);
-        this.element.setAttributeNS(null, 'data-labelt', t);
+        this.moveLabelTo();
     }
 
     _storedInputsArray() {
