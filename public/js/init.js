@@ -11,6 +11,8 @@ page.newEdgeButton = document.getElementById('newEdgeButton');
 page.playPauseButton = document.getElementById('playPauseButton');
 page.stopButton = document.getElementById('stopButton');
 page.uploadButton = document.getElementById('uploadButton');
+page.helpButton = document.getElementById('helpButton');
+page.helpModalContainer = document.getElementById('helpModalContainer');
 page.inputEditor = document.getElementById('inputEditor');
 page.resultLabel = document.getElementById('resultLabel');
 
@@ -164,6 +166,14 @@ page.uploadButton.addEventListener('change', () => {
         (error) => {
             console.log(error);
         });
+});
+
+page.helpButton.addEventListener('click', () => {
+    page.helpModalContainer.style.display = 'flex';
+});
+
+page.helpModalContainer.addEventListener('click', (event) => {
+    page.helpModalContainer.style.display = 'none';
 });
 
 // ************************************************************************

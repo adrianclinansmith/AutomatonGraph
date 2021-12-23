@@ -66,6 +66,29 @@ input:focus, select:focus {
     display: none;
 }
 
+#helpModalContainer {
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+#helpModal {
+    background-color: white;
+    color: black;
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.5;
+    width: 550px;
+    height: 300px;
+    padding: 20px;
+    text-align: left;
+}
+
 /* 
 disable pointer-events: https://stackoverflow.com/questions/7700051 
 adjust text input width: https://stackoverflow.com/questions/3392493

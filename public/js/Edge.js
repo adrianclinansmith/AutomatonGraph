@@ -8,7 +8,6 @@ class Edge {
     constructor(element) {
         this.element = GraphMaker.baseEdgeElementFor(element);
         const selectedClass = element.getAttribute('class');
-        // this.labelSelected = (selectedClass === 'edge-label');
         this.labelSelected = (selectedClass === 'edge-label-controller');
         this.controlSelected = (selectedClass === 'edge-control');
         this.labelOffset = { x: 0, y: 0 };
@@ -206,7 +205,7 @@ class Edge {
         const labelControllerElement = this._labelControllerElement();
         labelControllerElement.style.fill = color;
         const arrowUrl = 'url(#arrowhead' + (color ? `-${color})` : ')');
-        this.element.setAttributeNS(null, 'marker-end', arrowUrl)
+        this.element.setAttributeNS(null, 'marker-end', arrowUrl);
     }
 
     setHead(toPlace) {

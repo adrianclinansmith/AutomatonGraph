@@ -153,21 +153,28 @@
 			upload
 			<input type="file" name="upload" id="uploadButton">
 		</label>
+		<button id="helpButton" class="button">help</button>
 	</div>
 	<br><br>
+	<!-- input results label  -->
 	<label id="resultLabel"></label>
 	<br>
 	<!-- User Input -->
-	<textarea id="inputEditor" spellcheck="false" placeholder="Type input here...
-
- Each line of input will run consecutively.
-
- Draw edge: press the 'new edge' button then click and drag.
- Edge label: click edge and start typing.
- Goal state: double click a state. 
- Delete edge/state: delete all the text first then press delete. 
-"
+	<textarea id="inputEditor" spellcheck="false" placeholder="Type input here..."
 	autocomplete="off" autocapitalize="off" cols="77" rows="20"></textarea>
+	<!-- help model  -->
+	<div id="helpModalContainer">
+		<div id="helpModal">
+			<h3>Draw</h3>
+			Draw edge: press the "new edge" button then click and drag on the graph.<br>
+			Edge label: click an edge and start typing.<br>
+			Toggle goal state: double click a state.<br>
+			Delete edge/state: click the element and delete its text then press delete.<br>
+			<h3>Input</h3>
+			Enter input as one or more lines of text.<br>
+			Each line will run independently from top to bottom.<br>
+		</div>
+	</div>
 	<!-- scripts  -->
 	<script src="./js/Util.js"></script>
 	<script src="./js/Qbezier.js"></script>
@@ -177,6 +184,5 @@
 	<script src="./js/Graph.js"></script> 
 	<script src="./js/GraphListeners.js"></script> 
 	<script src="./js/init.js"></script> 
-	<!-- <script src="./js/initExample.js"></script>  -->
 </body>
 </html>
