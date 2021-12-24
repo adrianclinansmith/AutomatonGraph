@@ -23,9 +23,9 @@ let graph;
 // ************************************************************************
 
 window.onload = function() {
-    if (navigator.userAgent.indexOf('Firefox') !== -1) {
-        console.log('firefox');
-    } else if (navigator.userAgent.indexOf('Chrome') !== -1) {
+    const firefox = navigator.userAgent.indexOf('Firefox') !== -1;
+    const chrome = navigator.userAgent.indexOf('Chrome') !== -1;
+    if (chrome || firefox) {
         const stateGTemplate = document.getElementById('state-g-template');
         const foTemplate = stateGTemplate.children[2];
         const x = `${parseInt(foTemplate.getAttributeNS(null, 'x')) - 1}`;
@@ -46,6 +46,10 @@ window.onload = function() {
     graph.temporaryEdgeHeadTo(s1.element, null);
     graph.setOrDeleteTemporaryEdge();
     conectEdge.setLabelText('a,b');
+    const loopEdge = graph.startTemporaryEdge(s1.element, null);
+    graph.temporaryEdgeHeadTo(s1.element, null);
+    graph.setOrDeleteTemporaryEdge();
+    loopEdge.setLabelText('c');
     graph.deselect();
 };
 

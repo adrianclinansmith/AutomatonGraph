@@ -12,7 +12,6 @@ function mousedownGraph(event) {
     event.preventDefault();
     document.activeElement.blur();
     const mousePosition = graph.getMousePosition(event);
-    console.log(`mousedown: ${mousePosition.x},${mousePosition.y}`);
     const selectedObject = graph.select(event.target, mousePosition);
     if (event.altKey && selectedObject instanceof State) {
         selectedObject.toggleGoal();
@@ -54,11 +53,10 @@ function mouseleaveGraph(event) {
 // ************************************************************************
 
 function beginEdgeAnimate(event) {
-    console.log('edge animation begin');
+    // nothing
 }
 
 function endEdgeAnimate(event) {
-    console.log('edge animation end');
     const edge = new Edge(event.target);
     graph.removeFromAnimateArray(edge);
     if (edge.hasNoInputs()) {
@@ -77,7 +75,6 @@ function focusoutEdgeLabel(event) {
 }
 
 function inputEdgeLabel(event) {
-    console.log('input edge label');
     const labelElement = event.target;
     labelElement.setAttributeNS(null, 'value', labelElement.value);
     labelElement.setAttributeNS(null, 'size', labelElement.value.length || 1);
@@ -132,7 +129,6 @@ function dblclickState(event) {
 }
 
 function inputStateLabel(event) {
-    console.log('input state label');
     const labelElement = event.target;
     const value = labelElement.value;
     labelElement.setAttributeNS(null, 'value', value);
