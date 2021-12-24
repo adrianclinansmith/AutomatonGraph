@@ -162,17 +162,28 @@
 	<!-- User Input -->
 	<textarea id="inputEditor" spellcheck="false" placeholder="Type input here..."
 	autocomplete="off" autocapitalize="off" cols="77" rows="20"></textarea>
-	<!-- help model  -->
+	<!-- help modal  -->
 	<div id="helpModalContainer">
 		<div id="helpModal">
-			<h3>Draw</h3>
-			Draw edge: press the "new edge" button then click and drag on the graph.<br>
-			Edge label: click an edge and start typing.<br>
-			Toggle goal state: double click a state.<br>
-			Delete edge/state: click the element and delete its text then press delete.<br>
-			<h3>Input</h3>
+			<h2>Draw State</h2>
+			<strong>Toggle goal state</strong>: double click a state.<br>
+			<strong>Delete</strong>: select the state/edge and delete its text then press delete.<br>
+			<h2>Draw Edge</h2>
+			<strong>Draw edge</strong>: press the "new edge" button then click and drag on the graph.
+			<ul>
+				<li>Initial edge: points from "nothing" to a state.</li>
+				<li>Regular edge: points from a state to a different state.</li>
+				<li>Self loop edge: points from a state to the same state.</li>
+			</ul>
+			Only these three edge types can be drawn.<br><br>
+			<strong>Edge label</strong>: click an edge and start typing.<br>
+			Each input the edge accepts is separated by a comma ','.<br>
+			An edge with no label takes any input as-is without consuming it.<br> 
+			<h2>Input</h2>
 			Enter input as one or more lines of text.<br>
-			Each line will run independently from top to bottom.<br>
+			Press play and each line will run independently from top to bottom.<br>
+			The graph will process input as a <a href="https://en.wikipedia.org/wiki/Finite-state_machine" target="_blank">finite state machine</a>.<br> 
+			It could be deterministic or nondeterministic, depending on how the graph is drawn.
 		</div>
 	</div>
 	<!-- scripts  -->

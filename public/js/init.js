@@ -173,7 +173,9 @@ page.helpButton.addEventListener('click', () => {
 });
 
 page.helpModalContainer.addEventListener('click', (event) => {
-    page.helpModalContainer.style.display = 'none';
+    if (event.target.tagName.toLowerCase() !== 'a') {
+        page.helpModalContainer.style.display = 'none';
+    }
 });
 
 // ************************************************************************
