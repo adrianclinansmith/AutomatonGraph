@@ -200,7 +200,6 @@ class Edge {
     setColor(color) {
         this.element.style.stroke = color;
         const controlElement = this._controlElement();
-        controlElement.style.stroke = color;
         controlElement.style.fill = color;
         const labelControllerElement = this._labelControllerElement();
         labelControllerElement.style.fill = color;

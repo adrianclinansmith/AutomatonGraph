@@ -11,6 +11,7 @@ page.newEdgeButton = document.getElementById('newEdgeButton');
 page.playPauseButton = document.getElementById('playPauseButton');
 page.stopButton = document.getElementById('stopButton');
 page.uploadButton = document.getElementById('uploadButton');
+page.uploadInput = document.getElementById('uploadInput');
 page.helpButton = document.getElementById('helpButton');
 page.helpModalContainer = document.getElementById('helpModalContainer');
 page.inputEditor = document.getElementById('inputEditor');
@@ -161,7 +162,12 @@ page.stopButton.addEventListener('click', () => {
 });
 
 page.uploadButton.addEventListener('change', () => {
-    const newSvgBlob = page.uploadButton.files[0];
+    page.uploadInput.change();
+});
+
+page.uploadInput.addEventListener('change', () => {
+    const newSvgBlob = page.uploadInput.files[0];
+    page.uploadInput.value = '';
     newSvgBlob.text().then(
         (newSvgText) => {
             document.getElementById('svgDiv').innerHTML = newSvgText;
