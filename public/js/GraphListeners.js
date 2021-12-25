@@ -53,10 +53,11 @@ function mouseleaveGraph(event) {
 // ************************************************************************
 
 function beginEdgeAnimate(event) {
-    // nothing
+    event.target.parentNode.style.opacity = 1;
 }
 
 function endEdgeAnimate(event) {
+    event.target.parentNode.style.opacity = 0;
     const edge = new Edge(event.target);
     graph.removeFromAnimateArray(edge);
     if (edge.hasNoInputs()) {

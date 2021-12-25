@@ -15,26 +15,25 @@
 			 style="background-color:white;" id="svg">
 			 <!-- graph style  -->
 			<style id="graph-style">
+				.animation-circle {
+					opacity: 0;
+				}
 				.edge {
 					fill: none;
 					stroke: black;
 					stroke-width: 2px;
 				}
-
 				.edge-control {
 					opacity: 0;
 				}
-
 				.edge-label-controller {
 					opacity: 0;
 				}
-
 				.edge-foreign-object {
 					text-align: left;
 					background-color: transparent;
 					pointer-events: none;
 				}
-
 				.edge-label {
 					background-color: transparent;
 					border: none;
@@ -52,22 +51,19 @@
 					fill: white;
 					stroke: black;
 					stroke-width: 2px;
-				}
-				
+				}			
 				.state-goal-inner-circle {
 					fill: white;
 					pointer-events: none;
 					stroke: black;
 					stroke-width: 2px;
 					visibility: hidden;
-				}
-				
+				}			
 				.state-foreign-object {
 					text-align: left;
 					background-color: transparent;
 					pointer-events: none;
-				}
-				
+				}	
 				.state-label {
 					background-color: transparent;
 					border: none;
@@ -79,7 +75,6 @@
 					text-align: center;
 					width: 40px;
 				}
-
 				.stop {
 					-webkit-animation-play-state: paused;
 					-moz-animation-play-state: paused;
