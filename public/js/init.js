@@ -10,7 +10,6 @@ page.newStateButton = document.getElementById('newStateButton');
 page.newEdgeButton = document.getElementById('newEdgeButton');
 page.playPauseButton = document.getElementById('playPauseButton');
 page.stopButton = document.getElementById('stopButton');
-page.uploadButton = document.getElementById('uploadButton');
 page.uploadInput = document.getElementById('uploadInput');
 page.helpButton = document.getElementById('helpButton');
 page.helpModalContainer = document.getElementById('helpModalContainer');
@@ -80,7 +79,7 @@ page.finishedInputLineAndAccept = function(accepted) {
     if (triggeredInitialEdges === 0) {
         page.finishedInputLineAndAccept(false);
     } else if (triggeredInitialEdges < 0) {
-        page.playPauseButton.innerHTML = '▶︎';
+        page.playPauseButton.innerHTML = '▶';
         page.resultLabel.style.color = graph.acceptedAll ? 'green' : 'red';
         page.resultLabel.innerHTML = graph.acceptedAll ? 'accepted' : 'rejected';
     }
@@ -140,11 +139,11 @@ page.playPauseButton.addEventListener('click', () => {
         return;
     } else if (page.playPauseButton.innerHTML === '‖') {
         graph.svg.pauseAnimations();
-        page.playPauseButton.innerHTML = '▶︎';
+        page.playPauseButton.innerHTML = '▶';
         return;
     }
     page.playPauseButton.innerHTML = '‖';
-    document.getElementById('resultLabel').innerHTML = '';
+    page.resultLabel.style.color = 'transparent';
     page.clearInputScore();
     const inputString = page.inputEditor.value.replace(/[ ]+/g, '');
     graph.inputs = inputString.split('\n');
@@ -159,10 +158,6 @@ page.playPauseButton.addEventListener('click', () => {
 page.stopButton.addEventListener('click', () => {
     page.playPauseButton.innerHTML = '▶︎';
     graph.stopAnimation();
-});
-
-page.uploadButton.addEventListener('change', () => {
-    page.uploadInput.change();
 });
 
 page.uploadInput.addEventListener('change', () => {

@@ -59,6 +59,7 @@ input:focus, select:focus {
 }
 
 #resultLabel {
+    color: transparent;
     display: inline-block;
     font-family: Monaco, monospace;
     padding-bottom: 3px;
@@ -67,8 +68,6 @@ input:focus, select:focus {
 
 #uploadInput {
     display: none;
-    /* visibility: hidden;
-    position: absolute; */
 }
 
 #helpModalContainer {
@@ -93,23 +92,4 @@ input:focus, select:focus {
     overflow-y: auto;
     padding: 20px;
     text-align: left;
-}
-
-/* 
-disable pointer-events: https://stackoverflow.com/questions/7700051 
-adjust text input width: https://stackoverflow.com/questions/3392493
-*/
-
-.DynamicLabel {
-    background-color: transparent;
-    border: none;
-    font-size: 15px;
-    text-align: center;
-    z-index: 4; 
-    position: absolute;  
-    left: 0px; 
-    top: 0px;
-    font-family: Monaco, monospace;
-    width: 1ch;
-    pointer-events: none;
 }
