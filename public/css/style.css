@@ -1,7 +1,7 @@
 body {
     background: #333;
     color: #fff;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: auto;
     overflow-anchor: none;
     position: relative;
@@ -12,9 +12,10 @@ body {
 }
 
 #buttonsDiv {
-    display: flex;
+    background-color: transparent;
+    display: inline-flex;
     text-align: left;
-    padding-left: 7.8%;
+    width: 90%;
 }
 
 input:focus, select:focus {
@@ -54,7 +55,7 @@ input:focus, select:focus {
     font-size: 20px;
     height: 500px;
     resize: none;
-    width: 1200px;
+    width: 90%;
 }
 
 #resultLabel {
